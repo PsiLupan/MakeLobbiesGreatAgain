@@ -1,6 +1,6 @@
-import java.io.IOException;
 import java.net.InetAddress;
 import org.pcap4j.core.NotOpenException;
+import org.pcap4j.core.PcapAddress;
 import org.pcap4j.core.PcapHandle;
 import org.pcap4j.core.PcapNativeException;
 import org.pcap4j.core.PcapNetworkInterface;
@@ -14,7 +14,15 @@ import org.pcap4j.packet.namednumber.IpNumber;
 public class Boot {
 	public static void main(String[] args){
 		try {
-			InetAddress addr = InetAddress.getByName("192.168.1.84"); //TODO: Add user input of IP, since device enum not human readable
+			InetAddress addr = null; //TODO: Ensure this is a robust method for all systems. Seems to work with my VirtualBox and VMWare devices around
+			
+			for(PcapNetworkInterface i : Pcaps.findAllDevs()){
+				for(PcapAddress x : i.getAddresses()){
+					if(x.getBroadcastAddress() != null && x.getBroadcastAddress().toString().equals("/0.0.0.0")){
+							addr = x.getAddress();
+					}
+				}
+			}
 			PcapNetworkInterface nif = Pcaps.getDevByAddress(addr);
 
 			int snapLen = 65536;
@@ -42,7 +50,7 @@ public class Boot {
 									pckCount++;
 									lastPacketTime = System.currentTimeMillis();
 
-									if(pckCount == 3){ //3 of the leave/join packet are always sent in rapid succession
+									if(pckCount == 3){ //3 of the leave/join packet are always sent in rapid succession	
 										if(!srcAddrStr.equals(currSrv)){ //TODO: Bugfix - Joining same killer twice won't trigger a lookup
 											Thread t = new Thread(new Geolocate(srcAddrStr));
 											t.start();
@@ -59,7 +67,7 @@ public class Boot {
 					}
 				}
 			}
-		} catch (PcapNativeException | NotOpenException | IOException e) {
+		} catch (PcapNativeException | NotOpenException e) {
 			e.printStackTrace();
 		}
 

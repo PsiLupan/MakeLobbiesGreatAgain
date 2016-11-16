@@ -37,7 +37,7 @@ public class Geolocate implements Runnable {
 			code = (String)obj.get("country_code");
 		}
 
-		System.out.println("Attempting connection to: " + ip);
+		System.out.println("Attempting connection to a killer");
 		if(code != null){
 			System.out.println("Locale: " + code);
 			System.out.println();
