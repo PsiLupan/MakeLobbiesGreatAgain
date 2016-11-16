@@ -6,6 +6,4 @@ Once detected, the tool will lookup the killer's IP and return the country code 
 * pcap4j requires WinPCap to be installed and on the PATH environment variable
 
 ## TODO
-* Make regions selectable, rather than hardcoded
-* Make the dialog box optional
-* Provide a network device input, rather than the hardcoded IP address.
+* Display information through a transparent overlay
