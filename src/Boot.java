@@ -1,3 +1,11 @@
+import java.awt.AWTException;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
+import java.awt.SystemTray;
+import java.awt.Toolkit;
+import java.awt.TrayIcon;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +33,7 @@ import org.pcap4j.packet.namednumber.IpNumber;
 public class Boot {
 	public static void main(String[] args){
 		try {
+			setupTray();
 			InetAddress addr = null; //TODO: Ensure this is a robust method for all systems. Seems to work with my VirtualBox and VMWare devices around
 			
 			for(PcapNetworkInterface i : Pcaps.findAllDevs()){
@@ -80,10 +89,26 @@ public class Boot {
 		} catch (PcapNativeException | NotOpenException 
 				| ClassNotFoundException | InstantiationException 
 				| IllegalAccessException | UnsupportedLookAndFeelException 
-				| IOException | ParseException e) {
+				| IOException | ParseException | AWTException e) {
 			e.printStackTrace();
 		}
 
+	}
+	
+	public static void setupTray() throws AWTException{
+		final SystemTray tray = SystemTray.getSystemTray();
+		
+		ActionListener listener = new ActionListener() {
+	        public void actionPerformed(ActionEvent e) {
+	            System.exit(0);
+	        }
+	    };
+	    PopupMenu popup = new PopupMenu();
+	    MenuItem exit = new MenuItem();
+	    exit.addActionListener(listener);
+	    exit.setLabel("Exit");
+	    popup.add(exit);
+		tray.add(new TrayIcon(Toolkit.getDefaultToolkit().getImage("icon.png"), "MLGA", popup));
 	}
 	
 	public static void geolocate(String ip, Overlay ui) throws IOException, ParseException{
