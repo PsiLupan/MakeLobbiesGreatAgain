@@ -3,8 +3,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JWindow;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -17,10 +17,8 @@ public class Overlay extends JPanel {
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		this.setOpaque(false);
 
-		JFrame frame = new JFrame("DBD Overlay");
-		frame.setUndecorated(true);
+		JWindow frame = new JWindow();
 		frame.setBackground(new Color(0, 0, 0, 0));
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setFocusableWindowState(false);
 		
 		frame.add(this);
