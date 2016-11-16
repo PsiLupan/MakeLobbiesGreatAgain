@@ -12,9 +12,11 @@ import org.json.simple.parser.ParseException;
 
 public class Geolocate implements Runnable {
 	private String ip;
-
-	Geolocate(String ip){
+	private Overlay ui;
+	
+	Geolocate(String ip, Overlay ui){
 		this.ip = ip;
+		this.ui = ui;
 	}
 
 	@Override
@@ -37,10 +39,11 @@ public class Geolocate implements Runnable {
 			code = (String)obj.get("country_code");
 		}
 
-		System.out.println("Attempting connection to a killer");
+		//System.out.println("Attempting connection to a killer");
 		if(code != null){
-			System.out.println("Locale: " + code);
-			System.out.println();
+			ui.setKillerLocale(code);
+			//System.out.println("Locale: " + code);
+			//System.out.println();
 			
 			if(!code.equals("US") && !code.equals("CA") && !code.equals("MX")){ //TODO: Provide user selection
 				JOptionPane.showMessageDialog(null,
@@ -49,7 +52,7 @@ public class Geolocate implements Runnable {
 						JOptionPane.WARNING_MESSAGE);
 			}
 		}else{
-			System.out.println("Locale lookup failed");
+			//System.out.println("Locale lookup failed");
 		}
 	}
 }

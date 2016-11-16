@@ -1,4 +1,7 @@
 import java.net.InetAddress;
+
+import javax.swing.UnsupportedLookAndFeelException;
+
 import org.pcap4j.core.NotOpenException;
 import org.pcap4j.core.PcapAddress;
 import org.pcap4j.core.PcapHandle;
@@ -33,6 +36,8 @@ public class Boot {
 			short pckCount = 0;
 			long lastPacketTime = 0;
 			String currSrv = null;
+			
+			Overlay ui = new Overlay();
 
 			while(true){
 				Packet packet = handle.getNextPacket();
@@ -52,7 +57,7 @@ public class Boot {
 
 									if(pckCount == 3){ //3 of the leave/join packet are always sent in rapid succession	
 										if(!srcAddrStr.equals(currSrv)){ //TODO: Bugfix - Joining same killer twice won't trigger a lookup
-											Thread t = new Thread(new Geolocate(srcAddrStr));
+											Thread t = new Thread(new Geolocate(srcAddrStr, ui));
 											t.start();
 											currSrv = srcAddrStr; //This serves to prevent seeing the message upon joining then leaving
 										}
@@ -67,7 +72,7 @@ public class Boot {
 					}
 				}
 			}
-		} catch (PcapNativeException | NotOpenException e) {
+		} catch (PcapNativeException | NotOpenException | ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
 			e.printStackTrace();
 		}
 
