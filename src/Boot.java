@@ -1,4 +1,5 @@
 import java.awt.AWTException;
+import java.awt.GridLayout;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
@@ -12,7 +13,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.URL;
+import java.net.UnknownHostException;
 
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import org.json.simple.JSONObject;
@@ -31,10 +37,11 @@ import org.pcap4j.packet.UdpPacket;
 import org.pcap4j.packet.namednumber.IpNumber;
 
 public class Boot {
+	private static InetAddress addr = null;
+	
 	public static void main(String[] args){
 		try {
 			setupTray();
-			InetAddress addr = null; //TODO: Ensure this is a robust method for all systems. Seems to work with my VirtualBox and VMWare devices around
 			
 			for(PcapNetworkInterface i : Pcaps.findAllDevs()){
 				for(PcapAddress x : i.getAddresses()){
@@ -43,7 +50,12 @@ public class Boot {
 					}
 				}
 			}
+			
+			if(addr == null){
+				getLocalAddr();
+			}
 			PcapNetworkInterface nif = Pcaps.getDevByAddress(addr);
+			System.out.println("Operating on device with MAC: " + nif.getLinkLayerAddresses().get(0));
 
 			int snapLen = 65536;
 			PromiscuousMode mode = PromiscuousMode.PROMISCUOUS;
@@ -89,7 +101,8 @@ public class Boot {
 		} catch (PcapNativeException | NotOpenException 
 				| ClassNotFoundException | InstantiationException 
 				| IllegalAccessException | UnsupportedLookAndFeelException 
-				| IOException | ParseException | AWTException e) {
+				| IOException | ParseException 
+				| AWTException | InterruptedException e) {
 			e.printStackTrace();
 		}
 
@@ -122,5 +135,43 @@ public class Boot {
 			code = (String)obj.get("country_code");
 		}
 		ui.setKillerLocale(code);
+	}
+	
+	public static void getLocalAddr() throws InterruptedException{
+		JFrame frame = new JFrame("MLGA Network Device Locate");
+		frame.setFocusableWindowState(true);
+		
+		JLabel ipLab = new JLabel("Enter LAN IP:", JLabel.LEFT);
+		JLabel exLab = new JLabel("(Ex. 192.168.0.2 or 10.0.0.2, obtained from Network Settings)", JLabel.LEFT);
+		JTextField lanIP = new JTextField();
+		lanIP.setSize(200, 20);
+		JButton start = new JButton("Start");
+		start.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				try {
+					addr = InetAddress.getByName(lanIP.getText());
+					frame.setVisible(false);
+					frame.dispose();
+				} catch (UnknownHostException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		
+		frame.setLayout(new GridLayout(4,1));
+		frame.add(ipLab);
+		frame.add(exLab);
+		frame.add(lanIP);
+		frame.add(start);
+		frame.setAlwaysOnTop(true);
+		frame.pack();
+		frame.setLocation(5, 420);
+		frame.setSize(400, 150);
+		frame.setVisible(true);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		
+		while(frame.isVisible()){
+			Thread.sleep(10);
+		}
 	}
 }
