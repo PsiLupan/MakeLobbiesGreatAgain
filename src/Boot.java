@@ -96,14 +96,6 @@ public class Boot {
 			JSONObject obj = (JSONObject)parser.parse(buf);
 			code = (String)obj.get("country_code");
 		}
-
-		System.out.println("Attempting connection to a killer");
-		if(code != null){
-			ui.setKillerLocale(code);
-			System.out.println("Locale: " + code);
-			System.out.println();
-		}else{
-			System.out.println("Locale lookup failed");
-		}
+		ui.setKillerLocale(code);
 	}
 }

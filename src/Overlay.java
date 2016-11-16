@@ -12,7 +12,6 @@ public class Overlay extends JPanel {
 	private static final long serialVersionUID = -470849574354121503L;
 	
 	private String locale = null;
-	private boolean paint = true;
 	
 	Overlay() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException{
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -52,14 +51,11 @@ public class Overlay extends JPanel {
 	
 	@Override
 	public Dimension getPreferredSize() {
-		return new Dimension(120, 50);
+		return new Dimension(117, 20);
 	}
 	
 	@Override
 	protected void paintComponent(Graphics gr) {
-		if(!paint){
-			return;
-		}
 		super.paintComponent(gr);
 		Graphics2D g = (Graphics2D) gr.create();
 		g.setColor(getBackground());
@@ -69,10 +65,10 @@ public class Overlay extends JPanel {
 		g.fillRect(0, 0, getWidth(), getHeight());
 		
 		g.setColor(new Color(0f,0f,0f,.5f));
-		g.fillRect(6, 15, 120, 22);
+		g.fillRect(6, 0, 111, 18);
 		
 		g.setColor(Color.GREEN);
-		g.drawString("Killer Locale: " + locale, 8, 32);
+		g.drawString("Killer Locale: " + locale, 7, 14);
 		
 		g.dispose();
 	}
