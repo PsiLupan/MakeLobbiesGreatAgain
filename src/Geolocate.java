@@ -4,8 +4,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 
-import javax.swing.JOptionPane;
-
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -44,13 +42,6 @@ public class Geolocate implements Runnable {
 			ui.setKillerLocale(code);
 			//System.out.println("Locale: " + code);
 			//System.out.println();
-			
-			if(!code.equals("US") && !code.equals("CA") && !code.equals("MX")){ //TODO: Provide user selection
-				JOptionPane.showMessageDialog(null,
-						"Killer is located in "+ code +".",
-						"Location Warning",
-						JOptionPane.WARNING_MESSAGE);
-			}
 		}else{
 			//System.out.println("Locale lookup failed");
 		}
