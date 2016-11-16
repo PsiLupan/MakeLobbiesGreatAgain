@@ -1,7 +1,15 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.net.URL;
 
 import javax.swing.UnsupportedLookAndFeelException;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.pcap4j.core.NotOpenException;
 import org.pcap4j.core.PcapAddress;
 import org.pcap4j.core.PcapHandle;
@@ -36,7 +44,6 @@ public class Boot {
 			short pckCount = 0;
 			long lastPacketTime = 0;
 			String currSrv = null;
-			
 			Overlay ui = new Overlay();
 
 			while(true){
@@ -53,12 +60,10 @@ public class Boot {
 							if(udppack.getPayload().getRawData().length == 4){ //Leave/Join packet is always payload length 4
 								if(lastPacketTime == 0 || System.currentTimeMillis() - lastPacketTime < 10000){
 									pckCount++;
-									lastPacketTime = System.currentTimeMillis();
 
 									if(pckCount == 3){ //3 of the leave/join packet are always sent in rapid succession	
 										if(!srcAddrStr.equals(currSrv)){ //TODO: Bugfix - Joining same killer twice won't trigger a lookup
-											Thread t = new Thread(new Geolocate(srcAddrStr, ui));
-											t.start();
+											geolocate(srcAddrStr, ui);
 											currSrv = srcAddrStr; //This serves to prevent seeing the message upon joining then leaving
 										}
 										pckCount = 0;
@@ -72,9 +77,33 @@ public class Boot {
 					}
 				}
 			}
-		} catch (PcapNativeException | NotOpenException | ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
+		} catch (PcapNativeException | NotOpenException 
+				| ClassNotFoundException | InstantiationException 
+				| IllegalAccessException | UnsupportedLookAndFeelException 
+				| IOException | ParseException e) {
 			e.printStackTrace();
 		}
 
+	}
+	
+	public static void geolocate(String ip, Overlay ui) throws IOException, ParseException{
+		String code = null;
+		URL url = new URL("http://freegeoip.net/json" + ip);
+
+		try (InputStream is = url.openStream();
+				BufferedReader buf = new BufferedReader(new InputStreamReader(is))) {
+			JSONParser parser = new JSONParser();
+			JSONObject obj = (JSONObject)parser.parse(buf);
+			code = (String)obj.get("country_code");
+		}
+
+		System.out.println("Attempting connection to a killer");
+		if(code != null){
+			ui.setKillerLocale(code);
+			System.out.println("Locale: " + code);
+			System.out.println();
+		}else{
+			System.out.println("Locale lookup failed");
+		}
 	}
 }

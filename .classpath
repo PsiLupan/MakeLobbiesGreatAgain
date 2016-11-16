@@ -12,5 +12,7 @@
 	<classpathentry kind="lib" path="include/logback-classic-1.1.7.jar"/>
 	<classpathentry kind="lib" path="include/logback-core-1.1.7.jar"/>
 	<classpathentry kind="lib" path="include/json-simple-1.1.1.jar"/>
+	<classpathentry kind="lib" path="include/pcap4j-packetfactory-static-1.7.0.jar"/>
+	<classpathentry kind="lib" path="include/pcap4j-packetfactory-propertiesbased-1.7.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

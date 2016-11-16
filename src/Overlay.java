@@ -34,7 +34,7 @@ public class Overlay extends JPanel {
 			public void run() {
 				try{
 					while(true){
-						Thread.sleep(50);
+						Thread.sleep(250);
 						Overlay.this.repaint();
 					}
 				}catch(Exception e){
@@ -52,7 +52,7 @@ public class Overlay extends JPanel {
 	
 	@Override
 	public Dimension getPreferredSize() {
-		return new Dimension(120, 100);
+		return new Dimension(120, 50);
 	}
 	
 	@Override
@@ -69,10 +69,10 @@ public class Overlay extends JPanel {
 		g.fillRect(0, 0, getWidth(), getHeight());
 		
 		g.setColor(new Color(0f,0f,0f,.5f));
-		g.fillRect(8, 15, 120, 24);
+		g.fillRect(6, 15, 120, 22);
 		
-		g.setColor(Color.YELLOW);
-		g.drawString("Killer Locale: " + locale, 10, 32);
+		g.setColor(Color.GREEN);
+		g.drawString("Killer Locale: " + locale, 8, 32);
 		
 		g.dispose();
 	}
