@@ -14,7 +14,6 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -121,7 +120,7 @@ public class Boot {
 	    exit.addActionListener(listener);
 	    exit.setLabel("Exit");
 	    popup.add(exit);
-		tray.add(new TrayIcon(Toolkit.getDefaultToolkit().getImage("icon.png"), "MLGA", popup));
+		tray.add(new TrayIcon(Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource("resources/icon.png")), "MLGA", popup));
 	}
 	
 	public static void geolocate(String ip, Overlay ui) throws IOException, ParseException{
