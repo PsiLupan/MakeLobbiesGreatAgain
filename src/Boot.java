@@ -77,11 +77,11 @@ public class Boot {
 							UdpPacket udppack = ippacket.get(UdpPacket.class);
 							String srcAddrStr = ippacket.getHeader().getSrcAddr().toString(); // Shows as '/0.0.0.0'
 							
-							if(udppack.getPayload().getRawData().length == 8 && !srcAddrStr.equals(currSrv)){ //New packet is payload length 8, it occurs upon lobby join
+							if(udppack.getPayload().getRawData().length == 68 && !srcAddrStr.equals(currSrv)){
 								if(lastPacketTime == 0 || System.currentTimeMillis() - lastPacketTime < 10000){
 									pckCount++;
 
-									if(pckCount == 3){ //The new packet is sent multiple times, we only really need 3 to confirm
+									if(pckCount == 4){ //The new packet is sent multiple times, we only really need 3 to confirm
 										geolocate(srcAddrStr, ui);
 										currSrv = srcAddrStr; //This serves to prevent seeing the message upon joining then leaving
 										pckCount = 0;
