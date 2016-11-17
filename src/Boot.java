@@ -76,16 +76,14 @@ public class Boot {
 						if(ippacket.getHeader().getProtocol() == IpNumber.UDP && !ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
 							UdpPacket udppack = ippacket.get(UdpPacket.class);
 							String srcAddrStr = ippacket.getHeader().getSrcAddr().toString(); // Shows as '/0.0.0.0'
-
-							if(udppack.getPayload().getRawData().length == 4){ //Leave/Join packet is always payload length 4
+							
+							if(udppack.getPayload().getRawData().length == 8 && !srcAddrStr.equals(currSrv)){ //New packet is payload length 8, it occurs upon lobby join
 								if(lastPacketTime == 0 || System.currentTimeMillis() - lastPacketTime < 10000){
 									pckCount++;
 
-									if(pckCount == 3){ //3 of the leave/join packet are always sent in rapid succession	
-										if(!srcAddrStr.equals(currSrv)){ //TODO: Bugfix - Joining same killer twice won't trigger a lookup
-											geolocate(srcAddrStr, ui);
-											currSrv = srcAddrStr; //This serves to prevent seeing the message upon joining then leaving
-										}
+									if(pckCount == 3){ //The new packet is sent multiple times, we only really need 3 to confirm
+										geolocate(srcAddrStr, ui);
+										currSrv = srcAddrStr; //This serves to prevent seeing the message upon joining then leaving
 										pckCount = 0;
 									}
 								}else{ //If the packets take more than 10 secs, probably wrong packet
