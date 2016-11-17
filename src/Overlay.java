@@ -2,6 +2,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 
 import javax.swing.JPanel;
 import javax.swing.JWindow;
@@ -12,6 +15,7 @@ public class Overlay extends JPanel {
 	private static final long serialVersionUID = -470849574354121503L;
 	
 	private String locale = null;
+	private boolean frameMove = false;
 	
 	Overlay() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException{
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -23,6 +27,46 @@ public class Overlay extends JPanel {
 		
 		frame.add(this);
 		frame.setAlwaysOnTop(true);
+		frame.addMouseListener(new MouseListener(){
+			@Override
+			public void mouseClicked(MouseEvent e){
+				if(e.getClickCount() >= 2){
+					frameMove = !frameMove;
+					frame.setFocusableWindowState(frameMove);
+				}
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+			}
+		});
+		frame.addMouseMotionListener(new MouseMotionListener(){
+
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				if(frameMove){
+					frame.setLocation(e.getXOnScreen() - (getPreferredSize().width / 2), e.getYOnScreen() - (getPreferredSize().height / 2));
+				}
+			}
+
+			@Override
+			public void mouseMoved(MouseEvent e) {
+			}
+			
+		});
+		
 		frame.pack();
 		frame.setLocation(5, 400);
 		frame.setVisible(true);
@@ -31,7 +75,9 @@ public class Overlay extends JPanel {
 			public void run() {
 				try{
 					while(true){
-						Thread.sleep(250);
+						if(!frameMove){
+							Thread.sleep(250);
+						}
 						Overlay.this.repaint();
 					}
 				}catch(Exception e){
@@ -49,7 +95,7 @@ public class Overlay extends JPanel {
 	
 	@Override
 	public Dimension getPreferredSize() {
-		return new Dimension(117, 20);
+		return new Dimension(112, 20);
 	}
 	
 	@Override
@@ -62,11 +108,15 @@ public class Overlay extends JPanel {
 		g.setColor(new Color(0,0,0,0));
 		g.fillRect(0, 0, getWidth(), getHeight());
 		
-		g.setColor(new Color(0f,0f,0f,.5f));
-		g.fillRect(6, 0, 111, 18);
+		if(!frameMove){
+			g.setColor(new Color(0f,0f,0f,.5f));
+		}else{
+			g.setColor(new Color(0f,0f,0f,1f));
+		}
+		g.fillRect(0, 0, 112, 18);
 		
 		g.setColor(Color.GREEN);
-		g.drawString("Killer Locale: " + locale, 7, 14);
+		g.drawString("Killer Locale: " + locale, 2, 14);
 		
 		g.dispose();
 	}
