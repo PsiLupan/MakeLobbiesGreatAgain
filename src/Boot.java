@@ -15,9 +15,9 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JTextField;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import org.json.simple.JSONObject;
@@ -42,19 +42,8 @@ public class Boot {
 		try {
 			setupTray();
 			
-			for(PcapNetworkInterface i : Pcaps.findAllDevs()){
-				for(PcapAddress x : i.getAddresses()){
-					if(x.getBroadcastAddress() != null && x.getBroadcastAddress().toString().equals("/0.0.0.0")){
-							addr = x.getAddress();
-					}
-				}
-			}
-			
-			if(addr == null){
-				getLocalAddr();
-			}
+			getLocalAddr();
 			PcapNetworkInterface nif = Pcaps.getDevByAddress(addr);
-			System.out.println("Operating on device with MAC: " + nif.getLinkLayerAddresses().get(0));
 
 			int snapLen = 65536;
 			PromiscuousMode mode = PromiscuousMode.PROMISCUOUS;
@@ -134,19 +123,31 @@ public class Boot {
 		ui.setKillerLocale(code);
 	}
 	
-	public static void getLocalAddr() throws InterruptedException{
+	public static void getLocalAddr() throws InterruptedException, PcapNativeException{
 		JFrame frame = new JFrame("MLGA Network Device Locate");
 		frame.setFocusableWindowState(true);
 		
 		JLabel ipLab = new JLabel("Enter LAN IP:", JLabel.LEFT);
 		JLabel exLab = new JLabel("(Ex. 192.168.0.2 or 10.0.0.2, obtained from Network Settings)", JLabel.LEFT);
-		JTextField lanIP = new JTextField();
-		lanIP.setSize(200, 20);
+		JComboBox<String> lanIP = new JComboBox<String>();
+
+		for(PcapNetworkInterface i : Pcaps.findAllDevs()){
+			for(PcapAddress x : i.getAddresses()){
+				if(x.getAddress() != null && x.getNetmask() != null){
+					lanIP.addItem(x.getAddress().getHostAddress());
+				}
+			}
+		}
+		
+		if(lanIP.getItemCount() == 0){
+			lanIP.addItem("No devices found. Try running in Admin mode.");
+		}
+		
 		JButton start = new JButton("Start");
 		start.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				try {
-					addr = InetAddress.getByName(lanIP.getText());
+					addr = InetAddress.getByName((String)lanIP.getSelectedItem());
 					frame.setVisible(false);
 					frame.dispose();
 				} catch (UnknownHostException e1) {
