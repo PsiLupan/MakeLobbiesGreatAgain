@@ -8,6 +8,7 @@ import java.awt.event.MouseMotionListener;
 
 import javax.swing.JPanel;
 import javax.swing.JWindow;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -15,6 +16,7 @@ public class Overlay extends JPanel {
 	private static final long serialVersionUID = -470849574354121503L;
 	
 	private String locale = null;
+	private boolean country_name = false;
 	private boolean frameMove = false;
 	
 	Overlay() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException{
@@ -33,6 +35,8 @@ public class Overlay extends JPanel {
 				if(e.getClickCount() >= 2){
 					frameMove = !frameMove;
 					frame.setFocusableWindowState(frameMove);
+				}else if(SwingUtilities.isRightMouseButton(e)){
+					country_name = !country_name;
 				}
 			}
 
@@ -93,9 +97,13 @@ public class Overlay extends JPanel {
 		this.locale = locale;
 	}
 	
+	public boolean useCountryName(){
+		return this.country_name;
+	}
+	
 	@Override
 	public Dimension getPreferredSize() {
-		return new Dimension(112, 20);
+		return new Dimension(112, 30);
 	}
 	
 	@Override
@@ -113,10 +121,17 @@ public class Overlay extends JPanel {
 		}else{
 			g.setColor(new Color(0f,0f,0f,1f));
 		}
-		g.fillRect(0, 0, 112, 18);
 		
-		g.setColor(Color.GREEN);
-		g.drawString("Killer Locale: " + locale, 2, 14);
+		if(country_name){
+			g.fillRect(0, 0, getPreferredSize().width, getPreferredSize().height);
+			g.setColor(Color.GREEN);
+			g.drawString("Killer Country:", 2, 14);
+			g.drawString(""+ locale, 2, 28); //"" is used to avoid NPE, it's a hack
+		}else{
+			g.fillRect(0, 0, getPreferredSize().width, getPreferredSize().height - 12);
+			g.setColor(Color.GREEN);
+			g.drawString("Killer Locale: " + locale, 2, 14);
+		}
 		
 		g.dispose();
 	}

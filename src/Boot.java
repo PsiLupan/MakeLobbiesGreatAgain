@@ -118,7 +118,11 @@ public class Boot {
 				BufferedReader buf = new BufferedReader(new InputStreamReader(is))) {
 			JSONParser parser = new JSONParser();
 			JSONObject obj = (JSONObject)parser.parse(buf);
-			code = (String)obj.get("country_code");
+			if(ui.useCountryName()){
+				code = (String)obj.get("country_name");
+			}else{
+				code = (String)obj.get("country_code");
+			}
 		}
 		ui.setKillerLocale(code);
 	}
