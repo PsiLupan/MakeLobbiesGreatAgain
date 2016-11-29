@@ -17,6 +17,7 @@ public class Overlay extends JPanel {
 	
 	private String locale = null;
 	private boolean country_name = false;
+	private boolean proxy = false;
 	private boolean frameMove = false;
 	
 	Overlay() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException{
@@ -101,6 +102,10 @@ public class Overlay extends JPanel {
 		return this.country_name;
 	}
 	
+	public void setProxy(boolean proxy){
+		this.proxy = proxy;
+	}
+	
 	@Override
 	public Dimension getPreferredSize() {
 		return new Dimension(112, 30);
@@ -124,12 +129,20 @@ public class Overlay extends JPanel {
 		
 		if(country_name){
 			g.fillRect(0, 0, getPreferredSize().width, getPreferredSize().height);
-			g.setColor(Color.GREEN);
+			if(!proxy){
+				g.setColor(Color.GREEN);
+			}else{
+				g.setColor(Color.RED);
+			}
 			g.drawString("Killer Country:", 2, 14);
 			g.drawString(""+ locale, 2, 28); //"" is used to avoid NPE, it's a hack
 		}else{
 			g.fillRect(0, 0, getPreferredSize().width, getPreferredSize().height - 12);
-			g.setColor(Color.GREEN);
+			if(!proxy){
+				g.setColor(Color.GREEN);
+			}else{
+				g.setColor(Color.RED);
+			}
 			g.drawString("Killer Locale: " + locale, 2, 14);
 		}
 		

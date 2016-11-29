@@ -112,19 +112,22 @@ public class Boot {
 	
 	public static void geolocate(String ip, Overlay ui) throws IOException, ParseException{
 		String code = null;
-		URL url = new URL("http://freegeoip.net/json" + ip);
+		boolean proxy = false;
 
-		try (InputStream is = url.openStream();
+		try (InputStream is = new URL("http://legacy.iphub.info/api.php?showtype=4&ip=" + ip.replace("/", "")).openStream();
 				BufferedReader buf = new BufferedReader(new InputStreamReader(is))) {
 			JSONParser parser = new JSONParser();
 			JSONObject obj = (JSONObject)parser.parse(buf);
 			if(ui.useCountryName()){
-				code = (String)obj.get("country_name");
+				code = (String)obj.get("countryName");
 			}else{
-				code = (String)obj.get("country_code");
+				code = (String)obj.get("countryCode");
 			}
+			proxy = (boolean)obj.get("proxy");
 		}
 		ui.setKillerLocale(code);
+		ui.setProxy(proxy);
+		
 	}
 	
 	public static void getLocalAddr() throws InterruptedException, PcapNativeException{
