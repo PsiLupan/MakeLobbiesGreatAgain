@@ -71,6 +71,7 @@ public class Boot {
 									pckCount++;
 
 									if(pckCount == 4){ //The new packet is sent multiple times, we only really need 3 to confirm
+										ui.setKillerLocale("...");
 										geolocate(srcAddrStr, ui);
 										currSrv = srcAddrStr; //This serves to prevent seeing the message upon joining then leaving
 										pckCount = 0;
@@ -112,7 +113,7 @@ public class Boot {
 	
 	public static void geolocate(String ip, Overlay ui) throws IOException, ParseException{
 		String code = null;
-		boolean proxy = false;
+		Long proxy = 0L;
 
 		try (InputStream is = new URL("http://legacy.iphub.info/api.php?showtype=4&ip=" + ip.replace("/", "")).openStream();
 				BufferedReader buf = new BufferedReader(new InputStreamReader(is))) {
@@ -123,10 +124,14 @@ public class Boot {
 			}else{
 				code = (String)obj.get("countryCode");
 			}
-			proxy = (boolean)obj.get("proxy");
+			proxy = (Long)obj.get("proxy");
 		}
 		ui.setKillerLocale(code);
-		ui.setProxy(proxy);
+		if(proxy != 0L){ //Could abuse anything non-zero being true, but probably shouldn't.
+			ui.setProxy(true);
+		}else{
+			ui.setProxy(false);
+		}
 		
 	}
 	
