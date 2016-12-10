@@ -53,13 +53,12 @@ public class Boot {
 			PcapHandle handle = nif.openLive(snapLen, mode, timeout);
 
 			short pckCount = 0;
-			long lastPacketTime = 0;
 			Timestamp requestTime = null;
 			boolean expectPong = false;
 			String currSrv = null;
 			Overlay ui = new Overlay();
 
-			while(true){
+			while(true){				
 				Packet packet = handle.getNextPacket();
 
 				if(packet != null){
@@ -69,26 +68,21 @@ public class Boot {
 						if(ippacket.getHeader().getProtocol() == IpNumber.UDP){
 							UdpPacket udppack = ippacket.get(UdpPacket.class);
 							String srcAddrStr = ippacket.getHeader().getSrcAddr().toString(); // Shows as '/0.0.0.0'
-							
+
 							if(!srcAddrStr.equals(currSrv)){
 								if(udppack.getPayload().getRawData().length == 56 && ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
 									requestTime = handle.getTimestamp();
 									expectPong = true;
 								}
 								else if(udppack.getPayload().getRawData().length == 68 && !ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
-									if(lastPacketTime == 0 || System.currentTimeMillis() - lastPacketTime < 10000){
-										pckCount++;
+									pckCount++;
 
-										if(pckCount == 4){ //The new packet is sent multiple times, we only really need 4 to confirm
-											ui.setKillerLocale("...");
-											geolocate(srcAddrStr, ui);
-											currSrv = srcAddrStr; //This serves to prevent seeing the message upon joining then leaving
-											pckCount = 0;
-										}
-									}else{ //If the packets take more than 10 secs, probably wrong packet
-										lastPacketTime = 0;
+									if(pckCount == 4){ //The new packet is sent multiple times, we only really need 4 to confirm
+										ui.setKillerLocale("***");
+										geolocate(srcAddrStr, ui);
+										currSrv = srcAddrStr; //This serves to prevent seeing the message upon joining then leaving
 										pckCount = 0;
-									}	
+									}
 								}
 							}else{
 								if(expectPong && udppack.getPayload().getRawData().length == 68 && ippacket.getHeader().getDstAddr().isSiteLocalAddress()){
