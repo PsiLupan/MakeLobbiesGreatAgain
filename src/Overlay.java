@@ -25,7 +25,7 @@ public class Overlay extends JPanel {
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		this.setOpaque(false);
 
-		JWindow frame = new JWindow();
+		final JWindow frame = new JWindow();
 		frame.setBackground(new Color(0, 0, 0, 0));
 		frame.setFocusableWindowState(false);
 		
