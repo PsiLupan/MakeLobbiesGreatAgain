@@ -41,6 +41,7 @@ public class Boot {
 
 	public static void main(String[] args){
 		try {
+			Sanity.check();
 			setupTray();
 
 			getLocalAddr();
@@ -150,12 +151,12 @@ public class Boot {
 	}
 
 	public static void getLocalAddr() throws InterruptedException, PcapNativeException{
-		JFrame frame = new JFrame("MLGA Network Device Locate");
+		final JFrame frame = new JFrame("MLGA Network Device Locate");
 		frame.setFocusableWindowState(true);
 
 		JLabel ipLab = new JLabel("Enter LAN IP:", JLabel.LEFT);
 		JLabel exLab = new JLabel("(Ex. 192.168.0.2 or 10.0.0.2, obtained from Network Settings)", JLabel.LEFT);
-		JComboBox<String> lanIP = new JComboBox<String>();
+		final JComboBox<String> lanIP = new JComboBox<String>();
 
 		for(PcapNetworkInterface i : Pcaps.findAllDevs()){
 			for(PcapAddress x : i.getAddresses()){
