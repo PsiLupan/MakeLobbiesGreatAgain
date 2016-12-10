@@ -141,6 +141,14 @@ public class Overlay extends JPanel {
 			}
 			g.drawString("Killer Country:", 2, 14);
 			g.drawString(""+ locale, 2, 28); //"" is used to avoid NPE, it's a hack
+			
+			if(rtt <= 120){
+				g.setColor(Color.GREEN);
+			}else if(rtt > 120 && rtt <= 150){
+				g.setColor(Color.YELLOW);
+			}else{
+				g.setColor(Color.RED);
+			}
 			g.drawString("Ping:" + rtt, 2, 42);
 		}else{
 			g.fillRect(0, 0, getPreferredSize().width, getPreferredSize().height - 14);
@@ -150,6 +158,14 @@ public class Overlay extends JPanel {
 				g.setColor(Color.RED);
 			}
 			g.drawString("Killer Locale: " + locale, 2, 14);
+			
+			if(rtt <= 120){
+				g.setColor(Color.GREEN);
+			}else if(rtt > 120 && rtt <= 150){
+				g.setColor(Color.YELLOW);
+			}else{
+				g.setColor(Color.RED);
+			}
 			g.drawString("Ping: "+ rtt, 2, 28);
 		}
 		
