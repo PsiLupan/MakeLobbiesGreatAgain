@@ -19,6 +19,7 @@ public class Overlay extends JPanel {
 	private boolean country_name = false;
 	private boolean proxy = false;
 	private boolean frameMove = false;
+	private long rtt = 0;
 	
 	Overlay() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException{
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -81,7 +82,7 @@ public class Overlay extends JPanel {
 				try{
 					while(true){
 						if(!frameMove){
-							Thread.sleep(250);
+							Thread.sleep(1000);
 						}
 						Overlay.this.repaint();
 					}
@@ -106,9 +107,13 @@ public class Overlay extends JPanel {
 		this.proxy = proxy;
 	}
 	
+	public void setPing(long rtt){
+		this.rtt = rtt;
+	}
+	
 	@Override
 	public Dimension getPreferredSize() {
-		return new Dimension(112, 30);
+		return new Dimension(112, 46);
 	}
 	
 	@Override
@@ -136,14 +141,16 @@ public class Overlay extends JPanel {
 			}
 			g.drawString("Killer Country:", 2, 14);
 			g.drawString(""+ locale, 2, 28); //"" is used to avoid NPE, it's a hack
+			g.drawString("Ping:" + rtt, 2, 42);
 		}else{
-			g.fillRect(0, 0, getPreferredSize().width, getPreferredSize().height - 12);
+			g.fillRect(0, 0, getPreferredSize().width, getPreferredSize().height - 14);
 			if(!proxy){
 				g.setColor(Color.GREEN);
 			}else{
 				g.setColor(Color.RED);
 			}
 			g.drawString("Killer Locale: " + locale, 2, 14);
+			g.drawString("Ping: "+ rtt, 2, 28);
 		}
 		
 		g.dispose();
