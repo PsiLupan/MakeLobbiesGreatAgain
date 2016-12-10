@@ -79,7 +79,7 @@ public class Boot {
 									if(lastPacketTime == 0 || System.currentTimeMillis() - lastPacketTime < 10000){
 										pckCount++;
 
-										if(pckCount == 4){ //The new packet is sent multiple times, we only really need 3 to confirm
+										if(pckCount == 4){ //The new packet is sent multiple times, we only really need 4 to confirm
 											ui.setKillerLocale("...");
 											geolocate(srcAddrStr, ui);
 											currSrv = srcAddrStr; //This serves to prevent seeing the message upon joining then leaving

@@ -34,8 +34,8 @@ public class Sanity {
 		String v = System.getProperty("java.version");
 		System.out.println("Java Version: "+v);
 		double version = Double.parseDouble(v.substring(0, v.indexOf('.', 2)));
-		if(version<1.7){
-			message("Java version 1.7 or higher is required!\nYou are currently using "+version+"!\nThe program will still attempt to run, but will likely fail.");
+		if(version<1.8){
+			message("Java version 1.8 or higher is required!\nYou are currently using "+version+"!\nThe program will still attempt to run, but will likely fail.");
 		}
 		return true;
 	}
