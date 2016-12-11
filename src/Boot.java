@@ -118,7 +118,13 @@ public class Boot {
 		exit.addActionListener(listener);
 		exit.setLabel("Exit");
 		popup.add(exit);
-		tray.add(new TrayIcon(Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource("resources/icon.png")), "MLGA", popup));
+		final TrayIcon trayIcon = new TrayIcon(Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource("resources/icon.png")), "MLGA", popup);
+		tray.add(trayIcon);
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+		    public void run() {
+		        tray.remove(trayIcon);
+		    }
+		});
 	}
 
 	public static void geolocate(String ip, Overlay ui) throws IOException, ParseException{
