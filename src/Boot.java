@@ -38,6 +38,7 @@ import org.pcap4j.packet.UdpPacket;
 import org.pcap4j.packet.namednumber.IpNumber;
 
 public class Boot {
+	public static String version = "1.1";
 	private static InetAddress addr = null;
 
 	public static void main(String[] args){
