@@ -23,13 +23,11 @@ public class Overlay extends JPanel {
 	private boolean proxy = false;
 	private boolean frameMove = false;
 	private long rtt = 0;
-	private Font roboto;
+	private final Font roboto = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemClassLoader().getResourceAsStream("resources/Roboto-Medium.ttf")).deriveFont(15f);;
 
 	Overlay() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, FontFormatException, IOException{
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		this.setOpaque(false);
-		
-		roboto = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemClassLoader().getResourceAsStream("resources/Roboto-Medium.ttf")).deriveFont(15f);
 
 		final JWindow frame = new JWindow();
 		frame.setBackground(new Color(0, 0, 0, 0));
@@ -145,8 +143,8 @@ public class Overlay extends JPanel {
 			}else{
 				g.setColor(Color.RED);
 			}
-			g.drawString("Host Country:", 1, 14);
-			g.drawString(""+ locale, 1, 28); //"" is used to avoid NPE, it's a hack
+			g.drawString("Host Country:", 1, 13);
+			g.drawString(""+ locale, 1, 27); //"" is used to avoid NPE, it's a hack
 
 			if(rtt <= 120){
 				g.setColor(Color.GREEN);
@@ -163,7 +161,7 @@ public class Overlay extends JPanel {
 			}else{
 				g.setColor(Color.RED);
 			}
-			g.drawString("Host Locale: " + locale, 1, 14);
+			g.drawString("Host Locale: " + locale, 1, 13);
 
 			if(rtt <= 120){
 				g.setColor(Color.GREEN);
@@ -172,7 +170,7 @@ public class Overlay extends JPanel {
 			}else{
 				g.setColor(Color.RED);
 			}
-			g.drawString("Ping: "+ rtt, 1, 28);
+			g.drawString("Ping: "+ rtt, 1, 27);
 		}
 
 		g.dispose();
