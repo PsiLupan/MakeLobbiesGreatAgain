@@ -13,15 +13,18 @@ import org.pcap4j.core.Pcaps;
 
 public class Sanity {
 	private static boolean headless = false;
-	
+
 	public static boolean check(){
 		boolean[] checks = {checkGraphics(), checkForUpdate(), checkJava(), checkPCap()};
-		
-		for(boolean e : checks)
-			if(!e)return false;
+
+		for(boolean e : checks){
+			if(!e){
+				return false;
+			}
+		}
 		return true;
 	}
-	
+
 	/** Check for a valid graphical environment. */
 	private static boolean checkGraphics(){
 		if(GraphicsEnvironment.isHeadless()){
@@ -31,10 +34,11 @@ public class Sanity {
 		}
 		return true;
 	}
-	
+
 	/** Check the current MLGA Version. */
 	private static boolean checkForUpdate(){
 		String version = "";
+
 		try (InputStream is = new URL("https://psilupan.github.io/MLGA/version.txt").openStream();
 				BufferedReader buf = new BufferedReader(new InputStreamReader(is))) {
 			version = buf.readLine();
@@ -42,6 +46,7 @@ public class Sanity {
 		}catch(Exception e){
 			e.printStackTrace();
 		}
+
 		if(!Boot.version.equals(version)){
 			message("There's a new version of MLGA available."
 					+(Desktop.isDesktopSupported()?"\nA link will attempt to open...":"\nPlease go to https://github.com/PsiLupan/MakeLobbiesGreatAgain/releases/ and get it."));
@@ -57,11 +62,12 @@ public class Sanity {
 		}
 		return true;
 	}
-	
+
 	/** Check the current Java Version. */
 	private static boolean checkJava(){
 		String v = System.getProperty("java.version");
 		System.out.println("Java Version: "+v);
+		
 		double version = Double.parseDouble(v.substring(0, v.indexOf('.', 2)));
 		if(version < 1.8){
 			message("Java version 1.8 or higher is required!\nYou are currently using "+version+"!\n");
@@ -69,7 +75,7 @@ public class Sanity {
 		}
 		return true;
 	}
-	
+
 	/** Check the WinPcap lib installation. */
 	private static boolean checkPCap(){
 		try{
@@ -90,7 +96,7 @@ public class Sanity {
 		}
 		return true;
 	}
-	
+
 	private static void message(String out){
 		if(headless){
 			System.err.println(out);

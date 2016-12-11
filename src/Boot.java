@@ -43,8 +43,9 @@ public class Boot {
 
 	public static void main(String[] args){
 		try {
-			if(!Sanity.check())
+			if(!Sanity.check()){
 				System.exit(1);
+			}
 			setupTray();
 
 			getLocalAddr();
