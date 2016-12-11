@@ -14,13 +14,13 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 public class Overlay extends JPanel {
 	private static final long serialVersionUID = -470849574354121503L;
-	
+
 	private String locale = "N/A";
 	private boolean country_name = false;
 	private boolean proxy = false;
 	private boolean frameMove = false;
 	private long rtt = 0;
-	
+
 	Overlay() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException{
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		this.setOpaque(false);
@@ -28,7 +28,7 @@ public class Overlay extends JPanel {
 		final JWindow frame = new JWindow();
 		frame.setBackground(new Color(0, 0, 0, 0));
 		frame.setFocusableWindowState(false);
-		
+
 		frame.add(this);
 		frame.setAlwaysOnTop(true);
 		frame.addMouseListener(new MouseListener(){
@@ -70,13 +70,13 @@ public class Overlay extends JPanel {
 			@Override
 			public void mouseMoved(MouseEvent e) {
 			}
-			
+
 		});
-		
+
 		frame.pack();
 		frame.setLocation(5, 400);
 		frame.setVisible(true);
-		
+
 		Thread t = new Thread("UIPainter"){
 			public void run() {
 				try{
@@ -94,28 +94,28 @@ public class Overlay extends JPanel {
 		t.setDaemon(true);
 		t.start();
 	}
-	
+
 	public void setKillerLocale(String locale){
 		this.locale = locale;
 	}
-	
+
 	public boolean useCountryName(){
 		return this.country_name;
 	}
-	
+
 	public void setProxy(boolean proxy){
 		this.proxy = proxy;
 	}
-	
+
 	public void setPing(long rtt){
 		this.rtt = rtt;
 	}
-	
+
 	@Override
 	public Dimension getPreferredSize() {
 		return new Dimension(112, 46);
 	}
-	
+
 	@Override
 	protected void paintComponent(Graphics gr) {
 		super.paintComponent(gr);
@@ -125,13 +125,13 @@ public class Overlay extends JPanel {
 		//g.setComposite(AlphaComposite.SrcOver.derive(0f));
 		g.setColor(new Color(0,0,0,0));
 		g.fillRect(0, 0, getWidth(), getHeight());
-		
+
 		if(!frameMove){
 			g.setColor(new Color(0f,0f,0f,.5f));
 		}else{
 			g.setColor(new Color(0f,0f,0f,1f));
 		}
-		
+
 		if(country_name){
 			g.fillRect(0, 0, getPreferredSize().width, getPreferredSize().height);
 			if(!proxy){
@@ -141,7 +141,7 @@ public class Overlay extends JPanel {
 			}
 			g.drawString("Killer Country:", 2, 14);
 			g.drawString(""+ locale, 2, 28); //"" is used to avoid NPE, it's a hack
-			
+
 			if(rtt <= 120){
 				g.setColor(Color.GREEN);
 			}else if(rtt > 120 && rtt <= 150){
@@ -158,7 +158,7 @@ public class Overlay extends JPanel {
 				g.setColor(Color.RED);
 			}
 			g.drawString("Killer Locale: " + locale, 2, 14);
-			
+
 			if(rtt <= 120){
 				g.setColor(Color.GREEN);
 			}else if(rtt > 120 && rtt <= 150){
@@ -168,7 +168,7 @@ public class Overlay extends JPanel {
 			}
 			g.drawString("Ping: "+ rtt, 2, 28);
 		}
-		
+
 		g.dispose();
 	}
 }
