@@ -20,6 +20,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -51,6 +52,9 @@ public class Boot {
 
 			getLocalAddr();
 			PcapNetworkInterface nif = Pcaps.getDevByAddress(addr);
+			if(nif == null){
+				JOptionPane.showMessageDialog(null, "The device you selected doesn't seem to exist. Double-check the IP you entered.", "Error", JOptionPane.ERROR_MESSAGE);
+			}
 
 			final int snapLen = 65536;
 			final PromiscuousMode mode = PromiscuousMode.PROMISCUOUS;
@@ -88,10 +92,18 @@ public class Boot {
 										currSrv = srcAddrStr; //This serves to prevent seeing the message upon joining then leaving
 										pckCount = 0;
 									}
+								}else if(udppack.getPayload().getRawData().length == 4 && ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
+									String payload = ippacket.toHexString().replaceAll(" ", "").substring(ippacket.toHexString().replaceAll(" ", "").length() - 8);
+									if(payload.equals("beefface")){ //BEEFFACE occurs on disconnect from lobby
+										currSrv = null;
+										pckCount = 0;
+										ui.setKillerLocale("N/A");
+										ui.setKillerPing(0);
+									}
 								}
 							}else{
 								if(expectPong && udppack.getPayload().getRawData().length == 68 && ippacket.getHeader().getDstAddr().isSiteLocalAddress()){
-									ui.setPing(handle.getTimestamp().getTime() - requestTime.getTime());
+									ui.setKillerPing(handle.getTimestamp().getTime() - requestTime.getTime());
 									expectPong = false;
 								}
 							}
@@ -164,6 +176,7 @@ public class Boot {
 		for(PcapNetworkInterface i : Pcaps.findAllDevs()){
 			for(PcapAddress x : i.getAddresses()){
 				if(x.getAddress() != null && x.getNetmask() != null){
+					System.out.println("Found: "+ x.getAddress().getHostAddress());
 					lanIP.addItem(x.getAddress().getHostAddress());
 				}
 			}
@@ -179,8 +192,10 @@ public class Boot {
 				try {
 					if(lanText.getText().length() >= 7){ // 7 is because the minimum field is 0.0.0.0
 						addr = InetAddress.getByName(lanText.getText());
+						System.out.println("Using IP from textfield: "+ lanText.getText());
 					}else{
 						addr = InetAddress.getByName((String)lanIP.getSelectedItem());
+						System.out.println("Using IP from dropdown: "+ (String)lanIP.getSelectedItem());
 					}
 					frame.setVisible(false);
 					frame.dispose();
