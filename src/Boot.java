@@ -42,14 +42,16 @@ public class Boot {
 	public static void main(String[] args){
 		try {
 			Sanity.check();
+			if(!Sanity.check())
+				System.exit(1);
 			setupTray();
 
 			getLocalAddr();
 			PcapNetworkInterface nif = Pcaps.getDevByAddress(addr);
 
-			int snapLen = 65536;
-			PromiscuousMode mode = PromiscuousMode.PROMISCUOUS;
-			int timeout = 0;
+			final int snapLen = 65536;
+			final PromiscuousMode mode = PromiscuousMode.PROMISCUOUS;
+			final int timeout = 0;
 			PcapHandle handle = nif.openLive(snapLen, mode, timeout);
 
 			short pckCount = 0;
@@ -112,8 +114,8 @@ public class Boot {
 				System.exit(0);
 			}
 		};
-		PopupMenu popup = new PopupMenu();
-		MenuItem exit = new MenuItem();
+		final PopupMenu popup = new PopupMenu();
+		final MenuItem exit = new MenuItem();
 		exit.addActionListener(listener);
 		exit.setLabel("Exit");
 		popup.add(exit);
@@ -148,8 +150,8 @@ public class Boot {
 		final JFrame frame = new JFrame("MLGA Network Device Locate");
 		frame.setFocusableWindowState(true);
 
-		JLabel ipLab = new JLabel("Enter LAN IP:", JLabel.LEFT);
-		JLabel exLab = new JLabel("(Ex. 192.168.0.2 or 10.0.0.2, obtained from Network Settings)", JLabel.LEFT);
+		final JLabel ipLab = new JLabel("Enter LAN IP:", JLabel.LEFT);
+		final JLabel exLab = new JLabel("(Ex. 192.168.0.2 or 10.0.0.2, obtained from Network Settings)", JLabel.LEFT);
 		final JComboBox<String> lanIP = new JComboBox<String>();
 
 		for(PcapNetworkInterface i : Pcaps.findAllDevs()){
@@ -164,7 +166,7 @@ public class Boot {
 			lanIP.addItem("No devices found. Try running in Admin mode.");
 		}
 
-		JButton start = new JButton("Start");
+		final JButton start = new JButton("Start");
 		start.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				try {
@@ -187,7 +189,7 @@ public class Boot {
 		frame.setLocation(5, 420);
 		frame.setSize(400, 150);
 		frame.setVisible(true);
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		while(frame.isVisible()){
 			Thread.sleep(10);
