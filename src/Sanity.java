@@ -20,7 +20,9 @@ public class Sanity {
 		boolean[] checks = {checkGraphics(), checkUpdate(), checkJava(), checkPCap()};
 
 		for(boolean e : checks){
-			if(!e)return false;
+			if(!e){
+				return false;
+			}
 		}
 		return true;
 	}
@@ -100,7 +102,8 @@ public class Sanity {
 
 	private static void message(String out){
 		System.err.println(out);
-		if(!headless)
+		if(!headless){
 			JOptionPane.showMessageDialog(null, out, "Error", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 }
