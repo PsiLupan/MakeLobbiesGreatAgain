@@ -41,7 +41,7 @@ public class Boot {
 	public static Double version = 1.07;
 	private static InetAddress addr = null;
 
-	public static void main(String[] args){
+	public static void main(String[] args) throws UnsupportedLookAndFeelException, AWTException, ClassNotFoundException{
 		try {
 			if(!Sanity.check()){
 				System.exit(1);
@@ -73,7 +73,7 @@ public class Boot {
 							UdpPacket udppack = ippacket.get(UdpPacket.class);
 							String srcAddrStr = ippacket.getHeader().getSrcAddr().toString(); // Shows as '/0.0.0.0'
 
-							if(!srcAddrStr.equals(currSrv)){
+							if(!srcAddrStr.equals(currSrv)){ //Packets are STUN related: 56 is request, 68 is response
 								if(udppack.getPayload().getRawData().length == 56 && ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
 									requestTime = handle.getTimestamp();
 									expectPong = true;
@@ -98,11 +98,8 @@ public class Boot {
 					}
 				}
 			}
-		} catch (PcapNativeException | NotOpenException 
-				| ClassNotFoundException | InstantiationException 
-				| IllegalAccessException | UnsupportedLookAndFeelException 
-				| IOException | ParseException 
-				| AWTException | InterruptedException e) {
+		} catch (PcapNativeException | NotOpenException | InstantiationException | IllegalAccessException
+				| IOException | ParseException | InterruptedException e) {
 			e.printStackTrace();
 		}
 

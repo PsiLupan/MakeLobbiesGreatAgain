@@ -15,16 +15,18 @@ import org.pcap4j.core.Pcaps;
 
 public class Sanity {
 	private static boolean headless = false;
-	
+
 	public static boolean check(){
 		boolean[] checks = {checkGraphics(), checkUpdate(), checkJava(), checkPCap()};
-		
+
 		for(boolean e : checks){
-			if(!e)return false;
+			if(!e){
+				return false;
+			}
 		}
 		return true;
 	}
-	
+
 	/** Check for a valid graphical environment. */
 	private static boolean checkGraphics(){
 		if(GraphicsEnvironment.isHeadless()){
@@ -34,7 +36,7 @@ public class Sanity {
 		}
 		return true;
 	}
-	
+
 	/** Check the current Java Version. */
 	private static boolean checkJava(){
 		String v = System.getProperty("java.version");
@@ -46,7 +48,7 @@ public class Sanity {
 		}
 		return true;
 	}
-	
+
 	/** Check the WinPcap lib installation. */
 	private static boolean checkPCap(){
 		try{
@@ -67,7 +69,7 @@ public class Sanity {
 		}
 		return true;
 	}
-	
+
 	public static boolean checkUpdate(){
 		try {
 			URL update = new URL("https://api.github.com/repos/PsiLupan/MakeLobbiesGreatAgain/releases/latest");
@@ -75,7 +77,7 @@ public class Sanity {
 			JSONParser parser = new JSONParser();
 			JSONObject obj = (JSONObject)parser.parse(buf);
 			double newVersion = Double.parseDouble((String)obj.get("tag_name"));
-			if(Boot.version<newVersion){
+			if(Boot.version < newVersion){
 				message("An update is available!\nCurrent Version: "+Boot.version+", Latest Release Version: "+newVersion);
 				if(Desktop.isDesktopSupported()){
 					try {
@@ -97,10 +99,11 @@ public class Sanity {
 		}
 		return true;
 	}
-	
+
 	private static void message(String out){
 		System.err.println(out);
-		if(!headless)
+		if(!headless){
 			JOptionPane.showMessageDialog(null, out, "Error", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 }
