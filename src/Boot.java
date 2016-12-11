@@ -1,4 +1,5 @@
 import java.awt.AWTException;
+import java.awt.FontFormatException;
 import java.awt.GridLayout;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
@@ -41,7 +42,7 @@ public class Boot {
 	public static Double version = 1.07;
 	private static InetAddress addr = null;
 
-	public static void main(String[] args) throws UnsupportedLookAndFeelException, AWTException, ClassNotFoundException{
+	public static void main(String[] args) throws UnsupportedLookAndFeelException, AWTException, ClassNotFoundException, FontFormatException{
 		try {
 			if(!Sanity.check()){
 				System.exit(1);

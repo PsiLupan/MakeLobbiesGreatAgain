@@ -1,10 +1,13 @@
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.io.IOException;
 
 import javax.swing.JPanel;
 import javax.swing.JWindow;
@@ -20,10 +23,13 @@ public class Overlay extends JPanel {
 	private boolean proxy = false;
 	private boolean frameMove = false;
 	private long rtt = 0;
+	private Font roboto;
 
-	Overlay() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException{
+	Overlay() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, FontFormatException, IOException{
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		this.setOpaque(false);
+		
+		roboto = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemClassLoader().getResourceAsStream("resources/Roboto-Medium.ttf")).deriveFont(15f);
 
 		final JWindow frame = new JWindow();
 		frame.setBackground(new Color(0, 0, 0, 0));
@@ -113,7 +119,7 @@ public class Overlay extends JPanel {
 
 	@Override
 	public Dimension getPreferredSize() {
-		return new Dimension(112, 46);
+		return new Dimension(118, 46);
 	}
 
 	@Override
@@ -121,7 +127,7 @@ public class Overlay extends JPanel {
 		super.paintComponent(gr);
 		Graphics2D g = (Graphics2D) gr.create();
 		g.setColor(getBackground());
-		g.setFont(g.getFont().deriveFont(15f));
+		g.setFont(roboto);
 		//g.setComposite(AlphaComposite.SrcOver.derive(0f));
 		g.setColor(new Color(0,0,0,0));
 		g.fillRect(0, 0, getWidth(), getHeight());
@@ -135,12 +141,12 @@ public class Overlay extends JPanel {
 		if(country_name){
 			g.fillRect(0, 0, getPreferredSize().width, getPreferredSize().height);
 			if(!proxy){
-				g.setColor(Color.GREEN);
+				g.setColor(Color.WHITE);
 			}else{
 				g.setColor(Color.RED);
 			}
-			g.drawString("Killer Country:", 2, 14);
-			g.drawString(""+ locale, 2, 28); //"" is used to avoid NPE, it's a hack
+			g.drawString("Host Country:", 1, 14);
+			g.drawString(""+ locale, 1, 28); //"" is used to avoid NPE, it's a hack
 
 			if(rtt <= 120){
 				g.setColor(Color.GREEN);
@@ -149,15 +155,15 @@ public class Overlay extends JPanel {
 			}else{
 				g.setColor(Color.RED);
 			}
-			g.drawString("Ping:" + rtt, 2, 42);
+			g.drawString("Ping:" + rtt, 1, 42);
 		}else{
 			g.fillRect(0, 0, getPreferredSize().width, getPreferredSize().height - 14);
 			if(!proxy){
-				g.setColor(Color.GREEN);
+				g.setColor(Color.WHITE);
 			}else{
 				g.setColor(Color.RED);
 			}
-			g.drawString("Killer Locale: " + locale, 2, 14);
+			g.drawString("Host Locale: " + locale, 1, 14);
 
 			if(rtt <= 120){
 				g.setColor(Color.GREEN);
@@ -166,7 +172,7 @@ public class Overlay extends JPanel {
 			}else{
 				g.setColor(Color.RED);
 			}
-			g.drawString("Ping: "+ rtt, 2, 28);
+			g.drawString("Ping: "+ rtt, 1, 28);
 		}
 
 		g.dispose();
