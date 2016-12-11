@@ -15,7 +15,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 public class Overlay extends JPanel {
 	private static final long serialVersionUID = -470849574354121503L;
 	
-	private String locale = "Boot";
+	private String locale = "N/A";
 	private boolean country_name = false;
 	private boolean proxy = false;
 	private boolean frameMove = false;
