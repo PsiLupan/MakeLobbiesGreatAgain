@@ -19,6 +19,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JTextField;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import org.json.simple.JSONObject;
@@ -149,9 +150,10 @@ public class Boot {
 		final JFrame frame = new JFrame("MLGA Network Device Locate");
 		frame.setFocusableWindowState(true);
 
-		final JLabel ipLab = new JLabel("Enter LAN IP:", JLabel.LEFT);
-		final JLabel exLab = new JLabel("(Ex. 192.168.0.2 or 10.0.0.2, obtained from Network Settings)", JLabel.LEFT);
+		final JLabel ipLab = new JLabel("Select LAN IP obtained from Network Settings:", JLabel.LEFT);
 		final JComboBox<String> lanIP = new JComboBox<String>();
+		final JLabel lanLabel = new JLabel("If your device IP isn't in the dropdown, provide it below.");
+		final JTextField lanText = new JTextField();
 
 		for(PcapNetworkInterface i : Pcaps.findAllDevs()){
 			for(PcapAddress x : i.getAddresses()){
@@ -169,7 +171,11 @@ public class Boot {
 		start.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				try {
-					addr = InetAddress.getByName((String)lanIP.getSelectedItem());
+					if(lanText.getText().length() >= 7){ // 7 is because the minimum field is 0.0.0.0
+						addr = InetAddress.getByName(lanText.getText());
+					}else{
+						addr = InetAddress.getByName((String)lanIP.getSelectedItem());
+					}
 					frame.setVisible(false);
 					frame.dispose();
 				} catch (UnknownHostException e1) {
@@ -178,15 +184,16 @@ public class Boot {
 			}
 		});
 
-		frame.setLayout(new GridLayout(4,1));
+		frame.setLayout(new GridLayout(5,1));
 		frame.add(ipLab);
-		frame.add(exLab);
 		frame.add(lanIP);
+		frame.add(lanLabel);
+		frame.add(lanText);
 		frame.add(start);
 		frame.setAlwaysOnTop(true);
 		frame.pack();
 		frame.setLocation(5, 420);
-		frame.setSize(400, 150);
+		frame.setSize(400, 175);
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
