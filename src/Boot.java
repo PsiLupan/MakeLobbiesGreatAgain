@@ -42,6 +42,7 @@ import org.pcap4j.packet.namednumber.IpNumber;
 public class Boot {
 	public static Double version = 1.08;
 	private static InetAddress addr = null;
+	public static PcapHandle handle = null;
 
 	public static void main(String[] args) throws UnsupportedLookAndFeelException, AWTException, ClassNotFoundException, FontFormatException{
 		try {
@@ -59,7 +60,7 @@ public class Boot {
 			final int snapLen = 65536;
 			final PromiscuousMode mode = PromiscuousMode.PROMISCUOUS;
 			final int timeout = 0;
-			PcapHandle handle = nif.openLive(snapLen, mode, timeout);
+			handle = nif.openLive(snapLen, mode, timeout);
 
 			short pckCount = 0;
 			Timestamp requestTime = null;
@@ -115,7 +116,6 @@ public class Boot {
 				| IOException | ParseException | InterruptedException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	public static void setupTray() throws AWTException{
@@ -123,7 +123,8 @@ public class Boot {
 
 		ActionListener listener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.exit(0);
+				handle.close();
+				System.exit(1);
 			}
 		};
 		final PopupMenu popup = new PopupMenu();
@@ -133,11 +134,6 @@ public class Boot {
 		popup.add(exit);
 		final TrayIcon trayIcon = new TrayIcon(Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource("resources/icon.png")), "MLGA", popup);
 		tray.add(trayIcon);
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-		    public void run() {
-		        tray.remove(trayIcon);
-		    }
-		});
 	}
 
 	public static void geolocate(String ip, Overlay ui) throws IOException, ParseException{
