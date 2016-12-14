@@ -11,11 +11,11 @@ import java.io.File;
 	Uses an INI format currently, with newline stripping, so be sure and check what you're storing.
 	INI format is less than ideal if we somehow ever needed to store multi-line, but for the existing data we'd rationally need,
 		this is best for easy editing/validation in bug reports.
-*/
+ */
 public class Settings{
 	private final static File save = new File("mlga.settings.ini");
 	private static HashMap<String, String> loaded = new HashMap<String, String>();
-	
+
 	/** Loads in the saved settings, if possible. */
 	public static void init(){
 		if(!save.exists()){
@@ -37,7 +37,7 @@ public class Settings{
 			System.err.println("No settings were able to be loaded in.");
 		}
 	}
-	
+
 	/** Updates the setting for all future get calls, and saves the new settings file to persist. 
 		value will be converted into a string.*/
 	public static void set(String key, Object value){
@@ -54,7 +54,7 @@ public class Settings{
 			e.printStackTrace();
 		}
 	}
-	
+
 	/** Get the value of the given key, or return <i>def</i> by default if it's not a saved value. */
 	public static String get(String key, String def){
 		if(!loaded.containsKey(key)){
@@ -62,7 +62,7 @@ public class Settings{
 		}
 		return loaded.get(key).trim();
 	}
-	
+
 	/** See #get(). Returns the value of the key, converted to a double. Mostly just here for convenient casting.*/
 	public static double getDouble(String key, double def){
 		return Double.parseDouble(get(key, ""+def));

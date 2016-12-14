@@ -50,7 +50,7 @@ public class Boot {
 				System.exit(1);
 			}
 			Settings.init();
-			Settings.set("autoload", Settings.get("autoload", "0"));//"autoload" is an ini-only toggle for advanced users.
+			Settings.set("autoload", Settings.get("autoload", "0")); //"autoload" is an ini-only toggle for advanced users.
 			setupTray();
 
 			getLocalAddr();
@@ -165,13 +165,13 @@ public class Boot {
 	}
 
 	public static void getLocalAddr() throws InterruptedException, PcapNativeException, UnknownHostException{
-		if(Settings.getDouble("autoload", 0)==1){
+		if(Settings.getDouble("autoload", 0) == 1){
 			addr = InetAddress.getByName(Settings.get("addr", ""));
 			return;
 		}
 		final JFrame frame = new JFrame("MLGA Network Device Locate");
 		frame.setFocusableWindowState(true);
-		
+
 		final JLabel ipLab = new JLabel("Select LAN IP obtained from Network Settings:", JLabel.LEFT);
 		final JComboBox<String> lanIP = new JComboBox<String>();
 		final JLabel lanLabel = new JLabel("If your device IP isn't in the dropdown, provide it below.");
