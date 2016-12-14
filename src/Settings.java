@@ -1,7 +1,7 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.io.FileOutputStream;
 import java.io.File;
 
@@ -14,7 +14,7 @@ import java.io.File;
  */
 public class Settings{
 	private final static File save = new File("mlga.settings.ini");
-	private static HashMap<String, String> loaded = new HashMap<String, String>();
+	private static ConcurrentHashMap<String, String> loaded = new ConcurrentHashMap<String, String>();
 
 	/** Loads in the saved settings, if possible. */
 	public static void init(){
