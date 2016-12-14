@@ -79,33 +79,35 @@ public class Boot {
 							UdpPacket udppack = ippacket.get(UdpPacket.class);
 							String srcAddrStr = ippacket.getHeader().getSrcAddr().toString(); // Shows as '/0.0.0.0'
 
-							if(!srcAddrStr.equals(currSrv)){ //Packets are STUN related: 56 is request, 68 is response
-								if(udppack.getPayload().getRawData().length == 56 && ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
-									requestTime = handle.getTimestamp();
-									expectPong = true;
-								}
-								else if(udppack.getPayload().getRawData().length == 68 && !ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
-									pckCount++;
+							if(udppack != null){
+								if(!srcAddrStr.equals(currSrv)){ //Packets are STUN related: 56 is request, 68 is response
+									if(udppack.getPayload().getRawData().length == 56 && ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
+										requestTime = handle.getTimestamp();
+										expectPong = true;
+									}
+									else if(udppack.getPayload().getRawData().length == 68 && !ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
+										pckCount++;
 
-									if(pckCount == 4){ //The new packet is sent multiple times, we only really need 4 to confirm
-										ui.setKillerLocale("***");
-										geolocate(srcAddrStr, ui);
-										currSrv = srcAddrStr; //This serves to prevent seeing the message upon joining then leaving
-										pckCount = 0;
+										if(pckCount == 4){ //The new packet is sent multiple times, we only really need 4 to confirm
+											ui.setKillerLocale("***");
+											geolocate(srcAddrStr, ui);
+											currSrv = srcAddrStr; //This serves to prevent seeing the message upon joining then leaving
+											pckCount = 0;
+										}
+									}else if(udppack.getPayload().getRawData().length == 4 && ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
+										String payload = ippacket.toHexString().replaceAll(" ", "").substring(ippacket.toHexString().replaceAll(" ", "").length() - 8);
+										if(payload.equals("beefface")){ //BEEFFACE occurs on disconnect from lobby
+											currSrv = null;
+											pckCount = 0;
+											ui.setKillerLocale("N/A");
+											ui.setKillerPing(0);
+										}
 									}
-								}else if(udppack.getPayload().getRawData().length == 4 && ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
-									String payload = ippacket.toHexString().replaceAll(" ", "").substring(ippacket.toHexString().replaceAll(" ", "").length() - 8);
-									if(payload.equals("beefface")){ //BEEFFACE occurs on disconnect from lobby
-										currSrv = null;
-										pckCount = 0;
-										ui.setKillerLocale("N/A");
-										ui.setKillerPing(0);
+								}else{
+									if(expectPong && udppack.getPayload().getRawData().length == 68 && ippacket.getHeader().getDstAddr().isSiteLocalAddress()){
+										ui.setKillerPing(handle.getTimestamp().getTime() - requestTime.getTime());
+										expectPong = false;
 									}
-								}
-							}else{
-								if(expectPong && udppack.getPayload().getRawData().length == 68 && ippacket.getHeader().getDstAddr().isSiteLocalAddress()){
-									ui.setKillerPing(handle.getTimestamp().getTime() - requestTime.getTime());
-									expectPong = false;
 								}
 							}
 						}
