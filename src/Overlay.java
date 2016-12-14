@@ -81,7 +81,7 @@ public class Overlay extends JPanel {
 		});
 
 		frame.pack();
-		frame.setLocation((int)Settings.getDouble("frame_x",5), (int)Settings.get("frame_y", 400));
+		frame.setLocation((int)Settings.getDouble("frame_x",5), (int)Settings.getDouble("frame_y", 400));
 		frame.setVisible(true);
 
 		Thread t = new Thread("UIPainter"){

@@ -1,3 +1,4 @@
+*.ini
 *.class
 MLGA.jar
 /bin

@@ -40,7 +40,7 @@ import org.pcap4j.packet.UdpPacket;
 import org.pcap4j.packet.namednumber.IpNumber;
 
 public class Boot {
-	public static Double version = 1.09;
+	public static Double version = 1.10;
 	private static InetAddress addr = null;
 	public static PcapHandle handle = null;
 
@@ -164,7 +164,7 @@ public class Boot {
 
 	}
 
-	public static void getLocalAddr() throws InterruptedException, PcapNativeException{
+	public static void getLocalAddr() throws InterruptedException, PcapNativeException, UnknownHostException{
 		if(Settings.getDouble("autoload", 0)==1){
 			addr = InetAddress.getByName(Settings.get("addr", ""));
 			return;
@@ -201,7 +201,7 @@ public class Boot {
 						addr = InetAddress.getByName((String)lanIP.getSelectedItem());
 						System.out.println("Using IP from dropdown: "+ (String)lanIP.getSelectedItem());
 					}
-					Settings.set("addr", addr);
+					Settings.set("addr", addr.getHostAddress().replaceAll("/", ""));
 					frame.setVisible(false);
 					frame.dispose();
 				} catch (UnknownHostException e1) {

@@ -1,6 +1,6 @@
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.io.FileOutputStream;
 import java.io.File;
@@ -32,7 +32,7 @@ public class Settings{
 				loaded.put(line.split("=")[0].trim(), line.substring(line.indexOf('=')+1).trim() );
 			}
 			bufferedReader.close();
-		}catch(Exception e){
+		}catch(IOException e){
 			e.printStackTrace();
 			System.err.println("No settings were able to be loaded in.");
 		}
@@ -43,13 +43,14 @@ public class Settings{
 	public static void set(String key, Object value){
 		loaded.remove(key);
 		loaded.put(key, value.toString());
-		try{
-			FileOutputStream o = new FileOutputStream(save);
+		FileOutputStream o;
+		try {
+			o = new FileOutputStream(save);
 			for(String k : loaded.keySet() ){
 				o.write((k.replace("\n","").trim()+"="+(String)loaded.get(k).trim()+"\r\n").getBytes() );
 			}
 			o.close();
-		}catch(Exception e){
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
