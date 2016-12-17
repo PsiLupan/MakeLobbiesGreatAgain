@@ -28,7 +28,7 @@ public class Overlay extends JPanel {
 	Overlay() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, FontFormatException, IOException{
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		this.setOpaque(false);
-		country_name = (Settings.getDouble("country_name", 0)==1);
+		country_name = (Settings.getDouble("country_name", 0) == 1);
 		final JWindow frame = new JWindow();
 		frame.setBackground(new Color(0, 0, 0, 0));
 		frame.setFocusableWindowState(false);
@@ -45,7 +45,7 @@ public class Overlay extends JPanel {
 					frame.setFocusableWindowState(frameMove);
 				}else if(SwingUtilities.isRightMouseButton(e)){
 					country_name = !country_name;
-					Settings.set("country_name", country_name?1:0);
+					Settings.set("country_name", country_name ? 1:0);
 				}
 			}
 
@@ -90,6 +90,8 @@ public class Overlay extends JPanel {
 					while(true){
 						if(!frameMove){
 							Thread.sleep(1000);
+						}else{
+							Thread.sleep(10);
 						}
 						Overlay.this.repaint();
 					}
