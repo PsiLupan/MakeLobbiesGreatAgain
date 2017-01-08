@@ -7,13 +7,21 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
 
 import javax.swing.JPanel;
 import javax.swing.JWindow;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 public class Overlay extends JPanel {
 	private static final long serialVersionUID = -470849574354121503L;
@@ -22,6 +30,7 @@ public class Overlay extends JPanel {
 	private boolean country_name = false;
 	private boolean proxy = false;
 	private boolean frameMove = false;
+	private boolean mode = false; //true for killer, false for surv
 	private long[] rtt = new long[4];
 	private final Font roboto = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemClassLoader().getResourceAsStream("resources/Roboto-Medium.ttf")).deriveFont(15f);;
 
@@ -43,9 +52,11 @@ public class Overlay extends JPanel {
 					Settings.set("frame_x", frame.getLocationOnScreen().x);
 					Settings.set("frame_y", frame.getLocationOnScreen().y);
 					frame.setFocusableWindowState(frameMove);
-				}else if(SwingUtilities.isRightMouseButton(e)){
+				}else if(SwingUtilities.isRightMouseButton(e) && !e.isShiftDown()){
 					country_name = !country_name;
 					Settings.set("country_name", country_name ? 1:0);
+				}else if(SwingUtilities.isRightMouseButton(e) && e.isShiftDown()){
+					mode = !mode;
 				}
 			}
 
@@ -108,21 +119,53 @@ public class Overlay extends JPanel {
 		this.locale = locale;
 	}
 
-	public boolean useCountryName(){
+	private boolean useCountryName(){
 		return this.country_name;
 	}
 
-	public void setProxy(boolean proxy){
+	private void setProxy(boolean proxy){
 		this.proxy = proxy;
+	}
+	
+	public boolean getMode(){
+		return this.mode;
 	}
 
 	public void setKillerPing(long rtt){
 		this.rtt[0] = rtt;
 	}
 
+	public void setSurvPing(long rtt, short slot){
+		this.rtt[slot] = rtt;
+	}
+
+	public void geolocate(String ip) throws IOException, ParseException{
+		String code = null;
+		Long proxy = 0L;
+
+		try (InputStream is = new URL("http://legacy.iphub.info/api.php?showtype=4&ip=" + ip.replace("/", "")).openStream();
+				BufferedReader buf = new BufferedReader(new InputStreamReader(is))) {
+			JSONParser parser = new JSONParser();
+			JSONObject obj = (JSONObject)parser.parse(buf);
+			if(useCountryName()){
+				code = (String)obj.get("countryName");
+			}else{
+				code = (String)obj.get("countryCode");
+			}
+			proxy = (Long)obj.get("proxy");
+		}
+		setKillerLocale(code);
+		if(proxy != 0L){ //Could abuse anything non-zero being true, but probably shouldn't.
+			setProxy(true);
+		}else{
+			setProxy(false);
+		}
+
+	}
+
 	@Override
 	public Dimension getPreferredSize() {
-		return new Dimension(118, 46);
+		return new Dimension(118, 58);
 	}
 
 	@Override
@@ -141,41 +184,55 @@ public class Overlay extends JPanel {
 			g.setColor(new Color(0f,0f,0f,1f));
 		}
 
-		if(country_name){
-			g.fillRect(0, 0, getPreferredSize().width, getPreferredSize().height);
-			if(!proxy){
-				g.setColor(Color.WHITE);
-			}else{
-				g.setColor(Color.RED);
-			}
-			g.drawString("Host Country:", 1, 13);
-			g.drawString(""+ locale, 1, 27); //"" is used to avoid NPE, it's a hack
+		if(!mode){
+			if(country_name){
+				g.fillRect(0, 0, getPreferredSize().width, getPreferredSize().height - 12);
+				if(!proxy){
+					g.setColor(Color.WHITE);
+				}else{
+					g.setColor(Color.RED);
+				}
+				g.drawString("Host Country:", 1, 13);
+				g.drawString(""+ locale, 1, 27); //"" is used to avoid NPE, it's a hack
 
-			if(rtt[0] <= 120){
-				g.setColor(Color.GREEN);
-			}else if(rtt[0] > 120 && rtt[0] <= 150){
-				g.setColor(Color.YELLOW);
+				if(rtt[0] <= 120){
+					g.setColor(Color.GREEN);
+				}else if(rtt[0] > 120 && rtt[0] <= 150){
+					g.setColor(Color.YELLOW);
+				}else{
+					g.setColor(Color.RED);
+				}
+				g.drawString("Ping:" + rtt[0], 1, 42);
 			}else{
-				g.setColor(Color.RED);
+				g.fillRect(0, 0, getPreferredSize().width, getPreferredSize().height - 26);
+				if(!proxy){
+					g.setColor(Color.WHITE);
+				}else{
+					g.setColor(Color.RED);
+				}
+				g.drawString("Host Locale: " + locale, 1, 13);
+
+				if(rtt[0] <= 120){
+					g.setColor(Color.GREEN);
+				}else if(rtt[0] > 120 && rtt[0] <= 150){
+					g.setColor(Color.YELLOW);
+				}else{
+					g.setColor(Color.RED);
+				}
+				g.drawString("Ping: "+ rtt[0], 1, 27);
 			}
-			g.drawString("Ping:" + rtt[0], 1, 42);
 		}else{
-			g.fillRect(0, 0, getPreferredSize().width, getPreferredSize().height - 14);
-			if(!proxy){
-				g.setColor(Color.WHITE);
-			}else{
-				g.setColor(Color.RED);
+			g.fillRect(55, 0, getPreferredSize().width, getPreferredSize().height);
+			for(short i = 0; i < 4; i++){
+				if(rtt[i] <= 120){
+					g.setColor(Color.GREEN);
+				}else if(rtt[i] > 120 && rtt[i] <= 150){
+					g.setColor(Color.YELLOW);
+				}else{
+					g.setColor(Color.RED);
+				}
+				g.drawString("Ping: "+ rtt[i], 56, 13 * (i + 1));
 			}
-			g.drawString("Host Locale: " + locale, 1, 13);
-
-			if(rtt[0] <= 120){
-				g.setColor(Color.GREEN);
-			}else if(rtt[0] > 120 && rtt[0] <= 150){
-				g.setColor(Color.YELLOW);
-			}else{
-				g.setColor(Color.RED);
-			}
-			g.drawString("Ping: "+ rtt[0], 1, 27);
 		}
 
 		g.dispose();

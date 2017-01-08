@@ -8,12 +8,8 @@ import java.awt.Toolkit;
 import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.InetAddress;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import javax.swing.JButton;
@@ -24,8 +20,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.pcap4j.core.NotOpenException;
 import org.pcap4j.core.PcapAddress;
@@ -66,8 +60,8 @@ public class Boot {
 
 			short pckCount = 0;
 			Timestamp requestTime = null;
-			boolean expectPong = false;
-			String currSrv = null;
+			boolean[] expectPong = {false, false, false, false};
+			String[] currSrv = new String[4];
 			Overlay ui = new Overlay();
 
 			while(true){				
@@ -82,34 +76,38 @@ public class Boot {
 							String srcAddrStr = ippacket.getHeader().getSrcAddr().toString(); // Shows as '/0.0.0.0'
 
 							if(udppack != null){
-								if(!srcAddrStr.equals(currSrv)){ //Packets are STUN related: 56 is request, 68 is response
-									if(udppack.getPayload().getRawData().length == 56 && ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
-										requestTime = handle.getTimestamp();
-										expectPong = true;
-									}
-									else if(udppack.getPayload().getRawData().length == 68 && !ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
-										pckCount++;
-
-										if(pckCount == 4){ //The new packet is sent multiple times, we only really need 4 to confirm
-											ui.setKillerLocale("***");
-											geolocate(srcAddrStr, ui);
-											currSrv = srcAddrStr; //This serves to prevent seeing the message upon joining then leaving
-											pckCount = 0;
+								if(!ui.getMode()){
+									if(!srcAddrStr.equals(currSrv[0])){ //Packets are STUN related: 56 is request, 68 is response
+										if(udppack.getPayload().getRawData().length == 56 && ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
+											requestTime = handle.getTimestamp();
+											expectPong[0] = true;
 										}
-									}else if(udppack.getPayload().getRawData().length == 4 && ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
-										String payload = ippacket.toHexString().replaceAll(" ", "").substring(ippacket.toHexString().replaceAll(" ", "").length() - 8);
-										if(payload.equals("beefface")){ //BEEFFACE occurs on disconnect from lobby
-											currSrv = null;
-											pckCount = 0;
-											ui.setKillerLocale("N/A");
-											ui.setKillerPing(0);
+										else if(udppack.getPayload().getRawData().length == 68 && !ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
+											pckCount++;
+
+											if(pckCount == 4){ //The new packet is sent multiple times, we only really need 4 to confirm
+												ui.setKillerLocale("***");
+												ui.geolocate(srcAddrStr);
+												currSrv[0] = srcAddrStr; //This serves to prevent seeing the message upon joining then leaving
+												pckCount = 0;
+											}
+										}else if(udppack.getPayload().getRawData().length == 4 && ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
+											String payload = ippacket.toHexString().replaceAll(" ", "").substring(ippacket.toHexString().replaceAll(" ", "").length() - 8);
+											if(payload.equals("beefface")){ //BEEFFACE occurs on disconnect from lobby
+												currSrv[0] = null;
+												pckCount = 0;
+												ui.setKillerLocale("N/A");
+												ui.setKillerPing(0);
+											}
+										}
+									}else{
+										if(expectPong[0] && udppack.getPayload().getRawData().length == 68 && ippacket.getHeader().getDstAddr().isSiteLocalAddress()){
+											ui.setKillerPing(handle.getTimestamp().getTime() - requestTime.getTime());
+											expectPong[0] = false;
 										}
 									}
 								}else{
-									if(expectPong && udppack.getPayload().getRawData().length == 68 && ippacket.getHeader().getDstAddr().isSiteLocalAddress()){
-										ui.setKillerPing(handle.getTimestamp().getTime() - requestTime.getTime());
-										expectPong = false;
-									}
+									
 								}
 							}
 						}
@@ -138,30 +136,6 @@ public class Boot {
 		popup.add(exit);
 		final TrayIcon trayIcon = new TrayIcon(Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource("resources/icon.png")), "MLGA", popup);
 		tray.add(trayIcon);
-	}
-
-	public static void geolocate(String ip, Overlay ui) throws IOException, ParseException{
-		String code = null;
-		Long proxy = 0L;
-
-		try (InputStream is = new URL("http://legacy.iphub.info/api.php?showtype=4&ip=" + ip.replace("/", "")).openStream();
-				BufferedReader buf = new BufferedReader(new InputStreamReader(is))) {
-			JSONParser parser = new JSONParser();
-			JSONObject obj = (JSONObject)parser.parse(buf);
-			if(ui.useCountryName()){
-				code = (String)obj.get("countryName");
-			}else{
-				code = (String)obj.get("countryCode");
-			}
-			proxy = (Long)obj.get("proxy");
-		}
-		ui.setKillerLocale(code);
-		if(proxy != 0L){ //Could abuse anything non-zero being true, but probably shouldn't.
-			ui.setProxy(true);
-		}else{
-			ui.setProxy(false);
-		}
-
 	}
 
 	public static void getLocalAddr() throws InterruptedException, PcapNativeException, UnknownHostException{
