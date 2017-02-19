@@ -118,6 +118,14 @@ public class Overlay extends JPanel {
 		survivors.put(key, rtt);
 	}
 
+	public int numSurvs(){
+		return survivors.size();
+	}
+	
+	public void clearSurvs(){
+		survivors.clear();
+	}
+	
 	public void removeSurv(String key){
 		survivors.remove(key);
 	}
