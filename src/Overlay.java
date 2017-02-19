@@ -7,11 +7,9 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import javax.swing.JPanel;
 import javax.swing.JWindow;
@@ -19,25 +17,18 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
 public class Overlay extends JPanel {
 	private static final long serialVersionUID = -470849574354121503L;
 
-	private String locale = "N/A";
-	private boolean country_name = false;
-	private boolean proxy = false;
 	private boolean frameMove = false;
 	private boolean mode = false; //true for killer, false for surv
-	private long[] rtt = new long[4];
+	private long killerPing = 0;
+	private HashMap<String, Long> survivors = new HashMap<String, Long>();
 	private final Font roboto = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemClassLoader().getResourceAsStream("resources/Roboto-Medium.ttf")).deriveFont(15f);;
 
 	Overlay() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, FontFormatException, IOException{
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		this.setOpaque(false);
-		country_name = (Settings.getDouble("country_name", 0) == 1);
 		final JWindow frame = new JWindow();
 		frame.setBackground(new Color(0, 0, 0, 0));
 		frame.setFocusableWindowState(false);
@@ -47,15 +38,15 @@ public class Overlay extends JPanel {
 		frame.addMouseListener(new MouseListener(){
 			@Override
 			public void mouseClicked(MouseEvent e){
-				if(e.getClickCount() >= 2){
+				if(e.getClickCount() >= 2 && !SwingUtilities.isRightMouseButton(e)){
 					frameMove = !frameMove;
 					Settings.set("frame_x", frame.getLocationOnScreen().x);
 					Settings.set("frame_y", frame.getLocationOnScreen().y);
 					frame.setFocusableWindowState(frameMove);
-				}else if(SwingUtilities.isRightMouseButton(e) && !e.isShiftDown()){
-					country_name = !country_name;
-					Settings.set("country_name", country_name ? 1:0);
-				}else if(SwingUtilities.isRightMouseButton(e) && e.isShiftDown()){
+				}else if(SwingUtilities.isRightMouseButton(e)){
+					killerPing = 0;
+					if(!survivors.isEmpty())
+						survivors.clear();
 					mode = !mode;
 				}
 			}
@@ -115,52 +106,20 @@ public class Overlay extends JPanel {
 		t.start();
 	}
 
-	public void setKillerLocale(String locale){
-		this.locale = locale;
-	}
-
-	private boolean useCountryName(){
-		return this.country_name;
-	}
-
-	private void setProxy(boolean proxy){
-		this.proxy = proxy;
-	}
-	
 	public boolean getMode(){
-		return this.mode;
+		return mode;
 	}
 
 	public void setKillerPing(long rtt){
-		this.rtt[0] = rtt;
+		killerPing = rtt;
 	}
 
-	public void setSurvPing(long rtt, short slot){
-		this.rtt[slot] = rtt;
+	public void setSurvPing(String key, long rtt){
+		survivors.put(key, rtt);
 	}
 
-	public void geolocate(String ip) throws IOException, ParseException{
-		String code = null;
-		Long proxy = 0L;
-
-		try (InputStream is = new URL("http://legacy.iphub.info/api.php?showtype=4&ip=" + ip.replace("/", "")).openStream();
-				BufferedReader buf = new BufferedReader(new InputStreamReader(is))) {
-			JSONParser parser = new JSONParser();
-			JSONObject obj = (JSONObject)parser.parse(buf);
-			if(useCountryName()){
-				code = (String)obj.get("countryName");
-			}else{
-				code = (String)obj.get("countryCode");
-			}
-			proxy = (Long)obj.get("proxy");
-		}
-		setKillerLocale(code);
-		if(proxy != 0L){ //Could abuse anything non-zero being true, but probably shouldn't.
-			setProxy(true);
-		}else{
-			setProxy(false);
-		}
-
+	public void removeSurv(String key){
+		survivors.remove(key);
 	}
 
 	@Override
@@ -185,53 +144,38 @@ public class Overlay extends JPanel {
 		}
 
 		if(!mode){
-			if(country_name){
-				g.fillRect(0, 0, getPreferredSize().width, getPreferredSize().height - 12);
-				if(!proxy){
-					g.setColor(Color.WHITE);
-				}else{
-					g.setColor(Color.RED);
-				}
-				g.drawString("Host Country:", 1, 13);
-				g.drawString(""+ locale, 1, 27); //"" is used to avoid NPE, it's a hack
-
-				if(rtt[0] <= 120){
-					g.setColor(Color.GREEN);
-				}else if(rtt[0] > 120 && rtt[0] <= 150){
-					g.setColor(Color.YELLOW);
-				}else{
-					g.setColor(Color.RED);
-				}
-				g.drawString("Ping:" + rtt[0], 1, 42);
+			g.fillRect(8, 0, getPreferredSize().width, getPreferredSize().height - 42);
+			if(killerPing <= 120){
+				g.setColor(Color.GREEN);
+			}else if(killerPing > 120 && killerPing <= 150){
+				g.setColor(Color.YELLOW);
 			}else{
-				g.fillRect(0, 0, getPreferredSize().width, getPreferredSize().height - 26);
-				if(!proxy){
-					g.setColor(Color.WHITE);
-				}else{
-					g.setColor(Color.RED);
-				}
-				g.drawString("Host Locale: " + locale, 1, 13);
-
-				if(rtt[0] <= 120){
-					g.setColor(Color.GREEN);
-				}else if(rtt[0] > 120 && rtt[0] <= 150){
-					g.setColor(Color.YELLOW);
-				}else{
-					g.setColor(Color.RED);
-				}
-				g.drawString("Ping: "+ rtt[0], 1, 27);
+				g.setColor(Color.RED);
 			}
+			g.drawString("Killer Ping: "+ killerPing, 9, 13);
 		}else{
-			g.fillRect(55, 0, getPreferredSize().width, getPreferredSize().height);
-			for(short i = 0; i < 4; i++){
-				if(rtt[i] <= 120){
-					g.setColor(Color.GREEN);
-				}else if(rtt[i] > 120 && rtt[i] <= 150){
-					g.setColor(Color.YELLOW);
-				}else{
-					g.setColor(Color.RED);
+			g.fillRect(35, 0, getPreferredSize().width, getPreferredSize().height);
+			if(!survivors.isEmpty()){
+				Iterator<Long> iter = survivors.values().iterator();
+				short i = 0;
+				while(iter.hasNext()){
+					long rtt = iter.next();
+					if(rtt <= 120){
+						g.setColor(Color.GREEN);
+					}else if(rtt > 120 && rtt <= 150){
+						g.setColor(Color.YELLOW);
+					}else{
+						g.setColor(Color.RED);
+					}
+					g.drawString("Ping: "+ rtt, 36, 13 * (i + 1));
+					++i;
 				}
-				g.drawString("Ping: "+ rtt[i], 56, 13 * (i + 1));
+			}else{
+				g.setColor(Color.RED);
+				g.drawString("NO", 36, 13);
+				g.drawString("SURVIVORS", 36, 26);
+				g.drawString("FOUND IN", 36, 39);
+				g.drawString("LOBBY", 36, 52);
 			}
 		}
 

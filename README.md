@@ -2,20 +2,16 @@
 MakeLobbiesGreatAgain uses a packet capture library to detect STUN packets from the client and server of Dead By Daylight, in order to determine who you're connected to and get ping from, followed by a website API which provides host information.
 It is not detected as a hack, since it does not and will not interact with the game ever.
 
-## DO NOT USE IT AS A KILLER CURRENTLY.
-Do not run it as killer, simply because the API has an upper limit. You'll use it up very quickly and likely get banned from the API site.
-**I'm looking into a killer version soon.**
-
+## APPLICATION SUPPORTS BOTH KILLER AND SURVIVOR
+**AS A RESULT, VPN AND PROXY DETECTION HAS BEEN TEMPORARILY REMOVED**
 **NOTE**: If you were linked here from another source, such as Reddit, be sure to check for the latest versions for the best quality. You can find all versions here: [MLGA Releases](https://github.com/PsiLupan/MakeLobbiesGreatAgain/releases)
 
-Primary Features:
-* VPN/Proxy detection. Currently Red text indicates Proxy/VPN.
-* Killer country code/name lookup
-* Killer ping
+Primary Feature:
+* Determining Ping
 
 Optional Features: 
 * Double-Click to lock/unlock the overlay for dragging
-* Right-click to change from Country Codes to Country Names
+* Right-click to change from Survivor to Killer mode
 * To exit, simply look for Jake's face in your system tray near the clock, right-click, and select Exit.
 
 ## HOW TO INSTALL AND USE:
