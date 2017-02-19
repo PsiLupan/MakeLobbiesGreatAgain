@@ -4,6 +4,7 @@ It is not detected as a hack, since it does not and will not interact with the g
 
 ## APPLICATION SUPPORTS BOTH KILLER AND SURVIVOR
 **AS A RESULT, VPN AND PROXY DETECTION HAS BEEN TEMPORARILY REMOVED**
+
 **NOTE**: If you were linked here from another source, such as Reddit, be sure to check for the latest versions for the best quality. You can find all versions here: [MLGA Releases](https://github.com/PsiLupan/MakeLobbiesGreatAgain/releases)
 
 Primary Feature:
