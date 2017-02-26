@@ -35,7 +35,7 @@ import org.pcap4j.packet.UdpPacket;
 import org.pcap4j.packet.namednumber.IpNumber;
 
 public class Boot {
-	public static Double version = 1.21;
+	public static Double version = 1.22;
 	private static InetAddress addr = null;
 	public static PcapHandle handle = null;
 
@@ -81,7 +81,7 @@ public class Boot {
 										active.clear();
 									}
 								}
-								if(active.containsKey(srcAddrStr)){
+								if(active.containsKey(srcAddrStr) && !ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
 									if(active.get(srcAddrStr) != null && udppack.getPayload().getRawData().length == 68  //Packets are STUN related: 56 is request, 68 is response
 											&& ippacket.getHeader().getDstAddr().isSiteLocalAddress()){
 										if(ui.getMode()){ //KILLER MODE

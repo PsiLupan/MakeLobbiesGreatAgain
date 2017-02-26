@@ -90,6 +90,7 @@ public class Overlay extends JPanel {
 			public void run() {
 				try{
 					while(true){
+						frame.toFront(); //Fix for window sometime hiding behind others
 						if(!frameMove){
 							Thread.sleep(1000);
 						}else{
@@ -141,7 +142,6 @@ public class Overlay extends JPanel {
 		Graphics2D g = (Graphics2D) gr.create();
 		g.setColor(getBackground());
 		g.setFont(roboto);
-		//g.setComposite(AlphaComposite.SrcOver.derive(0f));
 		g.setColor(new Color(0,0,0,0));
 		g.fillRect(0, 0, getWidth(), getHeight());
 
