@@ -35,9 +35,9 @@ import org.pcap4j.packet.UdpPacket;
 import org.pcap4j.packet.namednumber.IpNumber;
 
 public class Boot {
-	public static Double version = 1.22;
+	public static Double version = 1.23;
 	private static InetAddress addr = null;
-	public static PcapHandle handle = null;
+	private static PcapHandle handle = null;
 
 	public static void main(String[] args) throws UnsupportedLookAndFeelException, AWTException, ClassNotFoundException, FontFormatException{
 		try {
@@ -201,9 +201,9 @@ public class Boot {
 		frame.add(lanText);
 		frame.add(start);
 		frame.setAlwaysOnTop(true);
+		frame.setSize(400, 175);
 		frame.pack();
 		frame.setLocation(5, 420);
-		frame.setSize(400, 175);
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
