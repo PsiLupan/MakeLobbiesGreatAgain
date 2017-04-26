@@ -201,7 +201,6 @@ public class Boot {
 		frame.add(lanText);
 		frame.add(start);
 		frame.setAlwaysOnTop(true);
-		frame.setSize(400, 175);
 		frame.pack();
 		frame.setLocation(5, 420);
 		frame.setVisible(true);
