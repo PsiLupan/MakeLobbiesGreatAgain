@@ -1,3 +1,5 @@
+package mlga.ui;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -17,6 +19,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import mlga.io.Settings;
+
 public class Overlay extends JPanel {
 	private static final long serialVersionUID = -470849574354121503L;
 
@@ -26,7 +30,7 @@ public class Overlay extends JPanel {
 	private HashMap<String, Long> survivors = new HashMap<String, Long>();
 	private final Font roboto = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemClassLoader().getResourceAsStream("resources/Roboto-Medium.ttf")).deriveFont(15f);;
 
-	Overlay() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, FontFormatException, IOException{
+	public Overlay() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, FontFormatException, IOException{
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		this.setOpaque(false);
 		final JWindow frame = new JWindow();

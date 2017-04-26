@@ -1,3 +1,5 @@
+package mlga;
+
 import java.awt.AWTException;
 import java.awt.FontFormatException;
 import java.awt.GridLayout;
@@ -33,6 +35,9 @@ import org.pcap4j.packet.IpV4Packet;
 import org.pcap4j.packet.Packet;
 import org.pcap4j.packet.UdpPacket;
 import org.pcap4j.packet.namednumber.IpNumber;
+
+import mlga.io.Settings;
+import mlga.ui.Overlay;
 
 public class Boot {
 	public static Double version = 1.23;

@@ -1,3 +1,5 @@
+package mlga;
+
 import java.awt.Desktop;
 import java.awt.GraphicsEnvironment;
 import java.io.BufferedReader;
