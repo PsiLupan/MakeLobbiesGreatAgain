@@ -12,13 +12,13 @@ import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
-
 import javax.swing.JPanel;
 import javax.swing.JWindow;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import mlga.io.Preferences;
 import mlga.io.Settings;
 
 public class Overlay extends JPanel {
@@ -26,11 +26,14 @@ public class Overlay extends JPanel {
 
 	private boolean frameMove = false;
 	private boolean mode = false; //true for killer, false for surv
+	private int killerAddr = 0;
 	private long killerPing = 0;
-	private HashMap<String, Long> survivors = new HashMap<String, Long>();
+	private HashMap<Integer, Long> survivors = new HashMap<Integer, Long>();
 	private final Font roboto = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemClassLoader().getResourceAsStream("resources/Roboto-Medium.ttf")).deriveFont(15f);;
 
 	public Overlay() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, FontFormatException, IOException{
+		Preferences.init();
+		
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		this.setOpaque(false);
 		final JWindow frame = new JWindow();
@@ -48,10 +51,54 @@ public class Overlay extends JPanel {
 					Settings.set("frame_y", frame.getLocationOnScreen().y);
 					frame.setFocusableWindowState(frameMove);
 				}else if(SwingUtilities.isRightMouseButton(e)){
-					killerPing = 0;
-					if(!survivors.isEmpty())
-						survivors.clear();
-					mode = !mode;
+					if(!e.isShiftDown()){ //Change between Killer/Survivor Mode
+						killerPing = 0;
+						if(!survivors.isEmpty())
+							survivors.clear();
+						mode = !mode;
+					}else{ //Blocking
+						boolean ctrlDown = e.isControlDown();
+						boolean altDown = e.isAltDown();
+						/*if(mode){ //Killer Mode - TODO Fix Positions
+							System.out.println("Pos: "+ e.getX()+","+e.getY());
+							int yPos = e.getY();
+							short selection = 0;
+							Set<String> survAddresses = survivors.keySet();
+
+							if(yPos >= 0 && yPos < 26 && survivors.keySet().size() >= 1) {
+								selection = 0;
+							}
+							else if(yPos >= 56 && survivors.keySet().size() >= 4){
+								selection = 3;
+							}else if(yPos >= 26 && yPos < 39 && survivors.keySet().size() >= 2){
+								selection = 1;
+							}else if(yPos >= 39 && yPos < 56 && survivors.keySet().size() >= 3){
+								selection = 2;
+							}
+
+							if(!ctrlDown){
+								if(altDown){
+									System.out.println("Removed Survivor "+selection);
+									//Preferences.remove(survAddresses.toArray()[selection]);
+								}else{
+									System.out.println("Blocked Survivor "+selection);
+									//Preferences.set(survAddresses.toArray()[selection], false);
+								}
+							}else{
+								System.out.println("Loved Survivor "+selection);
+								//Preferences.set(survAddresses.toArray()[selection], true);
+							}
+						}*/
+						if(!ctrlDown){
+							if(altDown){
+								Preferences.remove(killerAddr);
+							}else{
+								Preferences.set(killerAddr, false);
+							}
+						}else{
+							Preferences.set(killerAddr, true);
+						}
+					}
 				}
 			}
 
@@ -89,7 +136,7 @@ public class Overlay extends JPanel {
 		frame.pack();
 		frame.setLocation((int)Settings.getDouble("frame_x", 5), (int)Settings.getDouble("frame_y", 400));
 		frame.setVisible(true);
-
+		
 		Thread t = new Thread("UIPainter"){
 			public void run() {
 				try{
@@ -119,20 +166,28 @@ public class Overlay extends JPanel {
 		killerPing = rtt;
 	}
 
-	public void setSurvPing(String key, long rtt){
-		survivors.put(key, rtt);
+	public long getKillerPing(){
+		return killerPing;
+	}
+
+	public void setKillerAddr(int addr){
+		killerAddr = addr;
+	}
+
+	public void setSurvPing(int srcAddrHash, long rtt){
+		survivors.put(srcAddrHash, rtt);
 	}
 
 	public int numSurvs(){
 		return survivors.size();
 	}
-	
+
 	public void clearSurvs(){
 		survivors.clear();
 	}
-	
-	public void removeSurv(String key){
-		survivors.remove(key);
+
+	public void removeSurv(int i){
+		survivors.remove(i);
 	}
 
 	@Override
@@ -164,7 +219,17 @@ public class Overlay extends JPanel {
 			}else{
 				g.setColor(Color.RED);
 			}
-			g.drawString("Killer Ping: "+ killerPing, 9, 13);
+			if(!Preferences.prefs.containsKey(killerAddr)){
+				g.drawString("Killer Ping: "+ killerPing, 9, 13);
+			}
+			else{
+				Boolean love = Preferences.prefs.get(killerAddr);
+				if(!love){
+					g.drawString("BLOCKED: " + killerPing, 9, 13);
+				}else{
+					g.drawString("LOVED: " + killerPing, 9, 13);
+				}
+			}
 		}else{
 			g.fillRect(35, 0, getPreferredSize().width, getPreferredSize().height);
 			if(!survivors.isEmpty()){

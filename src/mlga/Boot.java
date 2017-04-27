@@ -41,7 +41,7 @@ import mlga.ui.Overlay;
 
 public class Boot {
 	public static Double version = 1.23;
-	private static InetAddress addr = null;
+	public static InetAddress addr = null;
 	private static PcapHandle handle = null;
 
 	public static void main(String[] args) throws UnsupportedLookAndFeelException, AWTException, ClassNotFoundException, FontFormatException{
@@ -64,8 +64,8 @@ public class Boot {
 			final int timeout = 0;
 			handle = nif.openLive(snapLen, mode, timeout);
 
-			HashMap<String, Integer> nonact = new HashMap<String, Integer>();
-			HashMap<String, Timestamp> active = new HashMap<String, Timestamp>();
+			HashMap<Integer, Integer> nonact = new HashMap<Integer, Integer>();
+			HashMap<Integer, Timestamp> active = new HashMap<Integer, Timestamp>();
 			Overlay ui = new Overlay();
 
 			while(true){				
@@ -77,7 +77,7 @@ public class Boot {
 					if(ippacket != null){
 						if(ippacket.getHeader().getProtocol() == IpNumber.UDP){
 							UdpPacket udppack = ippacket.get(UdpPacket.class);
-							String srcAddrStr = ippacket.getHeader().getSrcAddr().toString(); // Shows as '/0.0.0.0'
+							int srcAddrHash = ippacket.getHeader().getSrcAddr().hashCode(); // Shows as '/0.0.0.0'
 
 							if(udppack != null){
 								if(ui.getMode()){
@@ -86,39 +86,43 @@ public class Boot {
 										active.clear();
 									}
 								}
-								if(active.containsKey(srcAddrStr) && !ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
-									if(active.get(srcAddrStr) != null && udppack.getPayload().getRawData().length == 68  //Packets are STUN related: 56 is request, 68 is response
+								if(active.containsKey(srcAddrHash) && !ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
+									if(active.get(srcAddrHash) != null && udppack.getPayload().getRawData().length == 68  //Packets are STUN related: 56 is request, 68 is response
 											&& ippacket.getHeader().getDstAddr().isSiteLocalAddress()){
 										if(ui.getMode()){ //KILLER MODE
-											ui.setSurvPing(srcAddrStr, handle.getTimestamp().getTime() - active.get(srcAddrStr).getTime());
+											ui.setSurvPing(srcAddrHash, handle.getTimestamp().getTime() - active.get(srcAddrHash).getTime());
 										}else{ //SURVIVOR MODE
-											ui.setKillerPing(handle.getTimestamp().getTime() - active.get(srcAddrStr).getTime());
+											if(ui.getKillerPing() == 0){ //Keep from constantly making String objects
+												ui.setKillerAddr(srcAddrHash);
+											}
+											ui.setKillerPing(handle.getTimestamp().getTime() - active.get(srcAddrHash).getTime());
 										}
 
-										active.put(srcAddrStr, null); //No longer expect ping
+										active.put(srcAddrHash, null); //No longer expect ping
 									}
 								}else{
 									if(udppack.getPayload().getRawData().length == 56 && ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
-										active.put(ippacket.getHeader().getDstAddr().toString(), handle.getTimestamp());
+										active.put(ippacket.getHeader().getDstAddr().hashCode(), handle.getTimestamp());
 									}
 									else if(udppack.getPayload().getRawData().length == 68 && !ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
-										if(nonact.containsKey(srcAddrStr)){
-											nonact.put(srcAddrStr, nonact.get(srcAddrStr) + 1);
+										if(nonact.containsKey(srcAddrHash)){
+											nonact.put(srcAddrHash, nonact.get(srcAddrHash) + 1);
 										}else{
-											nonact.put(srcAddrStr, 1);
+											nonact.put(srcAddrHash, 1);
 										}
 
-										if(nonact.containsKey(srcAddrStr) && nonact.get(srcAddrStr) == 4){ //The new packet is sent multiple times, we only really need 4 to confirm
-											active.put(srcAddrStr, null); //This serves to prevent seeing the message upon joining then leaving
-											nonact.remove(srcAddrStr);
+										if(nonact.containsKey(srcAddrHash) && nonact.get(srcAddrHash) == 4){ //The new packet is sent multiple times, we only really need 4 to confirm
+											active.put(srcAddrHash, null); //This serves to prevent seeing the message upon joining then leaving
+											nonact.remove(srcAddrHash);
 										}
 									}else if(udppack.getPayload().getRawData().length == 4 && ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
 										String payload = ippacket.toHexString().replaceAll(" ", "").substring(ippacket.toHexString().replaceAll(" ", "").length() - 8);
 										if(payload.equals("beefface")){ //BEEFFACE occurs on disconnect from lobby
-											active.remove(ippacket.getHeader().getDstAddr().toString());
+											active.remove(ippacket.getHeader().getDstAddr().hashCode());
 											if(ui.getMode()){
-												ui.removeSurv(ippacket.getHeader().getDstAddr().toString());
+												ui.removeSurv(ippacket.getHeader().getDstAddr().hashCode());
 											}else{
+												ui.setKillerAddr(0);
 												ui.setKillerPing(0);
 											}
 										}
