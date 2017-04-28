@@ -43,6 +43,7 @@ public class Preferences {
 			short i = 0;
 			for(byte b : NetworkInterface.getByInetAddress(Boot.addr).getHardwareAddress()){
 				mac[i] = b;
+				i++;
 			}
 			mac[6] = 'W';
 			mac[7] = 'C';
