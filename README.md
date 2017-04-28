@@ -42,3 +42,10 @@ While installing WinPCap you may receive an error stating that there is already 
 * This time it will give you the option to remove the old version, do so
 * Proceed through the rest of the installation
 * Reboot your computer normally. Now the installation is done, and you can proceed with Making Lobbies Great Again
+
+## HOW TO SUBMIT A DEBUG LOG
+* Right-click in the same directory as MLGA and create a new text document
+* Open it with Notepad and type, java -jar MLGA.jar
+* Choose Save As and name it MLGADebug.bat with the option All Files selected
+* Right-click the new batch file and Run as Administrator
+* Submit a picture or copy of the text to an Issue
