@@ -64,9 +64,6 @@ public class Preferences {
 				}
 				prefs.put(Integer.parseInt(line.split("=")[0].trim()), Boolean.valueOf(line.substring(line.indexOf('=')+1).trim()));
 			}
-			for(Integer k : prefs.keySet() ){
-				System.out.println((k.toString().trim()+"="+prefs.get(k)));
-			}
 			bufferedReader.close();
 		}catch(IOException | InvalidKeyException | InvalidKeySpecException | NoSuchAlgorithmException | NoSuchPaddingException e){
 			e.printStackTrace();
