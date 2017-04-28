@@ -40,91 +40,94 @@ import mlga.io.Settings;
 import mlga.ui.Overlay;
 
 public class Boot {
-	public static Double version = 1.23;
+	public static Double version = 1.24;
 	public static InetAddress addr = null;
 	private static PcapHandle handle = null;
 
-	public static void main(String[] args) throws UnsupportedLookAndFeelException, AWTException, ClassNotFoundException, FontFormatException{
-		try {
-			if(!Sanity.check()){
-				System.exit(1);
-			}
-			Settings.init();
-			Settings.set("autoload", Settings.get("autoload", "0")); //"autoload" is an ini-only toggle for advanced users.
-			setupTray();
+	public static void main(String[] args) throws UnsupportedLookAndFeelException, AWTException, ClassNotFoundException, InterruptedException,
+	FontFormatException, InstantiationException, IllegalAccessException, IOException, PcapNativeException, NotOpenException {
+		if(!Sanity.check()){
+			System.exit(1);
+		}
+		Settings.init();
+		Settings.set("autoload", Settings.get("autoload", "0")); //"autoload" is an ini-only toggle for advanced users.
+		setupTray();
 
-			getLocalAddr();
-			PcapNetworkInterface nif = Pcaps.getDevByAddress(addr);
-			if(nif == null){
-				JOptionPane.showMessageDialog(null, "The device you selected doesn't seem to exist. Double-check the IP you entered.", "Error", JOptionPane.ERROR_MESSAGE);
-			}
+		getLocalAddr();
+		PcapNetworkInterface nif = Pcaps.getDevByAddress(addr);
+		if(nif == null){
+			JOptionPane.showMessageDialog(null, "The device you selected doesn't seem to exist. Double-check the IP you entered.", "Error", JOptionPane.ERROR_MESSAGE);
+		}
 
-			final int snapLen = 65536;
-			final PromiscuousMode mode = PromiscuousMode.PROMISCUOUS;
-			final int timeout = 0;
-			handle = nif.openLive(snapLen, mode, timeout);
+		final int addrHash = addr.hashCode();
+		final int snapLen = 65536;
+		final PromiscuousMode mode = PromiscuousMode.PROMISCUOUS;
+		final int timeout = 0;
+		handle = nif.openLive(snapLen, mode, timeout);
 
-			HashMap<Integer, Integer> nonact = new HashMap<Integer, Integer>();
-			HashMap<Integer, Timestamp> active = new HashMap<Integer, Timestamp>();
-			Overlay ui = new Overlay();
+		HashMap<Integer, Integer> nonact = new HashMap<Integer, Integer>();
+		HashMap<Integer, Timestamp> active = new HashMap<Integer, Timestamp>();
+		Overlay ui = new Overlay();
 
-			while(true){				
-				Packet packet = handle.getNextPacket(); 
+		while(true){				
+			Packet packet = handle.getNextPacket(); 
 
-				if(packet != null){
-					IpV4Packet ippacket = packet.get(IpV4Packet.class);
+			if(packet != null){
+				IpV4Packet ippacket = packet.get(IpV4Packet.class);
 
-					if(ippacket != null){
-						if(ippacket.getHeader().getProtocol() == IpNumber.UDP){
-							UdpPacket udppack = ippacket.get(UdpPacket.class);
-							int srcAddrHash = ippacket.getHeader().getSrcAddr().hashCode(); // Shows as '/0.0.0.0'
+				if(ippacket != null){
+					if(ippacket.getHeader().getProtocol() == IpNumber.UDP){
+						UdpPacket udppack = ippacket.get(UdpPacket.class);
 
-							if(udppack != null){
-								if(ui.getMode()){
-									if(ui.numSurvs() > 4){ //Fixes people affected by a loading bug being stuck in list
-										ui.clearSurvs();
-										active.clear();
-									}
+						if(udppack != null){
+							int srcAddrHash = ippacket.getHeader().getSrcAddr().hashCode();
+							int dstAddrHash = ippacket.getHeader().getDstAddr().hashCode();
+
+							if(ui.getMode()){
+								if(ui.numSurvs() > 4){ //Fixes people affected by a loading bug being stuck in list
+									ui.clearSurvs();
+									active.clear();
 								}
-								if(active.containsKey(srcAddrHash) && !ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
-									if(active.get(srcAddrHash) != null && udppack.getPayload().getRawData().length == 68  //Packets are STUN related: 56 is request, 68 is response
-											&& ippacket.getHeader().getDstAddr().isSiteLocalAddress()){
-										if(ui.getMode()){ //KILLER MODE
-											ui.setSurvPing(srcAddrHash, handle.getTimestamp().getTime() - active.get(srcAddrHash).getTime());
-										}else{ //SURVIVOR MODE
-											if(ui.getKillerPing() == 0){ //Keep from constantly making String objects
-												ui.setKillerAddr(srcAddrHash);
-											}
-											ui.setKillerPing(handle.getTimestamp().getTime() - active.get(srcAddrHash).getTime());
-										}
+							}
 
-										active.put(srcAddrHash, null); //No longer expect ping
+							if(active.containsKey(srcAddrHash) && srcAddrHash != addrHash){
+								if(active.get(srcAddrHash) != null && udppack.getPayload().getRawData().length == 68  //Packets are STUN related: 56 is request, 68 is response
+										&& dstAddrHash == addrHash){
+									if(ui.getMode()){ //KILLER MODE
+										ui.setSurvPing(srcAddrHash, handle.getTimestamp().getTime() - active.get(srcAddrHash).getTime());
+									}else{ //SURVIVOR MODE
+										if(ui.getKillerPing() == 0){ //Keep from constantly making String objects
+											ui.setKillerAddr(srcAddrHash);
+										}
+										ui.setKillerPing(handle.getTimestamp().getTime() - active.get(srcAddrHash).getTime());
 									}
-								}else{
-									if(udppack.getPayload().getRawData().length == 56 && ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
-										active.put(ippacket.getHeader().getDstAddr().hashCode(), handle.getTimestamp());
+
+									active.put(srcAddrHash, null); //No longer expect ping
+								}
+							}else{
+								if(udppack.getPayload().getRawData().length == 56 && srcAddrHash == addrHash){
+									active.put(ippacket.getHeader().getDstAddr().hashCode(), handle.getTimestamp());
+								}
+								else if(udppack.getPayload().getRawData().length == 68 && srcAddrHash != addrHash){
+									if(nonact.containsKey(srcAddrHash)){
+										nonact.put(srcAddrHash, nonact.get(srcAddrHash) + 1);
+									}else{
+										nonact.put(srcAddrHash, 1);
 									}
-									else if(udppack.getPayload().getRawData().length == 68 && !ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
-										if(nonact.containsKey(srcAddrHash)){
-											nonact.put(srcAddrHash, nonact.get(srcAddrHash) + 1);
+
+									if(nonact.containsKey(srcAddrHash) && nonact.get(srcAddrHash) == 4){ //The new packet is sent multiple times, we only really need 4 to confirm
+										active.put(srcAddrHash, null); //This serves to prevent seeing the message upon joining then leaving
+										nonact.remove(srcAddrHash);
+									}
+								}else if(udppack.getPayload().getRawData().length == 4 && srcAddrHash == addrHash){
+									String payload = ippacket.toHexString().replaceAll(" ", "").substring(ippacket.toHexString().replaceAll(" ", "").length() - 8);
+									if(payload.equals("beefface")){ //BEEFFACE occurs on disconnect from lobby
+										active.remove(ippacket.getHeader().getDstAddr().hashCode());
+										if(ui.getMode()){
+											ui.removeSurv(ippacket.getHeader().getDstAddr().hashCode());
 										}else{
-											nonact.put(srcAddrHash, 1);
-										}
-
-										if(nonact.containsKey(srcAddrHash) && nonact.get(srcAddrHash) == 4){ //The new packet is sent multiple times, we only really need 4 to confirm
-											active.put(srcAddrHash, null); //This serves to prevent seeing the message upon joining then leaving
-											nonact.remove(srcAddrHash);
-										}
-									}else if(udppack.getPayload().getRawData().length == 4 && ippacket.getHeader().getSrcAddr().isSiteLocalAddress()){
-										String payload = ippacket.toHexString().replaceAll(" ", "").substring(ippacket.toHexString().replaceAll(" ", "").length() - 8);
-										if(payload.equals("beefface")){ //BEEFFACE occurs on disconnect from lobby
-											active.remove(ippacket.getHeader().getDstAddr().hashCode());
-											if(ui.getMode()){
-												ui.removeSurv(ippacket.getHeader().getDstAddr().hashCode());
-											}else{
-												ui.setKillerAddr(0);
-												ui.setKillerPing(0);
-											}
+											ui.setKillerAddr(0);
+											ui.setKillerPing(0);
 										}
 									}
 								}
@@ -133,9 +136,6 @@ public class Boot {
 					}
 				}
 			}
-		} catch (PcapNativeException | NotOpenException | InstantiationException | IllegalAccessException
-				| IOException | InterruptedException e) {
-			e.printStackTrace();
 		}
 	}
 
