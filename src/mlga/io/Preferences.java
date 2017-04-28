@@ -21,6 +21,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
+import javax.swing.JOptionPane;
 
 import mlga.Boot;
 
@@ -64,7 +65,10 @@ public class Preferences {
 		}catch(IOException | InvalidKeyException | InvalidKeySpecException | NoSuchAlgorithmException | NoSuchPaddingException e){
 			e.printStackTrace();
 			prefsFile.delete();
-			System.err.println("No preferences were able to be loaded in or the existing preference file was corrupted.");
+			JOptionPane.showMessageDialog(null, 
+					"No preferences were able to be loaded in or the existing preference file was corrupted.\nThe existing file has been deleted.\nPlease restart the application.", 
+					"Error", JOptionPane.ERROR_MESSAGE);
+			System.exit(1);
 		}
 	}
 	
