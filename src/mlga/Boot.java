@@ -40,7 +40,7 @@ import mlga.io.Settings;
 import mlga.ui.Overlay;
 
 public class Boot {
-	public static Double version = 1.25;
+	public static Double version = 1.26;
 	public static InetAddress addr = null;
 	private static PcapHandle handle = null;
 
@@ -61,7 +61,7 @@ public class Boot {
 
 		final int addrHash = addr.hashCode();
 		final int snapLen = 65536;
-		final PromiscuousMode mode = PromiscuousMode.PROMISCUOUS;
+		final PromiscuousMode mode = PromiscuousMode.NONPROMISCUOUS;
 		final int timeout = 0;
 		handle = nif.openLive(snapLen, mode, timeout);
 
