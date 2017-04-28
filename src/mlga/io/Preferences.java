@@ -10,6 +10,7 @@ import java.net.NetworkInterface;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.crypto.BadPaddingException;
@@ -38,7 +39,7 @@ public class Preferences {
 			}
 			
 			
-			int macHash = NetworkInterface.getByInetAddress(Boot.addr).getHardwareAddress().hashCode();
+			int macHash = Arrays.hashCode(NetworkInterface.getByInetAddress(Boot.addr).getHardwareAddress());
 			DESKeySpec key = new DESKeySpec(Integer.toString(macHash).getBytes());
 			SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
 	        desKey = keyFactory.generateSecret(key);
@@ -62,7 +63,8 @@ public class Preferences {
 			bufferedReader.close();
 		}catch(IOException | InvalidKeyException | InvalidKeySpecException | NoSuchAlgorithmException | NoSuchPaddingException e){
 			e.printStackTrace();
-			System.err.println("No preferences were able to be loaded in.");
+			prefsFile.delete();
+			System.err.println("No preferences were able to be loaded in or the existing preference file was corrupted.");
 		}
 	}
 	
