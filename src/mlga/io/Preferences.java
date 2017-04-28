@@ -10,7 +10,6 @@ import java.net.NetworkInterface;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.crypto.BadPaddingException;
@@ -40,8 +39,14 @@ public class Preferences {
 			}
 			
 			
-			int macHash = Arrays.hashCode(NetworkInterface.getByInetAddress(Boot.addr).getHardwareAddress());
-			DESKeySpec key = new DESKeySpec(Integer.toString(macHash).getBytes());
+			byte[] mac = new byte[8];
+			short i = 0;
+			for(byte b : NetworkInterface.getByInetAddress(Boot.addr).getHardwareAddress()){
+				mac[i] = b;
+			}
+			mac[6] = 'W';
+			mac[7] = 'C';
+			DESKeySpec key = new DESKeySpec(mac);
 			SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
 	        desKey = keyFactory.generateSecret(key);
 	        cipher = Cipher.getInstance("DES");
