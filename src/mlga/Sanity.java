@@ -54,17 +54,17 @@ public class Sanity {
 	/** Check the WinPcap lib installation. */
 	private static boolean checkPCap(){
 		try{
-			System.out.println("Pcap Info: "+Pcaps.libVersion());//TODO: Not actually positive this throws an error if the lib is gone... Needs testing.
+			System.out.println("Pcap Info: " + Pcaps.libVersion());//TODO: Exception just crashes application
 		}catch(Exception e){
 			e.printStackTrace();
-			message("You MUST have WinPcap installed to allow this program to monitor the lobby!"
+			message("You MUST have NPCap or WinPCap installed to allow this program to monitor the lobby!"
 					+(Desktop.isDesktopSupported()?"\nAn installer link will attempt to open...":"Please go to https://www.winpcap.org/ and install it."));
 			if(Desktop.isDesktopSupported()){
 				try {
-					Desktop.getDesktop().browse(new URL("https://www.winpcap.org/").toURI());
+					Desktop.getDesktop().browse(new URL("https://nmap.org/npcap/").toURI());
 				} catch (IOException | URISyntaxException e1) {
 					e1.printStackTrace();
-					message("We couldn't open the URL for you, so go to https://www.winpcap.org/ and install it!");
+					message("We couldn't open the URL for you, so go to https://nmap.org/npcap/ and install it!");
 				}
 			}
 			return false;
