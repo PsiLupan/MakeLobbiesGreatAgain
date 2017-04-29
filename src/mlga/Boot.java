@@ -40,7 +40,7 @@ import mlga.io.Settings;
 import mlga.ui.Overlay;
 
 public class Boot {
-	public static Double version = 1.26;
+	public static Double version = 1.27;
 	public static InetAddress addr = null;
 	private static PcapHandle handle = null;
 
@@ -79,7 +79,7 @@ public class Boot {
 					if(ippacket.getHeader().getProtocol() == IpNumber.UDP){
 						UdpPacket udppack = ippacket.get(UdpPacket.class);
 
-						if(udppack != null){
+						if(udppack != null && udppack.getPayload() != null){
 							int srcAddrHash = ippacket.getHeader().getSrcAddr().hashCode();
 							int dstAddrHash = ippacket.getHeader().getDstAddr().hashCode();
 
