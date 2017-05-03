@@ -59,36 +59,7 @@ public class Overlay extends JPanel {
 					}else{ //Blocking
 						boolean ctrlDown = e.isControlDown();
 						boolean altDown = e.isAltDown();
-						/*if(mode){ //Killer Mode - TODO Fix Positions
-							System.out.println("Pos: "+ e.getX()+","+e.getY());
-							int yPos = e.getY();
-							short selection = 0;
-							Set<String> survAddresses = survivors.keySet();
-
-							if(yPos >= 0 && yPos < 26 && survivors.keySet().size() >= 1) {
-								selection = 0;
-							}
-							else if(yPos >= 56 && survivors.keySet().size() >= 4){
-								selection = 3;
-							}else if(yPos >= 26 && yPos < 39 && survivors.keySet().size() >= 2){
-								selection = 1;
-							}else if(yPos >= 39 && yPos < 56 && survivors.keySet().size() >= 3){
-								selection = 2;
-							}
-
-							if(!ctrlDown){
-								if(altDown){
-									System.out.println("Removed Survivor "+selection);
-									//Preferences.remove(survAddresses.toArray()[selection]);
-								}else{
-									System.out.println("Blocked Survivor "+selection);
-									//Preferences.set(survAddresses.toArray()[selection], false);
-								}
-							}else{
-								System.out.println("Loved Survivor "+selection);
-								//Preferences.set(survAddresses.toArray()[selection], true);
-							}
-						}*/
+						
 						if(!ctrlDown){
 							if(altDown){
 								Preferences.remove(killerAddr);
