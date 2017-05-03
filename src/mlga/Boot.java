@@ -172,7 +172,7 @@ public class Boot {
 
 		for(PcapNetworkInterface i : Pcaps.findAllDevs()){
 			for(PcapAddress x : i.getAddresses()){
-				if(x.getAddress() != null && x.getNetmask() != null){
+				if(x.getAddress() != null && x.getNetmask() != null && !x.getAddress().toString().equals("/0.0.0.0")){
 					System.out.println("Found: "+ x.getAddress().getHostAddress());
 					lanIP.addItem(x.getAddress().getHostAddress());
 				}
