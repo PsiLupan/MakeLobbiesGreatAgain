@@ -55,7 +55,7 @@ public class Sanity {
 	private static boolean checkPCap(){
 		try{
 			System.out.println("Pcap Info: " + Pcaps.libVersion());//TODO: Exception just crashes application
-		}catch(Exception e){
+		}catch(Error e){
 			e.printStackTrace();
 			message("You MUST have NPCap or WinPCap installed to allow this program to monitor the lobby!"
 					+(Desktop.isDesktopSupported()?"\nAn installer link will attempt to open...":"Please go to https://www.winpcap.org/ and install it."));
