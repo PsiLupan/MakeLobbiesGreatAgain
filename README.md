@@ -29,8 +29,10 @@ Simply double double click on the MLGA.jar file to run
 
 **If UAC is enabled:** 
 You may need to run the application via Command Prompt (this is due to the PCap4J library being unable to find devices).
+* Copy the folder path that MLGA is in, for example: C:\Users\Dwight\Desktop\MLGA\
 * Right-click in the same directory as MLGA and create a new text document
-* Open it with Notepad and type, javaw -jar MLGA.jar
+* Open it with Notepad and type, cd C:\The\Path\You\Copied\Earlier
+* Start a new line with Enter and type, javaw -jar MLGA.jar
 * Choose Save As and name it MLGA.bat with the option All Files selected
 * Right-click the new batch file and Run as Administrator
 
