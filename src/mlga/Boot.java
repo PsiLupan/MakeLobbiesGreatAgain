@@ -174,11 +174,12 @@ public class Boot {
 
 		for(PcapNetworkInterface i : Pcaps.findAllDevs()){
 			for(PcapAddress x : i.getAddresses()){
-				if(x.getAddress() != null && x.getNetmask() != null && !x.getAddress().toString().equals("/0.0.0.0")){
+				InetAddress xaddr = x.getAddress();
+				if(xaddr != null && x.getNetmask() != null && !xaddr.toString().equals("/0.0.0.0")){
 					NetworkInterface inf = NetworkInterface.getByInetAddress(x.getAddress());
 					if(inf.isUp()){
-						System.out.println("Found: "+ NetworkInterface.getByInetAddress(x.getAddress()).getDisplayName() + " ::: " + x.getAddress().getHostAddress());
-						lanIP.addItem(NetworkInterface.getByInetAddress(x.getAddress()).getDisplayName() + " ::: " + x.getAddress().getHostAddress());
+						System.out.println("Found: "+ inf.getDisplayName() + " ::: " + xaddr.getHostAddress());
+						lanIP.addItem(inf.getDisplayName() + " ::: " + xaddr.getHostAddress());
 					}
 				}
 			}

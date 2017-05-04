@@ -33,7 +33,7 @@ public class Overlay extends JPanel {
 
 	public Overlay() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, FontFormatException, IOException{
 		Preferences.init();
-		
+
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		this.setOpaque(false);
 		final JWindow frame = new JWindow();
@@ -59,7 +59,7 @@ public class Overlay extends JPanel {
 					}else{ //Blocking
 						boolean ctrlDown = e.isControlDown();
 						boolean altDown = e.isAltDown();
-						
+
 						if(!ctrlDown){
 							if(altDown){
 								Preferences.remove(killerAddr);
@@ -107,7 +107,7 @@ public class Overlay extends JPanel {
 		frame.pack();
 		frame.setLocation((int)Settings.getDouble("frame_x", 5), (int)Settings.getDouble("frame_y", 400));
 		frame.setVisible(true);
-		
+
 		Thread t = new Thread("UIPainter"){
 			public void run() {
 				try{
@@ -183,22 +183,27 @@ public class Overlay extends JPanel {
 
 		if(!mode){
 			g.fillRect(8, 0, getPreferredSize().width, getPreferredSize().height - 42);
-			if(killerPing <= 140){
-				g.setColor(Color.GREEN);
-			}else if(killerPing > 140 && killerPing <= 190){
-				g.setColor(Color.YELLOW);
-			}else{
+			if(killerAddr == 0){
 				g.setColor(Color.RED);
-			}
-			if(!Preferences.prefs.containsKey(killerAddr)){
-				g.drawString("Killer Ping: "+ killerPing, 9, 13);
-			}
-			else{
-				Boolean love = Preferences.prefs.get(killerAddr);
-				if(!love){
-					g.drawString("BLOCKED: " + killerPing, 9, 13);
+				g.drawString("NOT IN LOBBY", 9, 13);
+			}else{
+				if(killerPing <= 140){
+					g.setColor(Color.GREEN);
+				}else if(killerPing > 140 && killerPing <= 190){
+					g.setColor(Color.YELLOW);
 				}else{
-					g.drawString("LOVED: " + killerPing, 9, 13);
+					g.setColor(Color.RED);
+				}
+				if(!Preferences.prefs.containsKey(killerAddr)){
+					g.drawString("Killer Ping: "+ killerPing, 9, 13);
+				}
+				else{
+					Boolean love = Preferences.prefs.get(killerAddr);
+					if(!love){
+						g.drawString("BLOCKED: " + killerPing, 9, 13);
+					}else{
+						g.drawString("LOVED: " + killerPing, 9, 13);
+					}
 				}
 			}
 		}else{
