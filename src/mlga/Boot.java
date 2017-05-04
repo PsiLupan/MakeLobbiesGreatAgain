@@ -104,7 +104,7 @@ public class Boot {
 										ui.setKillerPing(handle.getTimestamp().getTime() - active.get(srcAddrHash).getTime());
 									}
 
-									active.put(srcAddrHash, null); //No longer expect ping
+									active.put(srcAddrHash, null); //No longer expect ping response to the pong
 								}
 							}else{
 								if(udppack.getPayload().getRawData().length == 56 && srcAddrHash == addrHash){
