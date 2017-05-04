@@ -208,9 +208,9 @@ public class Overlay extends JPanel {
 				short i = 0;
 				while(iter.hasNext()){
 					long rtt = iter.next();
-					if(rtt <= 120){
+					if(rtt <= 140){
 						g.setColor(Color.GREEN);
-					}else if(rtt > 120 && rtt <= 150){
+					}else if(rtt > 140 && rtt <= 190){
 						g.setColor(Color.YELLOW);
 					}else{
 						g.setColor(Color.RED);
