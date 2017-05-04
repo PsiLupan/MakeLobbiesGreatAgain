@@ -183,9 +183,9 @@ public class Overlay extends JPanel {
 
 		if(!mode){
 			g.fillRect(8, 0, getPreferredSize().width, getPreferredSize().height - 42);
-			if(killerPing <= 120){
+			if(killerPing <= 140){
 				g.setColor(Color.GREEN);
-			}else if(killerPing > 120 && killerPing <= 150){
+			}else if(killerPing > 140 && killerPing <= 190){
 				g.setColor(Color.YELLOW);
 			}else{
 				g.setColor(Color.RED);
