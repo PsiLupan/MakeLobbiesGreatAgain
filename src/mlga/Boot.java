@@ -177,7 +177,7 @@ public class Boot {
 				if(x.getAddress() != null && x.getNetmask() != null && !x.getAddress().toString().equals("/0.0.0.0")){
 					NetworkInterface inf = NetworkInterface.getByInetAddress(x.getAddress());
 					if(inf.isUp()){
-						System.out.println("Found: "+ x.getAddress().getHostAddress());
+						System.out.println("Found: "+ NetworkInterface.getByInetAddress(x.getAddress()).getDisplayName() + " ::: " + x.getAddress().getHostAddress());
 						lanIP.addItem(NetworkInterface.getByInetAddress(x.getAddress()).getDisplayName() + " ::: " + x.getAddress().getHostAddress());
 					}
 				}
