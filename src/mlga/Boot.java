@@ -178,7 +178,7 @@ public class Boot {
 					NetworkInterface inf = NetworkInterface.getByInetAddress(x.getAddress());
 					if(inf.isUp()){
 						System.out.println("Found: "+ x.getAddress().getHostAddress());
-						lanIP.addItem(NetworkInterface.getByInetAddress(x.getAddress()).getDisplayName() + " :: " + x.getAddress().getHostAddress());
+						lanIP.addItem(NetworkInterface.getByInetAddress(x.getAddress()).getDisplayName() + " ::: " + x.getAddress().getHostAddress());
 					}
 				}
 			}
@@ -196,7 +196,7 @@ public class Boot {
 						addr = InetAddress.getByName(lanText.getText());
 						System.out.println("Using IP from textfield: "+ lanText.getText());
 					}else{
-						addr = InetAddress.getByName(lanIP.getSelectedItem().toString().split("::")[1].trim());
+						addr = InetAddress.getByName(lanIP.getSelectedItem().toString().split(":::")[1].trim());
 						System.out.println("Using IP from dropdown: "+ addr.getHostAddress());
 					}
 					Settings.set("addr", addr.getHostAddress().replaceAll("/", ""));
