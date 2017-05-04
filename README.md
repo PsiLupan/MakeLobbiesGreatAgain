@@ -44,5 +44,5 @@ You may need to run the application via Command Prompt (this is due to the PCap4
 * Submit a picture or copy of the text to an Issue
 
 ## Libaries in use in the project:
-Pcap4J - https://github.com/kaitoy/pcap4j and its associated dependencies
-Npcap - https://nmap.org/npcap/
+* Pcap4J - https://github.com/kaitoy/pcap4j and its associated dependencies
+* Npcap - https://nmap.org/npcap/
