@@ -72,11 +72,24 @@ public class Preferences {
 				prefs.put(Integer.parseInt(line.split("=")[0].trim()), Boolean.valueOf(line.substring(line.indexOf('=')+1).trim()));
 			}
 			bufferedReader.close();
-		}catch(IOException | InvalidKeyException | InvalidKeySpecException | NoSuchAlgorithmException | NoSuchPaddingException e){
+		}catch(IOException ioe){
+			ioe.printStackTrace();
+			JOptionPane.showMessageDialog(null, 
+					"No preferences were able to be loaded.\nPlease restart the application and try again.", 
+					"Error", JOptionPane.ERROR_MESSAGE);
+			System.exit(1);
+		}catch(NullPointerException npe){
+			npe.printStackTrace();
+			JOptionPane.showMessageDialog(null, 
+					"A null pointer was thrown. This means your device either doesn't have a MAC address somehow or you need to run in Admin Mode.", 
+					"Error", JOptionPane.ERROR_MESSAGE);
+			System.exit(1);
+		}
+		catch(InvalidKeyException | InvalidKeySpecException | NoSuchAlgorithmException | NoSuchPaddingException e){
 			e.printStackTrace();
 			prefsFile.delete();
 			JOptionPane.showMessageDialog(null, 
-					"No preferences were able to be loaded in or the existing preference file was corrupted.\nThe existing file has been deleted.\nPlease restart the application.", 
+					"The existing preference file was corrupted or broken by an update.\nThe existing file has been deleted.\nPlease restart the application.", 
 					"Error", JOptionPane.ERROR_MESSAGE);
 			System.exit(1);
 		}
