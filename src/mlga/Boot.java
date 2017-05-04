@@ -95,16 +95,9 @@ public class Boot {
 							if(active.containsKey(srcAddrHash) && srcAddrHash != addrHash){
 								if(active.get(srcAddrHash) != null && udppack.getPayload().getRawData().length == 68  //Packets are STUN related: 56 is request, 68 is response
 										&& dstAddrHash == addrHash){
-									if(ui.getMode()){ //KILLER MODE
-										ui.setSurvPing(srcAddrHash, handle.getTimestamp().getTime() - active.get(srcAddrHash).getTime());
-									}else{ //SURVIVOR MODE
-										if(ui.getKillerPing() == 0){ //Keep from constantly making String objects
-											ui.setKillerAddr(srcAddrHash);
-										}
-										ui.setKillerPing(handle.getTimestamp().getTime() - active.get(srcAddrHash).getTime());
-									}
+									ui.setPing(srcAddrHash, handle.getTimestamp().getTime() - active.get(srcAddrHash).getTime());
 
-									active.put(srcAddrHash, null); //No longer expect ping response to the pong
+									active.put(srcAddrHash, null); //No longer expect ping
 								}
 							}else{
 								if(udppack.getPayload().getRawData().length == 56 && srcAddrHash == addrHash){
@@ -125,12 +118,8 @@ public class Boot {
 									String payload = ippacket.toHexString().replaceAll(" ", "").substring(ippacket.toHexString().replaceAll(" ", "").length() - 8);
 									if(payload.equals("beefface")){ //BEEFFACE occurs on disconnect from lobby
 										active.remove(ippacket.getHeader().getDstAddr().hashCode());
-										if(ui.getMode()){
-											ui.removeSurv(ippacket.getHeader().getDstAddr().hashCode());
-										}else{
-											ui.setKillerAddr(0);
-											ui.setKillerPing(0);
-										}
+										//if(ui.getMode()){
+										ui.removePeer(ippacket.getHeader().getDstAddr().hashCode());
 									}
 								}
 							}
@@ -174,12 +163,11 @@ public class Boot {
 
 		for(PcapNetworkInterface i : Pcaps.findAllDevs()){
 			for(PcapAddress x : i.getAddresses()){
-				InetAddress xaddr = x.getAddress();
-				if(xaddr != null && x.getNetmask() != null && !xaddr.toString().equals("/0.0.0.0")){
+				if(x.getAddress() != null && x.getNetmask() != null && !x.getAddress().toString().equals("/0.0.0.0")){
 					NetworkInterface inf = NetworkInterface.getByInetAddress(x.getAddress());
 					if(inf.isUp()){
-						System.out.println("Found: "+ inf.getDisplayName() + " ::: " + xaddr.getHostAddress());
-						lanIP.addItem(inf.getDisplayName() + " ::: " + xaddr.getHostAddress());
+						System.out.println("Found: "+ NetworkInterface.getByInetAddress(x.getAddress()).getDisplayName() + " ::: " + x.getAddress().getHostAddress());
+						lanIP.addItem(NetworkInterface.getByInetAddress(x.getAddress()).getDisplayName() + " ::: " + x.getAddress().getHostAddress());
 					}
 				}
 			}

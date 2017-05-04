@@ -12,6 +12,8 @@ import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import javax.swing.JPanel;
 import javax.swing.JWindow;
 import javax.swing.SwingUtilities;
@@ -25,15 +27,15 @@ public class Overlay extends JPanel {
 	private static final long serialVersionUID = -470849574354121503L;
 
 	private boolean frameMove = false;
-	private boolean mode = false; //true for killer, false for surv
-	private int killerAddr = 0;
-	private long killerPing = 0;
-	private HashMap<Integer, Long> survivors = new HashMap<Integer, Long>();
+	/** true for killer, false for surv*/
+	private boolean mode = false; 
+	
+	private CopyOnWriteArrayList<Peer> peers = new CopyOnWriteArrayList<Peer>();
 	private final Font roboto = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemClassLoader().getResourceAsStream("resources/Roboto-Medium.ttf")).deriveFont(15f);;
 
 	public Overlay() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, FontFormatException, IOException{
 		Preferences.init();
-
+		
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		this.setOpaque(false);
 		final JWindow frame = new JWindow();
@@ -52,22 +54,23 @@ public class Overlay extends JPanel {
 					frame.setFocusableWindowState(frameMove);
 				}else if(SwingUtilities.isRightMouseButton(e)){
 					if(!e.isShiftDown()){ //Change between Killer/Survivor Mode
-						killerPing = 0;
-						if(!survivors.isEmpty())
-							survivors.clear();
+						if(!peers.isEmpty())
+							peers.clear();
 						mode = !mode;
 					}else{ //Blocking
 						boolean ctrlDown = e.isControlDown();
 						boolean altDown = e.isAltDown();
 
-						if(!ctrlDown){
-							if(altDown){
-								Preferences.remove(killerAddr);
+						if(!mode && peers.size()>0){
+							if(!ctrlDown){
+								if(altDown){
+									Preferences.remove(peers.get(0).getID());
+								}else{
+									Preferences.set(peers.get(0).getID(), false);
+								}
 							}else{
-								Preferences.set(killerAddr, false);
+								Preferences.set(peers.get(0).getID(), true);
 							}
-						}else{
-							Preferences.set(killerAddr, true);
 						}
 					}
 				}
@@ -107,7 +110,7 @@ public class Overlay extends JPanel {
 		frame.pack();
 		frame.setLocation((int)Settings.getDouble("frame_x", 5), (int)Settings.getDouble("frame_y", 400));
 		frame.setVisible(true);
-
+		
 		Thread t = new Thread("UIPainter"){
 			public void run() {
 				try{
@@ -133,32 +136,44 @@ public class Overlay extends JPanel {
 		return mode;
 	}
 
-	public void setKillerPing(long rtt){
-		killerPing = rtt;
+	private void addPeer(int srcAddrHash, long rtt){
+		peers.add(new Peer(srcAddrHash, rtt));
 	}
-
-	public long getKillerPing(){
-		return killerPing;
-	}
-
-	public void setKillerAddr(int addr){
-		killerAddr = addr;
-	}
-
-	public void setSurvPing(int srcAddrHash, long rtt){
-		survivors.put(srcAddrHash, rtt);
+	
+	/** Sets a peer's ping, or creates their object. */
+	public void setPing(int id, long ping){
+		Peer p = this.getPeer(id);
+		if(p!=null){
+			p.setPing(ping);
+		}else{
+			this.addPeer(id, ping);
+		}
 	}
 
 	public int numSurvs(){
-		return survivors.size();
+		return peers.size();
 	}
 
 	public void clearSurvs(){
-		survivors.clear();
+		peers.clear();
 	}
 
-	public void removeSurv(int i){
-		survivors.remove(i);
+	public void removePeer(int i){
+		Peer p = this.getPeer(i);
+		if(p!=null){
+			peers.remove(p);
+			System.err.println("Removed peer: "+p.getID());
+		}
+	}
+	
+	/** Finds a Peer connection by its ID. */
+	private Peer getPeer(int id){
+		for(Peer p : peers){
+			if(p.getID()==id){
+				return p;
+			}
+		}
+		return null;
 	}
 
 	@Override
@@ -180,56 +195,32 @@ public class Overlay extends JPanel {
 		}else{
 			g.setColor(new Color(0f,0f,0f,1f));
 		}
-
-		if(!mode){
-			g.fillRect(8, 0, getPreferredSize().width, getPreferredSize().height - 42);
-			if(killerAddr == 0){
-				g.setColor(Color.RED);
-				g.drawString("NOT IN LOBBY", 9, 13);
-			}else{
-				if(killerPing <= 140){
+		
+		int height = g.getFontMetrics().getHeight()+1;//line height.
+		
+		g.fillRect(8, 0, getPreferredSize().width, height*Math.max(1, peers.size()) );
+		if(!peers.isEmpty()){
+			short i = 0;
+			for(Peer p : peers){
+				long rtt = p.getPing();
+				if(rtt <= 140){
 					g.setColor(Color.GREEN);
-				}else if(killerPing > 140 && killerPing <= 190){
+				}else if(rtt > 140 && rtt <= 190){
 					g.setColor(Color.YELLOW);
 				}else{
 					g.setColor(Color.RED);
 				}
-				if(!Preferences.prefs.containsKey(killerAddr)){
-					g.drawString("Killer Ping: "+ killerPing, 9, 13);
+				
+				String render = "Killer Ping: "+ rtt;
+				if(p.saved()){
+					render = (p.loved()?"BLOCKED: ":"LOVED: ")+rtt;
 				}
-				else{
-					Boolean love = Preferences.prefs.get(killerAddr);
-					if(!love){
-						g.drawString("BLOCKED: " + killerPing, 9, 13);
-					}else{
-						g.drawString("LOVED: " + killerPing, 9, 13);
-					}
-				}
+				g.drawString(render, 9, height*(i + 1));
+				++i;
 			}
 		}else{
-			g.fillRect(35, 0, getPreferredSize().width, getPreferredSize().height);
-			if(!survivors.isEmpty()){
-				Iterator<Long> iter = survivors.values().iterator();
-				short i = 0;
-				while(iter.hasNext()){
-					long rtt = iter.next();
-					if(rtt <= 140){
-						g.setColor(Color.GREEN);
-					}else if(rtt > 140 && rtt <= 190){
-						g.setColor(Color.YELLOW);
-					}else{
-						g.setColor(Color.RED);
-					}
-					g.drawString("Ping: "+ rtt, 36, 13 * (i + 1));
-					++i;
-				}
-			}else{
-				g.setColor(Color.RED);
-				g.drawString("NO", 36, 13);
-				g.drawString("SURVIVORS", 36, 26);
-				g.drawString("FOUND IN", 36, 39);
-				g.drawString("LOBBY", 36, 52);
-			}
+			g.setColor(Color.RED);
+			g.drawString("No "+(mode?"Survivors":"Killer"), 12, 13);
 		}
 
 		g.dispose();
