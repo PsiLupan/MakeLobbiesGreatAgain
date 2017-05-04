@@ -84,6 +84,7 @@ public class Boot {
 						if(udppack != null && udppack.getPayload() != null){
 							int srcAddrHash = ippacket.getHeader().getSrcAddr().hashCode();
 							int dstAddrHash = ippacket.getHeader().getDstAddr().hashCode();
+							int payloadLen = udppack.getPayload().getRawData().length;
 
 							if(ui.getMode()){
 								if(ui.numSurvs() > 4){ //Fixes people affected by a loading bug being stuck in list
@@ -93,17 +94,17 @@ public class Boot {
 							}
 
 							if(active.containsKey(srcAddrHash) && srcAddrHash != addrHash){
-								if(active.get(srcAddrHash) != null && udppack.getPayload().getRawData().length == 68  //Packets are STUN related: 56 is request, 68 is response
+								if(active.get(srcAddrHash) != null && payloadLen == 68  //Packets are STUN related: 56 is request, 68 is response
 										&& dstAddrHash == addrHash){
 									ui.setPing(srcAddrHash, handle.getTimestamp().getTime() - active.get(srcAddrHash).getTime());
 
 									active.put(srcAddrHash, null); //No longer expect ping
 								}
 							}else{
-								if(udppack.getPayload().getRawData().length == 56 && srcAddrHash == addrHash){
+								if(payloadLen == 56 && srcAddrHash == addrHash){
 									active.put(ippacket.getHeader().getDstAddr().hashCode(), handle.getTimestamp());
 								}
-								else if(udppack.getPayload().getRawData().length == 68 && srcAddrHash != addrHash){
+								else if(payloadLen == 68 && srcAddrHash != addrHash){
 									if(nonact.containsKey(srcAddrHash)){
 										nonact.put(srcAddrHash, nonact.get(srcAddrHash) + 1);
 									}else{
@@ -114,7 +115,7 @@ public class Boot {
 										active.put(srcAddrHash, null); //This serves to prevent seeing the message upon joining then leaving
 										nonact.remove(srcAddrHash);
 									}
-								}else if(udppack.getPayload().getRawData().length == 4 && srcAddrHash == addrHash){
+								}else if(payloadLen == 4 && srcAddrHash == addrHash){
 									String payload = ippacket.toHexString().replaceAll(" ", "").substring(ippacket.toHexString().replaceAll(" ", "").length() - 8);
 									if(payload.equals("beefface")){ //BEEFFACE occurs on disconnect from lobby
 										active.remove(ippacket.getHeader().getDstAddr().hashCode());
@@ -166,8 +167,8 @@ public class Boot {
 				if(x.getAddress() != null && x.getNetmask() != null && !x.getAddress().toString().equals("/0.0.0.0")){
 					NetworkInterface inf = NetworkInterface.getByInetAddress(x.getAddress());
 					if(inf.isUp()){
-						System.out.println("Found: "+ NetworkInterface.getByInetAddress(x.getAddress()).getDisplayName() + " ::: " + x.getAddress().getHostAddress());
-						lanIP.addItem(NetworkInterface.getByInetAddress(x.getAddress()).getDisplayName() + " ::: " + x.getAddress().getHostAddress());
+						System.out.println("Found: "+ inf.getDisplayName() + " ::: " + x.getAddress().getHostAddress());
+						lanIP.addItem(inf.getDisplayName() + " ::: " + x.getAddress().getHostAddress());
 					}
 				}
 			}
