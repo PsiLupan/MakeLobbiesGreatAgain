@@ -12,6 +12,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.util.HashMap;
@@ -40,7 +42,7 @@ import mlga.io.Settings;
 import mlga.ui.Overlay;
 
 public class Boot {
-	public static Double version = 1.28;
+	public static Double version = 1.29;
 	public static InetAddress addr = null;
 	private static PcapHandle handle = null;
 
@@ -157,7 +159,7 @@ public class Boot {
 		tray.add(trayIcon);
 	}
 
-	public static void getLocalAddr() throws InterruptedException, PcapNativeException, UnknownHostException{
+	public static void getLocalAddr() throws InterruptedException, PcapNativeException, UnknownHostException, SocketException{
 		if(Settings.getDouble("autoload", 0) == 1){
 			addr = InetAddress.getByName(Settings.get("addr", ""));
 			return;
@@ -173,8 +175,11 @@ public class Boot {
 		for(PcapNetworkInterface i : Pcaps.findAllDevs()){
 			for(PcapAddress x : i.getAddresses()){
 				if(x.getAddress() != null && x.getNetmask() != null && !x.getAddress().toString().equals("/0.0.0.0")){
-					System.out.println("Found: "+ x.getAddress().getHostAddress());
-					lanIP.addItem(x.getAddress().getHostAddress());
+					NetworkInterface inf = NetworkInterface.getByInetAddress(x.getAddress());
+					if(inf.isUp()){
+						System.out.println("Found: "+ x.getAddress().getHostAddress());
+						lanIP.addItem(NetworkInterface.getByInetAddress(x.getAddress()).getDisplayName() + " :: " + x.getAddress().getHostAddress());
+					}
 				}
 			}
 		}
@@ -191,8 +196,8 @@ public class Boot {
 						addr = InetAddress.getByName(lanText.getText());
 						System.out.println("Using IP from textfield: "+ lanText.getText());
 					}else{
-						addr = InetAddress.getByName((String)lanIP.getSelectedItem());
-						System.out.println("Using IP from dropdown: "+ (String)lanIP.getSelectedItem());
+						addr = InetAddress.getByName(lanIP.getSelectedItem().toString().split("::")[1].trim());
+						System.out.println("Using IP from dropdown: "+ addr.getHostAddress());
 					}
 					Settings.set("addr", addr.getHostAddress().replaceAll("/", ""));
 					frame.setVisible(false);

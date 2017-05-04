@@ -37,16 +37,23 @@ public class Preferences {
 				prefsFile.createNewFile();
 				System.err.println("Blocks file does not exist. Creating file.");
 			}
-			
-			
+		    
 			byte[] mac = new byte[8];
-			short i = 0;
-			for(byte b : NetworkInterface.getByInetAddress(Boot.addr).getHardwareAddress()){
-				mac[i] = b;
-				i++;
+			int i = 0;
+			if(NetworkInterface.getByInetAddress(Boot.addr) != null && NetworkInterface.getByInetAddress(Boot.addr).getHardwareAddress() != null){
+				for(byte b : NetworkInterface.getByInetAddress(Boot.addr).getHardwareAddress()){
+					mac[i] = b;
+					i++;
+				}
+			}else{
+				for(byte b : NetworkInterface.getNetworkInterfaces().nextElement().getHardwareAddress()){
+					mac[i] = b;
+					i++;
+				}
 			}
 			mac[6] = 'W';
 			mac[7] = 'C';
+			
 			DESKeySpec key = new DESKeySpec(mac);
 			SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
 	        desKey = keyFactory.generateSecret(key);
@@ -60,7 +67,7 @@ public class Preferences {
 			String line="";
 			while ((line = bufferedReader.readLine()) != null){
 				if(line.trim().startsWith(";") || !line.contains("=")){
-					continue;//skip comments. It's INI, but we'll still pretend to follow conventions.
+					continue;
 				}
 				prefs.put(Integer.parseInt(line.split("=")[0].trim()), Boolean.valueOf(line.substring(line.indexOf('=')+1).trim()));
 			}
