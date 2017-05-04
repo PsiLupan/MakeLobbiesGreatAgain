@@ -164,11 +164,12 @@ public class Boot {
 
 		for(PcapNetworkInterface i : Pcaps.findAllDevs()){
 			for(PcapAddress x : i.getAddresses()){
-				if(x.getAddress() != null && x.getNetmask() != null && !x.getAddress().toString().equals("/0.0.0.0")){
+				InetAddress xAddr = x.getAddress();
+				if(xAddr != null && x.getNetmask() != null && !xAddr.toString().equals("/0.0.0.0")){
 					NetworkInterface inf = NetworkInterface.getByInetAddress(x.getAddress());
 					if(inf.isUp()){
-						System.out.println("Found: "+ inf.getDisplayName() + " ::: " + x.getAddress().getHostAddress());
-						lanIP.addItem(inf.getDisplayName() + " ::: " + x.getAddress().getHostAddress());
+						System.out.println("Found: "+ inf.getDisplayName() + " ::: " + xAddr.getHostAddress());
+						lanIP.addItem(inf.getDisplayName() + " ::: " + xAddr.getHostAddress());
 					}
 				}
 			}
@@ -182,7 +183,7 @@ public class Boot {
 		start.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				try {
-					if(lanText.getText().length() >= 7){ // 7 is because the minimum field is 0.0.0.0
+					if(lanText.getText().length() >= 7 && !lanText.getText().equals("0.0.0.0")){ // 7 is because the minimum field is 0.0.0.0
 						addr = InetAddress.getByName(lanText.getText());
 						System.out.println("Using IP from textfield: "+ lanText.getText());
 					}else{

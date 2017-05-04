@@ -10,8 +10,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JPanel;
@@ -19,6 +17,7 @@ import javax.swing.JWindow;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+
 
 import mlga.io.Preferences;
 import mlga.io.Settings;
