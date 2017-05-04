@@ -149,7 +149,7 @@ public class Overlay extends JPanel {
 		}
 	}
 
-	public int numSurvs(){
+	public int numPeers(){
 		return peers.size();
 	}
 

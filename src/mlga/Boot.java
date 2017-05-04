@@ -87,7 +87,7 @@ public class Boot {
 							int payloadLen = udppack.getPayload().getRawData().length;
 
 							if(ui.getMode()){
-								if(ui.numSurvs() > 4){ //Fixes people affected by a loading bug being stuck in list
+								if(ui.numPeers() > 4){ //Fixes people affected by a loading bug being stuck in list
 									ui.clearSurvs();
 									active.clear();
 								}
@@ -97,7 +97,6 @@ public class Boot {
 								if(active.get(srcAddrHash) != null && payloadLen == 68  //Packets are STUN related: 56 is request, 68 is response
 										&& dstAddrHash == addrHash){
 									ui.setPing(srcAddrHash, handle.getTimestamp().getTime() - active.get(srcAddrHash).getTime());
-
 									active.put(srcAddrHash, null); //No longer expect ping
 								}
 							}else{
@@ -119,7 +118,6 @@ public class Boot {
 									String payload = ippacket.toHexString().replaceAll(" ", "").substring(ippacket.toHexString().replaceAll(" ", "").length() - 8);
 									if(payload.equals("beefface")){ //BEEFFACE occurs on disconnect from lobby
 										active.remove(ippacket.getHeader().getDstAddr().hashCode());
-										//if(ui.getMode()){
 										ui.removePeer(ippacket.getHeader().getDstAddr().hashCode());
 									}
 								}
