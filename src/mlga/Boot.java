@@ -119,11 +119,16 @@ public class Boot {
 										active.put(srcAddrHash, null); //This serves to prevent seeing the message upon joining then leaving
 										nonact.remove(srcAddrHash);
 									}
-								}else if(payloadLen == 4 && srcAddrHash == addrHash){
+								}else if(payloadLen == 4){
 									String payload = ippacket.toHexString().replaceAll(" ", "").substring(ippacket.toHexString().replaceAll(" ", "").length() - 8);
 									if(payload.equals("beefface")){ //BEEFFACE occurs on disconnect from lobby
-										active.remove(ippacket.getHeader().getDstAddr().hashCode());
-										ui.removePeer(ippacket.getHeader().getDstAddr().hashCode());
+										if (srcAddrHash == addrHash){
+											active.remove(ippacket.getHeader().getDstAddr().hashCode());
+											ui.removePeer(ippacket.getHeader().getDstAddr().hashCode());
+										}else if(dstAddrHash == addrHash){
+											active.remove(ippacket.getHeader().getSrcAddr().hashCode());
+											ui.removePeer(ippacket.getHeader().getSrcAddr().hashCode());
+										}
 									}
 								}
 							}
