@@ -55,13 +55,10 @@ public class Overlay extends JPanel {
 						}
 						Peer p = peers.get(idx);
 						if(!p.saved()){
-							System.out.println("Blocking user: "+p.getID());
 							p.save(true);
 						}else if(p.blocked()){
-							System.out.println("Loving User: "+p.getID());
 							p.save(false);
 						}else{
-							System.out.println("Unsaving User: "+p.getID());
 							p.unsave();
 						}
 					}

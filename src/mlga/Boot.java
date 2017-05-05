@@ -215,7 +215,7 @@ public class Boot {
 		frame.add(start);
 		frame.setAlwaysOnTop(true);
 		frame.pack();
-		frame.setLocation(5, 420);
+		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 

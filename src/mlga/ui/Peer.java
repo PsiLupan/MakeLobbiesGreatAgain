@@ -42,7 +42,7 @@ public class Peer {
 	public void save(boolean block){
 		this.saved = true;
 		this.blocked = block;
-		Preferences.set(this.id, false);
+		Preferences.set(this.id, block);
 	}
 	
 	/** Remove this peer from the Preferences. */
