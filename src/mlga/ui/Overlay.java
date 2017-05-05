@@ -76,7 +76,7 @@ public class Overlay extends JPanel {
 						}
 					}
 					try {
-						Thread.sleep(500);
+						Thread.sleep(200);
 					} catch (InterruptedException e1) {
 						e1.printStackTrace();
 					}
