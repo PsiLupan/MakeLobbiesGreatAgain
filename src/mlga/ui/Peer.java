@@ -38,11 +38,17 @@ public class Peer {
 		return this.saved && this.blocked;
 	}
 	
-	public void save(){
-		this.saved = Preferences.prefs.containsKey(this.id);
-		if(saved){
-			this.blocked = Preferences.prefs.get(this.id);
-		}
+	/** Save our opinion of this Peer. */
+	public void save(boolean block){
+		this.saved = true;
+		this.blocked = block;
+		Preferences.set(this.id, false);
+	}
+	
+	/** Remove this peer from the Preferences. */
+	public void unsave(){
+		this.saved = false;
+		Preferences.remove(this.id);
 	}
 	
 	/** If we've saved this Peer before. */
