@@ -30,8 +30,10 @@ public class Overlay extends JPanel {
 	private boolean mode = false; 
 
 	private CopyOnWriteArrayList<Peer> peers = new CopyOnWriteArrayList<Peer>();
-	private final Font roboto = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemClassLoader().getResourceAsStream("resources/Roboto-Medium.ttf")).deriveFont(15f);;
-
+	private final Font roboto = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemClassLoader().getResourceAsStream("resources/Roboto-Medium.ttf")).deriveFont(15f);
+	/** idx & fh are updated by listener and rendering events. <br>They track hovered index and font height.*/
+	private int idx = -1, fh = 0;
+	
 	public Overlay() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, FontFormatException, IOException{
 		Preferences.init();
 
@@ -46,7 +48,25 @@ public class Overlay extends JPanel {
 		frame.addMouseListener(new MouseListener(){
 			@Override
 			public void mouseClicked(MouseEvent e){
-				if(e.getClickCount() >= 2 && !SwingUtilities.isRightMouseButton(e)){
+				if(!SwingUtilities.isRightMouseButton(e)){
+					if(e.isShiftDown()){
+						if(idx<0||idx>=peers.size()||peers.size()<1 || e.getX()<0 || e.getY()<0){
+							return;
+						}
+						Peer p = peers.get(idx);
+						if(!p.saved()){
+							System.out.println("Blocking user: "+p.getID());
+							p.save(true);
+						}else if(p.blocked()){
+							System.out.println("Loving User: "+p.getID());
+							p.save(false);
+						}else{
+							System.out.println("Unsaving User: "+p.getID());
+							p.unsave();
+						}
+					}
+				}
+				if(e.getClickCount() >= 2 && !SwingUtilities.isRightMouseButton(e) && !e.isShiftDown()){
 					frameMove = !frameMove;
 					Settings.set("frame_x", frame.getLocationOnScreen().x);
 					Settings.set("frame_y", frame.getLocationOnScreen().y);
@@ -56,27 +76,10 @@ public class Overlay extends JPanel {
 						if(!peers.isEmpty())
 							peers.clear();
 						mode = !mode;
-					}else{ //Blocking
-						boolean ctrlDown = e.isControlDown();
-						boolean altDown = e.isAltDown();
-
-						if(!mode && peers.size()>0){
-							if(!ctrlDown){
-								if(altDown){
-									Preferences.remove(peers.get(0).getID());
-									peers.get(0).save();
-								}else{
-									Preferences.set(peers.get(0).getID(), false);
-									peers.get(0).save();
-								}
-							}else{
-								Preferences.set(peers.get(0).getID(), true);
-								peers.get(0).save();
-							}
-						}
 					}
 					try {
 						Thread.sleep(200);
+						frame.repaint();
 					} catch (InterruptedException e1) {
 						e1.printStackTrace();
 					}
@@ -89,6 +92,7 @@ public class Overlay extends JPanel {
 
 			@Override
 			public void mouseExited(MouseEvent e) {
+				idx = -1;
 			}
 
 			@Override
@@ -100,7 +104,6 @@ public class Overlay extends JPanel {
 			}
 		});
 		frame.addMouseMotionListener(new MouseMotionListener(){
-
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				if(frameMove){
@@ -110,6 +113,7 @@ public class Overlay extends JPanel {
 
 			@Override
 			public void mouseMoved(MouseEvent e) {
+				idx = Math.min(peers.size()-1, (int) Math.floor(e.getY()/(fh) ) );
 			}
 
 		});
@@ -124,7 +128,7 @@ public class Overlay extends JPanel {
 					while(true){
 						frame.toFront(); //Fix for window sometime hiding behind others
 						if(!frameMove){
-							Thread.sleep(1000);
+							Thread.sleep(100);
 						}else{
 							Thread.sleep(10);
 						}
@@ -184,7 +188,7 @@ public class Overlay extends JPanel {
 
 	@Override
 	public Dimension getPreferredSize() {
-		return new Dimension(118, 58);
+		return new Dimension(118, 100);
 	}
 
 	@Override
@@ -202,12 +206,17 @@ public class Overlay extends JPanel {
 			g.setColor(new Color(0f,0f,0f,1f));
 		}
 
-		int height = g.getFontMetrics().getHeight();//line height.
-
-		g.fillRect(8, 0, getPreferredSize().width, height*Math.max(1, peers.size()) );
+		fh = g.getFontMetrics().getAscent();//line height. Can use getHeight() for more padding between.
+		
+		g.fillRect(8, 0, getPreferredSize().width, fh*Math.max(1, peers.size())+2 );
+		
 		if(!peers.isEmpty()){
 			short i = 0;
 			for(Peer p : peers){
+				if(idx==i){
+					g.setColor(new Color(0f,0f,0f));
+					g.fillRect(8, fh*i+1, getPreferredSize().width, fh+1);//Pronounce hovered Peer.
+				}
 				long rtt = p.getPing();
 				if(rtt <= 140){
 					g.setColor(Color.GREEN);
@@ -217,16 +226,16 @@ public class Overlay extends JPanel {
 					g.setColor(Color.RED);
 				}
 
-				String render = (mode ? "Survivor":"Killer") + " Ping: "+ rtt;
+				String render = (mode ? "Survivor":"Killer") + ": "+ rtt;
 				if(p.saved()){
 					render = (p.blocked() ? "BLOCKED: ":"LOVED: ") + rtt;
 				}
-				g.drawString(render, 9, height*(i + 1));
+				g.drawString(render, 9, fh*(i+1));
 				++i;
 			}
 		}else{
 			g.setColor(Color.RED);
-			g.drawString("No " + (mode ? "Survivors":"Killer"), 12, 13);
+			g.drawString("No " + (mode ? "Survivors":"Killer"), 8, fh);
 		}
 
 		g.dispose();
