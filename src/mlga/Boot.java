@@ -88,7 +88,12 @@ public class Boot {
 
 							if(ui.getMode()){
 								if(ui.numPeers() > 4){ //Fixes people affected by a loading bug being stuck in list
-									ui.clearSurvs();
+									ui.clearPeers();
+									active.clear();
+								}
+							}else{
+								if(ui.numPeers() > 1){ //Workaround for multiple killer pings until "deadbeef" for leaving the end of lobby is fixed.
+									ui.clearPeers();
 									active.clear();
 								}
 							}

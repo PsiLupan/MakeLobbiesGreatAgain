@@ -153,22 +153,21 @@ public class Overlay extends JPanel {
 		return peers.size();
 	}
 
-	public void clearSurvs(){
+	public void clearPeers(){
 		peers.clear();
 	}
 
 	public void removePeer(int i){
 		Peer p = this.getPeer(i);
-		if(p!=null){
+		if(p != null){
 			peers.remove(p);
-			System.err.println("Removed peer: "+p.getID());
 		}
 	}
 	
 	/** Finds a Peer connection by its ID. */
 	private Peer getPeer(int id){
 		for(Peer p : peers){
-			if(p.getID()==id){
+			if(p.getID() == id){
 				return p;
 			}
 		}
@@ -210,7 +209,7 @@ public class Overlay extends JPanel {
 					g.setColor(Color.RED);
 				}
 				
-				String render = "Killer Ping: "+ rtt;
+				String render = (mode ? "Survivor":"Killer") + " Ping: "+ rtt;
 				if(p.saved()){
 					render = (p.loved()?"BLOCKED: ":"LOVED: ")+rtt;
 				}
@@ -219,7 +218,7 @@ public class Overlay extends JPanel {
 			}
 		}else{
 			g.setColor(Color.RED);
-			g.drawString("No "+(mode?"Survivors":"Killer"), 12, 13);
+			g.drawString("No " + (mode ? "Survivors":"Killer"), 12, 13);
 		}
 
 		g.dispose();

@@ -11,12 +11,10 @@ public class Peer {
 	private long last_seen;
 	
 	public Peer(int srcAddrHash, long rtt) {
-		// TODO Auto-generated constructor stub
 		this.id = srcAddrHash;
 		this.saved = Preferences.prefs.containsKey(this.id);
 		this.loved = this.saved && Preferences.prefs.get(this.id);
 		this.last_seen = System.currentTimeMillis();
-		System.err.println("Added new Peer: "+this.id);
 	}
 	
 	public void setPing(long ping){
