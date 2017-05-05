@@ -33,7 +33,7 @@ public class Overlay extends JPanel {
 	private final Font roboto = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemClassLoader().getResourceAsStream("resources/Roboto-Medium.ttf")).deriveFont(15f);
 	/** idx & fh are updated by listener and rendering events. <br>They track hovered index and font height.*/
 	private int idx = -1, fh = 0;
-	
+
 	public Overlay() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, FontFormatException, IOException{
 		Preferences.init();
 
@@ -50,7 +50,7 @@ public class Overlay extends JPanel {
 			public void mouseClicked(MouseEvent e){
 				if(!SwingUtilities.isRightMouseButton(e)){
 					if(e.isShiftDown()){
-						if(idx<0||idx>=peers.size()||peers.size()<1 || e.getX()<0 || e.getY()<0){
+						if(idx < 0||idx >= peers.size() || peers.size() < 1 || e.getX() < 0 || e.getY() < 0){
 							return;
 						}
 						Peer p = peers.get(idx);
@@ -154,7 +154,7 @@ public class Overlay extends JPanel {
 	/** Sets a peer's ping, or creates their object. */
 	public void setPing(int id, long ping){
 		Peer p = this.getPeer(id);
-		if(p!=null){
+		if(p != null){
 			p.setPing(ping);
 		}else{
 			this.addPeer(id, ping);
@@ -207,13 +207,13 @@ public class Overlay extends JPanel {
 		}
 
 		fh = g.getFontMetrics().getAscent();//line height. Can use getHeight() for more padding between.
-		
+
 		g.fillRect(8, 0, getPreferredSize().width, fh*Math.max(1, peers.size())+2 );
-		
+
 		if(!peers.isEmpty()){
 			short i = 0;
 			for(Peer p : peers){
-				if(idx==i){
+				if(idx == i){
 					g.setColor(new Color(0f,0f,0f));
 					g.fillRect(8, fh*i+1, getPreferredSize().width, fh+1);//Pronounce hovered Peer.
 				}
