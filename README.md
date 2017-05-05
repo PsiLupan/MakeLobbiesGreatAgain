@@ -15,9 +15,7 @@ Primary Feature:
 Optional Features: 
 * Double-Click to lock/unlock the overlay for dragging
 * Right-click to change from Survivor to Killer mode
-* Shift + Right-Click during Survivor mode to have a killer show "BLOCKED"
-* Shift + Ctrl + Right-Click during Survivor Mode to show a killer as "LOVED"
-* Shift + Alt + Right-Click during Survivor Mode to remove a killer from your list, returning to the normal "Killer Ping"
+* Shift + Left Click on the Killer or the individual Survivor, highlighted in a darker color, to toggle to BLOCKED, LOVED, or back to the normal display
 * To exit, simply look for Jake's face in your system tray near the clock, right-click, and select Exit.
 
 ## HOW TO INSTALL AND USE:

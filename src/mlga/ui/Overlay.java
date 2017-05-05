@@ -104,7 +104,7 @@ public class Overlay extends JPanel {
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				if(frameMove){
-					frame.setLocation(e.getXOnScreen() - (getPreferredSize().width / 2), e.getYOnScreen() - (getPreferredSize().height / 2));
+					frame.setLocation(e.getXOnScreen() - (getPreferredSize().width / 2), e.getYOnScreen() - 6);
 				}
 			}
 
@@ -185,7 +185,7 @@ public class Overlay extends JPanel {
 
 	@Override
 	public Dimension getPreferredSize() {
-		return new Dimension(118, 100);
+		return new Dimension(110, 100);
 	}
 
 	@Override
@@ -205,14 +205,14 @@ public class Overlay extends JPanel {
 
 		fh = g.getFontMetrics().getAscent();//line height. Can use getHeight() for more padding between.
 
-		g.fillRect(8, 0, getPreferredSize().width, fh*Math.max(1, peers.size())+2 );
+		g.fillRect(0, 0, getPreferredSize().width, fh*Math.max(1, peers.size())+2 );
 
 		if(!peers.isEmpty()){
 			short i = 0;
 			for(Peer p : peers){
 				if(idx == i){
 					g.setColor(new Color(0f,0f,0f));
-					g.fillRect(8, fh*i+1, getPreferredSize().width, fh+1);//Pronounce hovered Peer.
+					g.fillRect(1, fh*i+1, getPreferredSize().width, fh+1);//Pronounce hovered Peer.
 				}
 				long rtt = p.getPing();
 				if(rtt <= 140){
@@ -227,12 +227,12 @@ public class Overlay extends JPanel {
 				if(p.saved()){
 					render = (p.blocked() ? "BLOCKED: ":"LOVED: ") + rtt;
 				}
-				g.drawString(render, 9, fh*(i+1));
+				g.drawString(render, 1, fh*(i+1));
 				++i;
 			}
 		}else{
 			g.setColor(Color.RED);
-			g.drawString("No " + (mode ? "Survivors":"Killer"), 8, fh);
+			g.drawString("No " + (mode ? "Survivors":"Killer"), 1, fh);
 		}
 
 		g.dispose();
