@@ -42,7 +42,7 @@ import mlga.io.Settings;
 import mlga.ui.Overlay;
 
 public class Boot {
-	public static Double version = 1.29;
+	public static Double version = 1.30;
 	public static InetAddress addr = null;
 	private static PcapHandle handle = null;
 
