@@ -6,14 +6,16 @@ import mlga.io.Preferences;
 public class Peer {
 	private int id;
 	private long ping = 0;
-	private boolean loved;
+	private boolean blocked;
 	private boolean saved = false;
 	private long last_seen;
 	
 	public Peer(int srcAddrHash, long rtt) {
 		this.id = srcAddrHash;
 		this.saved = Preferences.prefs.containsKey(this.id);
-		this.loved = this.saved && Preferences.prefs.get(this.id);
+		if(this.saved){
+			this.blocked = Preferences.prefs.get(this.id);
+		}
 		this.last_seen = System.currentTimeMillis();
 	}
 	
@@ -32,8 +34,15 @@ public class Peer {
 	}
 	
 	/** If we have saved, and also loved, this Peer. */
-	public boolean loved(){
-		return this.saved && this.loved;
+	public boolean blocked(){
+		return this.saved && this.blocked;
+	}
+	
+	public void save(){
+		this.saved = Preferences.prefs.containsKey(this.id);
+		if(saved){
+			this.blocked = Preferences.prefs.get(this.id);
+		}
 	}
 	
 	/** If we've saved this Peer before. */

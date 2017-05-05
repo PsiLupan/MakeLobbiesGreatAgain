@@ -26,15 +26,15 @@ public class Overlay extends JPanel {
 	private static final long serialVersionUID = -470849574354121503L;
 
 	private boolean frameMove = false;
-	/** true for killer, false for surv*/
+	/** False for killer, True for surv*/
 	private boolean mode = false; 
-	
+
 	private CopyOnWriteArrayList<Peer> peers = new CopyOnWriteArrayList<Peer>();
 	private final Font roboto = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemClassLoader().getResourceAsStream("resources/Roboto-Medium.ttf")).deriveFont(15f);;
 
 	public Overlay() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, FontFormatException, IOException{
 		Preferences.init();
-		
+
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		this.setOpaque(false);
 		final JWindow frame = new JWindow();
@@ -64,13 +64,21 @@ public class Overlay extends JPanel {
 							if(!ctrlDown){
 								if(altDown){
 									Preferences.remove(peers.get(0).getID());
+									peers.get(0).save();
 								}else{
 									Preferences.set(peers.get(0).getID(), false);
+									peers.get(0).save();
 								}
 							}else{
 								Preferences.set(peers.get(0).getID(), true);
+								peers.get(0).save();
 							}
 						}
+					}
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
 					}
 				}
 			}
@@ -109,7 +117,7 @@ public class Overlay extends JPanel {
 		frame.pack();
 		frame.setLocation((int)Settings.getDouble("frame_x", 5), (int)Settings.getDouble("frame_y", 400));
 		frame.setVisible(true);
-		
+
 		Thread t = new Thread("UIPainter"){
 			public void run() {
 				try{
@@ -138,7 +146,7 @@ public class Overlay extends JPanel {
 	private void addPeer(int srcAddrHash, long rtt){
 		peers.add(new Peer(srcAddrHash, rtt));
 	}
-	
+
 	/** Sets a peer's ping, or creates their object. */
 	public void setPing(int id, long ping){
 		Peer p = this.getPeer(id);
@@ -163,7 +171,7 @@ public class Overlay extends JPanel {
 			peers.remove(p);
 		}
 	}
-	
+
 	/** Finds a Peer connection by its ID. */
 	private Peer getPeer(int id){
 		for(Peer p : peers){
@@ -193,9 +201,9 @@ public class Overlay extends JPanel {
 		}else{
 			g.setColor(new Color(0f,0f,0f,1f));
 		}
-		
-		int height = g.getFontMetrics().getHeight()+1;//line height.
-		
+
+		int height = g.getFontMetrics().getHeight();//line height.
+
 		g.fillRect(8, 0, getPreferredSize().width, height*Math.max(1, peers.size()) );
 		if(!peers.isEmpty()){
 			short i = 0;
@@ -208,10 +216,10 @@ public class Overlay extends JPanel {
 				}else{
 					g.setColor(Color.RED);
 				}
-				
+
 				String render = (mode ? "Survivor":"Killer") + " Ping: "+ rtt;
 				if(p.saved()){
-					render = (p.loved()?"BLOCKED: ":"LOVED: ")+rtt;
+					render = (p.blocked() ? "BLOCKED: ":"LOVED: ") + rtt;
 				}
 				g.drawString(render, 9, height*(i + 1));
 				++i;
