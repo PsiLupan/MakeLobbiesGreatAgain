@@ -40,8 +40,8 @@ public class Preferences {
 		    
 			byte[] mac = new byte[8];
 			int i = 0;
-			if(NetworkInterface.getByInetAddress(Boot.addr) != null && NetworkInterface.getByInetAddress(Boot.addr).getHardwareAddress() != null){
-				for(byte b : NetworkInterface.getByInetAddress(Boot.addr).getHardwareAddress()){
+			if(Boot.nif.getLinkLayerAddresses().get(0) != null){
+				for(byte b : Boot.nif.getLinkLayerAddresses().get(0).getAddress()){
 					mac[i] = b;
 					i++;
 				}

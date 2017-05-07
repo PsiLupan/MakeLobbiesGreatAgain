@@ -16,6 +16,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.swing.JButton;
@@ -42,8 +43,9 @@ import mlga.io.Settings;
 import mlga.ui.Overlay;
 
 public class Boot {
-	public static Double version = 1.30;
+	public static Double version = 1.31;
 	public static InetAddress addr = null;
+	public static PcapNetworkInterface nif = null;
 	private static PcapHandle handle = null;
 
 	public static void main(String[] args) throws UnsupportedLookAndFeelException, AWTException, ClassNotFoundException, InterruptedException,
@@ -56,9 +58,10 @@ public class Boot {
 		setupTray();
 
 		getLocalAddr();
-		PcapNetworkInterface nif = Pcaps.getDevByAddress(addr);
+		nif = Pcaps.getDevByAddress(addr);
 		if(nif == null){
 			JOptionPane.showMessageDialog(null, "The device you selected doesn't seem to exist. Double-check the IP you entered.", "Error", JOptionPane.ERROR_MESSAGE);
+			System.exit(1);
 		}
 
 		final int addrHash = addr.hashCode();
@@ -169,14 +172,17 @@ public class Boot {
 		final JComboBox<String> lanIP = new JComboBox<String>();
 		final JLabel lanLabel = new JLabel("If your device IP isn't in the dropdown, provide it below.");
 		final JTextField lanText = new JTextField(Settings.get("addr", ""));
+		
+		ArrayList<InetAddress> inets = new ArrayList<InetAddress>();
 
 		for(PcapNetworkInterface i : Pcaps.findAllDevs()){
 			for(PcapAddress x : i.getAddresses()){
 				InetAddress xAddr = x.getAddress();
-				if(xAddr != null && x.getNetmask() != null && !xAddr.toString().equals("/0.0.0.0")){
+				if(xAddr != null && x.getNetmask() != null && xAddr.getAddress().length == 4 && !xAddr.toString().equals("/0.0.0.0")){
 					NetworkInterface inf = NetworkInterface.getByInetAddress(x.getAddress());
 					if(inf != null && inf.isUp()){
 						System.out.println("Found: "+ inf.getDisplayName() + " ::: " + xAddr.getHostAddress());
+						inets.add(xAddr);
 						lanIP.addItem(inf.getDisplayName() + " ::: " + xAddr.getHostAddress());
 					}
 				}
@@ -184,7 +190,9 @@ public class Boot {
 		}
 
 		if(lanIP.getItemCount() == 0){
-			lanIP.addItem("No devices found. Try running in Admin mode.");
+			JOptionPane.showMessageDialog(null, "Unable to locate devices.\nPlease try running the program in Admin Mode.\nIf this does not work, you may need to reboot your computer.", 
+					"Error", JOptionPane.ERROR_MESSAGE);
+			System.exit(1);
 		}
 
 		final JButton start = new JButton("Start");
@@ -192,11 +200,15 @@ public class Boot {
 			public void actionPerformed(ActionEvent e){
 				try {
 					if(lanText.getText().length() >= 7 && !lanText.getText().equals("0.0.0.0")){ // 7 is because the minimum field is 0.0.0.0
-						addr = InetAddress.getByName(lanText.getText());
+						for(InetAddress i : inets){
+							if(i.getHostAddress().equals(lanText.getText())){
+								addr = InetAddress.getByName(lanText.getText());
+							}
+						}
 						System.out.println("Using IP from textfield: "+ lanText.getText());
 					}else{
-						addr = InetAddress.getByName(lanIP.getSelectedItem().toString().split(":::")[1].trim());
-						System.out.println("Using IP from dropdown: "+ addr.getHostAddress());
+						addr = inets.get(lanIP.getSelectedIndex());
+						System.out.println("Using device from dropdown: "+ lanIP.getSelectedItem());
 					}
 					Settings.set("addr", addr.getHostAddress().replaceAll("/", ""));
 					frame.setVisible(false);
