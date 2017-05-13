@@ -142,7 +142,7 @@ public class Boot {
 		exit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				handle.close();
-				System.exit(1);
+				System.exit(0);
 			}
 		});
 		exit.setLabel("Exit");
