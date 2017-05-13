@@ -16,6 +16,7 @@ import org.json.simple.parser.ParseException;
 import org.pcap4j.core.Pcaps;
 
 public class Sanity {
+	private final static Double version = 1.31;
 	private static boolean headless = false;
 
 	public static boolean check(){
@@ -79,8 +80,8 @@ public class Sanity {
 			JSONParser parser = new JSONParser();
 			JSONObject obj = (JSONObject)parser.parse(buf);
 			double newVersion = Double.parseDouble((String)obj.get("tag_name"));
-			if(Boot.version < newVersion){
-				message("An update is available!\nCurrent Version: "+Boot.version+", Latest Release Version: "+newVersion);
+			if(version < newVersion){
+				message("An update is available!\nCurrent Version: "+version+", Latest Release Version: "+newVersion);
 				if(Desktop.isDesktopSupported()){
 					try {
 						Desktop.getDesktop().browse(new URL((String)obj.get("html_url")).toURI());
@@ -91,7 +92,7 @@ public class Sanity {
 				}
 				return false;
 			}else{
-				System.out.println("Version "+Boot.version+" :: Up to date!");
+				System.out.println("Version "+version+" :: Up to date!");
 				return true;
 			}
 		} catch (IOException | ParseException e) {

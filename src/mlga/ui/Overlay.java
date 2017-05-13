@@ -10,6 +10,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JPanel;
@@ -17,7 +19,6 @@ import javax.swing.JWindow;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-
 
 import mlga.io.Preferences;
 import mlga.io.Settings;
@@ -118,6 +119,18 @@ public class Overlay extends JPanel {
 		frame.pack();
 		frame.setLocation((int)Settings.getDouble("frame_x", 5), (int)Settings.getDouble("frame_y", 400));
 		frame.setVisible(true);
+		
+		Timer cleanTime = new Timer();
+		cleanTime.scheduleAtFixedRate(new TimerTask(){
+			@Override
+			public void run(){
+				for (Peer p : peers){
+					if(p.age() >= 3500){
+						peers.remove(p);
+					}
+				}
+			}
+		}, 0, 2500);
 
 		Thread t = new Thread("UIPainter"){
 			public void run() {

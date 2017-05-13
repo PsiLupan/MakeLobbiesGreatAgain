@@ -18,7 +18,6 @@ import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -43,9 +42,9 @@ import mlga.io.Settings;
 import mlga.ui.Overlay;
 
 public class Boot {
-	public static Double version = 1.31;
-	public static InetAddress addr = null;
 	public static PcapNetworkInterface nif = null;
+	
+	private static InetAddress addr = null;
 	private static PcapHandle handle = null;
 
 	public static void main(String[] args) throws UnsupportedLookAndFeelException, AWTException, ClassNotFoundException, InterruptedException,
@@ -70,36 +69,28 @@ public class Boot {
 		final int timeout = 0;
 		handle = nif.openLive(snapLen, mode, timeout);
 
-		HashMap<Integer, Integer> nonact = new HashMap<Integer, Integer>();
 		HashMap<Integer, Timestamp> active = new HashMap<Integer, Timestamp>();
-		Overlay ui = new Overlay();
-
+		HashMap<Integer, Integer> nonact = new HashMap<Integer, Integer>();
+		final Overlay ui = new Overlay();
+		
 		while(true){				
-			Packet packet = handle.getNextPacket(); 
+			final Packet packet = handle.getNextPacket(); 
+			
+			if(active.size() > 5){ //Keep active from filling and keeps it sep. from the TimerTask for thread safety
+				active.clear();
+			}
 
 			if(packet != null){
-				IpV4Packet ippacket = packet.get(IpV4Packet.class);
+				final IpV4Packet ippacket = packet.get(IpV4Packet.class);
 
 				if(ippacket != null){
 					if(ippacket.getHeader().getProtocol() == IpNumber.UDP){
-						UdpPacket udppack = ippacket.get(UdpPacket.class);
+						final UdpPacket udppack = ippacket.get(UdpPacket.class);
 
 						if(udppack != null && udppack.getPayload() != null){
-							int srcAddrHash = ippacket.getHeader().getSrcAddr().hashCode();
-							int dstAddrHash = ippacket.getHeader().getDstAddr().hashCode();
-							int payloadLen = udppack.getPayload().getRawData().length;
-
-							if(ui.getMode()){
-								if(ui.numPeers() > 4){ //Fixes people affected by a loading bug being stuck in list
-									ui.clearPeers();
-									active.clear();
-								}
-							}else{
-								if(ui.numPeers() > 1){ //Workaround for multiple killer pings until "deadbeef" for leaving the end of lobby is fixed.
-									ui.clearPeers();
-									active.clear();
-								}
-							}
+							final int srcAddrHash = ippacket.getHeader().getSrcAddr().hashCode();
+							final int dstAddrHash = ippacket.getHeader().getDstAddr().hashCode();
+							final int payloadLen = udppack.getPayload().getRawData().length;
 
 							if(active.containsKey(srcAddrHash) && srcAddrHash != addrHash){
 								if(active.get(srcAddrHash) != null && payloadLen == 68  //Packets are STUN related: 56 is request, 68 is response
@@ -123,14 +114,14 @@ public class Boot {
 										nonact.remove(srcAddrHash);
 									}
 								}else if(payloadLen == 4){
-									String payload = ippacket.toHexString().replaceAll(" ", "").substring(ippacket.toHexString().replaceAll(" ", "").length() - 8);
+									final String payload = ippacket.toHexString().replaceAll(" ", "").substring(ippacket.toHexString().replaceAll(" ", "").length() - 8);
 									if(payload.equals("beefface")){ //BEEFFACE occurs on disconnect from lobby
 										if (srcAddrHash == addrHash){
-											active.remove(ippacket.getHeader().getDstAddr().hashCode());
-											ui.removePeer(ippacket.getHeader().getDstAddr().hashCode());
+											active.remove(dstAddrHash);
+											ui.removePeer(dstAddrHash);
 										}else if(dstAddrHash == addrHash){
-											active.remove(ippacket.getHeader().getSrcAddr().hashCode());
-											ui.removePeer(ippacket.getHeader().getSrcAddr().hashCode());
+											active.remove(srcAddrHash);
+											ui.removePeer(srcAddrHash);
 										}
 									}
 								}
