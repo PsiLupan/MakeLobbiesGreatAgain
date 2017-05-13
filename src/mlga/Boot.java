@@ -171,10 +171,10 @@ public class Boot {
 				InetAddress xAddr = x.getAddress();
 				if(xAddr != null && x.getNetmask() != null && xAddr.getAddress().length == 4 && !xAddr.toString().equals("/0.0.0.0")){
 					NetworkInterface inf = NetworkInterface.getByInetAddress(x.getAddress());
-					if(inf != null && inf.isUp()){
-						System.out.println("Found: "+ inf.getDisplayName() + " ::: " + xAddr.getHostAddress());
+					if(inf != null && inf.isUp() && !inf.isVirtual()){
 						inets.add(xAddr);
-						lanIP.addItem(inf.getDisplayName() + " ::: " + xAddr.getHostAddress());
+						lanIP.addItem((lanIP.getItemCount() + 1) + " - " + inf.getDisplayName() + " ::: " + xAddr.getHostAddress());
+						System.out.println("Found: " + lanIP.getItemCount() +" - "+ inf.getDisplayName() + " ::: " + xAddr.getHostAddress());
 					}
 				}
 			}
