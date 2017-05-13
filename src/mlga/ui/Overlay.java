@@ -51,7 +51,7 @@ public class Overlay extends JPanel {
 			public void mouseClicked(MouseEvent e){
 				if(!SwingUtilities.isRightMouseButton(e)){
 					if(e.isShiftDown()){
-						if(idx < 0||idx >= peers.size() || peers.size() < 1 || e.getX() < 0 || e.getY() < 0){
+						if(idx < 0 || idx >= peers.size() || peers.isEmpty() || e.getX() < 0 || e.getY() < 0){
 							return;
 						}
 						Peer p = peers.get(idx);
@@ -62,14 +62,13 @@ public class Overlay extends JPanel {
 						}else{
 							p.unsave();
 						}
+					}else if (e.getClickCount() >= 2){
+						frameMove = !frameMove;
+						Settings.set("frame_x", frame.getLocationOnScreen().x);
+						Settings.set("frame_y", frame.getLocationOnScreen().y);
 					}
 				}
-				if(e.getClickCount() >= 2 && !SwingUtilities.isRightMouseButton(e) && !e.isShiftDown()){
-					frameMove = !frameMove;
-					Settings.set("frame_x", frame.getLocationOnScreen().x);
-					Settings.set("frame_y", frame.getLocationOnScreen().y);
-					frame.setFocusableWindowState(frameMove);
-				}else if(SwingUtilities.isRightMouseButton(e)){
+				else if(SwingUtilities.isRightMouseButton(e)){
 					if(!e.isShiftDown()){ //Change between Killer/Survivor Mode
 						if(!peers.isEmpty())
 							peers.clear();
@@ -111,7 +110,7 @@ public class Overlay extends JPanel {
 
 			@Override
 			public void mouseMoved(MouseEvent e) {
-				idx = Math.min(peers.size()-1, (int) Math.floor(e.getY()/(fh) ) );
+				idx = Math.min(peers.size() - 1, (int) Math.floor(e.getY() / (fh)));
 			}
 
 		});
@@ -119,7 +118,7 @@ public class Overlay extends JPanel {
 		frame.pack();
 		frame.setLocation((int)Settings.getDouble("frame_x", 5), (int)Settings.getDouble("frame_y", 400));
 		frame.setVisible(true);
-		
+
 		Timer cleanTime = new Timer();
 		cleanTime.scheduleAtFixedRate(new TimerTask(){
 			@Override

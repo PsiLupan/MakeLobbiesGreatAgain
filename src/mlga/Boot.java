@@ -135,19 +135,18 @@ public class Boot {
 
 	public static void setupTray() throws AWTException{
 		final SystemTray tray = SystemTray.getSystemTray();
-
-		ActionListener listener = new ActionListener() {
+		final PopupMenu popup = new PopupMenu();
+		final MenuItem exit = new MenuItem();
+		final TrayIcon trayIcon = new TrayIcon(Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource("resources/icon.png")), "MLGA", popup);
+		
+		exit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				handle.close();
 				System.exit(1);
 			}
-		};
-		final PopupMenu popup = new PopupMenu();
-		final MenuItem exit = new MenuItem();
-		exit.addActionListener(listener);
+		});
 		exit.setLabel("Exit");
 		popup.add(exit);
-		final TrayIcon trayIcon = new TrayIcon(Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource("resources/icon.png")), "MLGA", popup);
 		tray.add(trayIcon);
 	}
 

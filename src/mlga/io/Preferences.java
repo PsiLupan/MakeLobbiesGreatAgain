@@ -25,19 +25,19 @@ import javax.swing.JOptionPane;
 import mlga.Boot;
 
 public class Preferences {
-	
+
 	private static SecretKey desKey;
 	private static Cipher cipher;
 	private final static File prefsFile = new File("mlga.prefs.ini");
 	public static ConcurrentHashMap<Integer, Boolean> prefs = new ConcurrentHashMap<Integer, Boolean>();
-	
+
 	public static void init(){
 		try{
 			if(!prefsFile.exists()){
 				prefsFile.createNewFile();
 				System.err.println("Blocks file does not exist. Creating file.");
 			}
-		    
+
 			byte[] mac = new byte[8];
 			int i = 0;
 			if(Boot.nif.getLinkLayerAddresses().get(0) != null){
@@ -53,17 +53,17 @@ public class Preferences {
 			}
 			mac[6] = 'W';
 			mac[7] = 'C';
-			
+
 			DESKeySpec key = new DESKeySpec(mac);
 			SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
-	        desKey = keyFactory.generateSecret(key);
-	        cipher = Cipher.getInstance("DES");
-	        
-	        cipher.init(Cipher.DECRYPT_MODE, desKey);
+			desKey = keyFactory.generateSecret(key);
+			cipher = Cipher.getInstance("DES");
+
+			cipher.init(Cipher.DECRYPT_MODE, desKey);
 			FileInputStream fis = new FileInputStream(prefsFile);
 			CipherInputStream decStream = new CipherInputStream(fis, cipher);
 			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(decStream));
-			
+
 			String line="";
 			while ((line = bufferedReader.readLine()) != null){
 				if(line.trim().startsWith(";") || !line.contains("=")){
@@ -94,7 +94,7 @@ public class Preferences {
 			System.exit(1);
 		}
 	}
-	
+
 	public static void remove(Integer ipHash){
 		prefs.remove(ipHash);
 		FileOutputStream o;
@@ -109,7 +109,7 @@ public class Preferences {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void set(Integer key, Boolean state){
 		prefs.remove(key);
 		prefs.put(key, state);
