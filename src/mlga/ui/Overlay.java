@@ -137,7 +137,7 @@ public class Overlay extends JPanel {
 					while(true){
 						frame.toFront(); //Fix for window sometime hiding behind others
 						if(!frameMove){
-							Thread.sleep(100);
+							Thread.sleep(400);
 						}else{
 							Thread.sleep(10);
 						}

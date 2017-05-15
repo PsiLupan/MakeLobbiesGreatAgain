@@ -26,6 +26,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import org.pcap4j.core.BpfProgram;
 import org.pcap4j.core.NotOpenException;
 import org.pcap4j.core.PcapAddress;
 import org.pcap4j.core.PcapHandle;
@@ -36,14 +37,13 @@ import org.pcap4j.core.Pcaps;
 import org.pcap4j.packet.IpV4Packet;
 import org.pcap4j.packet.Packet;
 import org.pcap4j.packet.UdpPacket;
-import org.pcap4j.packet.namednumber.IpNumber;
 
 import mlga.io.Settings;
 import mlga.ui.Overlay;
 
 public class Boot {
 	public static PcapNetworkInterface nif = null;
-	
+
 	private static InetAddress addr = null;
 	private static PcapHandle handle = null;
 
@@ -68,63 +68,39 @@ public class Boot {
 		final PromiscuousMode mode = PromiscuousMode.NONPROMISCUOUS;
 		final int timeout = 0;
 		handle = nif.openLive(snapLen, mode, timeout);
+		handle.setFilter("udp", BpfProgram.BpfCompileMode.OPTIMIZE);
 
 		HashMap<Integer, Timestamp> active = new HashMap<Integer, Timestamp>();
-		HashMap<Integer, Integer> nonact = new HashMap<Integer, Integer>();
 		final Overlay ui = new Overlay();
-		
+
 		while(true){				
-			final Packet packet = handle.getNextPacket(); 
-			
+			final Packet packet = handle.getNextPacket();
+
 			if(active.size() > 5){ //Keep active from filling and keeps it sep. from the TimerTask for thread safety
 				active.clear();
+				ui.clearPeers();
 			}
 
 			if(packet != null){
 				final IpV4Packet ippacket = packet.get(IpV4Packet.class);
 
 				if(ippacket != null){
-					if(ippacket.getHeader().getProtocol() == IpNumber.UDP){
-						final UdpPacket udppack = ippacket.get(UdpPacket.class);
+					final UdpPacket udppack = ippacket.get(UdpPacket.class);
 
-						if(udppack != null && udppack.getPayload() != null){
-							final int srcAddrHash = ippacket.getHeader().getSrcAddr().hashCode();
-							final int dstAddrHash = ippacket.getHeader().getDstAddr().hashCode();
-							final int payloadLen = udppack.getPayload().getRawData().length;
+					if(udppack != null && udppack.getPayload() != null){
+						final int srcAddrHash = ippacket.getHeader().getSrcAddr().hashCode();
+						final int dstAddrHash = ippacket.getHeader().getDstAddr().hashCode();
+						final int payloadLen = udppack.getPayload().getRawData().length;
 
-							if(active.containsKey(srcAddrHash) && srcAddrHash != addrHash){
-								if(active.get(srcAddrHash) != null && payloadLen == 68  //Packets are STUN related: 56 is request, 68 is response
-										&& dstAddrHash == addrHash){
-									ui.setPing(srcAddrHash, handle.getTimestamp().getTime() - active.get(srcAddrHash).getTime());
-									active.put(srcAddrHash, null); //No longer expect ping
-								}
-							}else{
-								if(payloadLen == 56 && srcAddrHash == addrHash){
-									active.put(ippacket.getHeader().getDstAddr().hashCode(), handle.getTimestamp());
-								}
-								else if(payloadLen == 68 && srcAddrHash != addrHash){
-									if(nonact.containsKey(srcAddrHash)){
-										nonact.put(srcAddrHash, nonact.get(srcAddrHash) + 1);
-									}else{
-										nonact.put(srcAddrHash, 1);
-									}
-
-									if(nonact.containsKey(srcAddrHash) && nonact.get(srcAddrHash) == 4){ //The new packet is sent multiple times, we only really need 4 to confirm
-										active.put(srcAddrHash, null); //This serves to prevent seeing the message upon joining then leaving
-										nonact.remove(srcAddrHash);
-									}
-								}else if(payloadLen == 4){
-									final String payload = ippacket.toHexString().replaceAll(" ", "").substring(ippacket.toHexString().replaceAll(" ", "").length() - 8);
-									if(payload.equals("beefface")){ //BEEFFACE occurs on disconnect from lobby
-										if (srcAddrHash == addrHash){
-											active.remove(dstAddrHash);
-											ui.removePeer(dstAddrHash);
-										}else if(dstAddrHash == addrHash){
-											active.remove(srcAddrHash);
-											ui.removePeer(srcAddrHash);
-										}
-									}
-								}
+						if(active.containsKey(srcAddrHash) && srcAddrHash != addrHash){
+							if(active.get(srcAddrHash) != null && payloadLen == 68  //Packets are STUN related: 56 is request, 68 is response
+									&& dstAddrHash == addrHash){
+								ui.setPing(srcAddrHash, handle.getTimestamp().getTime() - active.get(srcAddrHash).getTime());
+								active.put(srcAddrHash, null); //No longer expect ping
+							}
+						}else{
+							if(payloadLen == 56 && srcAddrHash == addrHash){
+								active.put(ippacket.getHeader().getDstAddr().hashCode(), handle.getTimestamp());
 							}
 						}
 					}
@@ -138,7 +114,7 @@ public class Boot {
 		final PopupMenu popup = new PopupMenu();
 		final MenuItem exit = new MenuItem();
 		final TrayIcon trayIcon = new TrayIcon(Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource("resources/icon.png")), "MLGA", popup);
-		
+
 		exit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				handle.close();
@@ -162,7 +138,7 @@ public class Boot {
 		final JComboBox<String> lanIP = new JComboBox<String>();
 		final JLabel lanLabel = new JLabel("If your device IP isn't in the dropdown, provide it below.");
 		final JTextField lanText = new JTextField(Settings.get("addr", ""));
-		
+
 		ArrayList<InetAddress> inets = new ArrayList<InetAddress>();
 
 		for(PcapNetworkInterface i : Pcaps.findAllDevs()){
