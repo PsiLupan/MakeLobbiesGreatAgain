@@ -3,8 +3,8 @@ language: java
 before_install:
   - sudo apt-get install zip unzip
   - wget https://oss.sonatype.org/content/repositories/snapshots/org/pcap4j/pcap4j-distribution/1.7.1-SNAPSHOT/pcap4j-distribution-1.7.1-20170507.054320-21-bin.zip
-  - unzip pcap4j-distribution-1.7.1-20170507.054320-21-bin.zip pcap4j-core-1.7.1-SNAPSHOT -d ./.m2/repository/org/pcap4j/pcap4j-core/1.7.1-SNAPSHOT/
-  - unzip pcap4j-distribution-1.7.1-20170507.054320-21-bin.zip pcap4j-packetfactory-static-1.7.1-SNAPSHOT -d ./.m2/repository/org/pcap4j/pcap4j-packetfactory-static/1.7.1-SNAPSHOT/
+  - unzip pcap4j-distribution-1.7.1-20170507.054320-21-bin.zip pcap4j-core-1.7.1-SNAPSHOT -d $HOME/.m2/repository/org/pcap4j/pcap4j-core/1.7.1-SNAPSHOT/
+  - unzip pcap4j-distribution-1.7.1-20170507.054320-21-bin.zip pcap4j-packetfactory-static-1.7.1-SNAPSHOT -d $HOME/.m2/repository/org/pcap4j/pcap4j-packetfactory-static/1.7.1-SNAPSHOT/
   
 jdk:
   - oraclejdk8
