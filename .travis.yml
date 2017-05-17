@@ -17,4 +17,10 @@ jdk:
 
 notifications:
   email: false
-  webhooks: https://discordapp.com/api/webhooks/314527406520139778/9jNoQvkNasJjUYJuFWJLirn1a_XgVwvMX1ZJcGLjhJzdCzrKsVSH9VBDkadKSDe7LS6D
+  webhooks: 
+    urls:
+      - https://discordapp.com/api/webhooks/314527406520139778/9jNoQvkNasJjUYJuFWJLirn1a_XgVwvMX1ZJcGLjhJzdCzrKsVSH9VBDkadKSDe7LS6D
+    on_success: change # default: always
+    on_failure: always # default: always
+    on_cancel: always # default: always
+    on_error: always # default: always
