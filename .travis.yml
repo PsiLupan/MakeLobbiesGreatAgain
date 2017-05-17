@@ -1,0 +1,6 @@
+language: java
+jdk:
+  - oraclejdk8
+
+notifications:
+  webhooks: https://discordapp.com/api/webhooks/314527406520139778/9jNoQvkNasJjUYJuFWJLirn1a_XgVwvMX1ZJcGLjhJzdCzrKsVSH9VBDkadKSDe7LS6D

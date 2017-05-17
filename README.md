@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/PsiLupan/MakeLobbiesGreatAgain.svg)](https://travis-ci.org/PsiLupan/MakeLobbiesGreatAgain/)
+
 ## HOW DOES IT WORK?
 MakeLobbiesGreatAgain uses a packet capture library to detect STUN packets from the client and server of Dead By Daylight, in order to determine who you're connected to and get ping from.
 It is not detected as a hack, since it does not and will not interact with the game ever. 
@@ -24,6 +26,8 @@ Optional Features:
 * Npcap from https://nmap.org/npcap/ and tick "Install Npcap in WinPcap API-compatible Mode" during installation (For advanced users: Add %SystemRoot%\System32\Npcap\ to PATH instead.)
 
 Simply double double click on the MLGA.jar file to run
+
+**NOTE:** You may need to right-click the JAR file, select Properties, and choose Unblock if it appears below Attributes.
 
 **If UAC is enabled:** 
 You may need to run the application via Command Prompt (this is due to the PCap4J library being unable to find devices).
