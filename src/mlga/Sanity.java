@@ -87,8 +87,10 @@ public class Sanity {
 						Desktop.getDesktop().browse(new URL((String)obj.get("html_url")).toURI());
 					} catch (IOException | URISyntaxException e1) {
 						e1.printStackTrace();
-						message("We couldn't open the URL for you, so go to https://github.com/PsiLupan/MakeLobbiesGreatAgain/releases and install it!");
+						message("We couldn't open the URL for you, so go to https://github.com/PsiLupan/MakeLobbiesGreatAgain/releases/latest and install it!");
 					}
+				}else{
+					message("We can't open the URL for you, so go to https://github.com/PsiLupan/MakeLobbiesGreatAgain/releases and install it!");
 				}
 				return false;
 			}else{
@@ -97,8 +99,9 @@ public class Sanity {
 			}
 		} catch (IOException | ParseException e) {
 			e.printStackTrace();
+			message("Error checking for latest version.");
 		} catch(NumberFormatException nfe){
-			System.out.println("Unable to determine latest version.");
+			message("Unable to determine latest version.");
 		}
 		return true;
 	}
