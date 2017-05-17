@@ -87,10 +87,10 @@ public class Sanity {
 						Desktop.getDesktop().browse(new URL((String)obj.get("html_url")).toURI());
 					} catch (IOException | URISyntaxException e1) {
 						e1.printStackTrace();
-						message("We couldn't open the URL for you, so go to https://github.com/PsiLupan/MakeLobbiesGreatAgain/releases/latest and install it!");
+						message("We can't open the URL for you, so go to https://github.com/PsiLupan/MakeLobbiesGreatAgain/releases/latest and install it!");
 					}
 				}else{
-					message("We can't open the URL for you, so go to https://github.com/PsiLupan/MakeLobbiesGreatAgain/releases and install it!");
+					message("We can't open the URL for you, so go to https://github.com/PsiLupan/MakeLobbiesGreatAgain/releases/latest and install it!");
 				}
 				return false;
 			}else{
