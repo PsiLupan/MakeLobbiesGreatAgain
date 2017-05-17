@@ -166,11 +166,7 @@ public class Boot {
 			public void actionPerformed(ActionEvent e){
 				try {
 					if(lanText.getText().length() >= 7 && !lanText.getText().equals("0.0.0.0")){ // 7 is because the minimum field is 0.0.0.0
-						for(InetAddress i : inets){
-							if(i.getHostAddress().equals(lanText.getText())){
-								addr = InetAddress.getByName(lanText.getText());
-							}
-						}
+						addr = InetAddress.getByName(lanText.getText());
 						System.out.println("Using IP from textfield: "+ lanText.getText());
 					}else{
 						addr = inets.get(lanIP.getSelectedIndex());
