@@ -13,4 +13,4 @@ jdk:
 
 notifications:
   email: false
-  webhooks: https://skyhook.glitch.me/api/webhooks/314527406520139778/9jNoQvkNasJjUYJuFWJLirn1a_XgVwvMX1ZJcGLjhJzdCzrKsVSH9VBDkadKSDe7LS6D/travis
+  webhooks: https://hook.rofl.wtf/
