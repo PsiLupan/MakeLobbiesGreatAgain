@@ -43,7 +43,8 @@ import mlga.ui.Overlay;
 
 public class Boot {
 	public static PcapNetworkInterface nif = null;
-
+	public static HashMap<Integer, Timestamp> active = new HashMap<Integer, Timestamp>();
+	
 	private static InetAddress addr = null;
 	private static PcapHandle handle = null;
 
@@ -70,16 +71,10 @@ public class Boot {
 		handle = nif.openLive(snapLen, mode, timeout);
 		handle.setFilter("udp", BpfProgram.BpfCompileMode.OPTIMIZE);
 
-		HashMap<Integer, Timestamp> active = new HashMap<Integer, Timestamp>();
 		final Overlay ui = new Overlay();
 
 		while(true){				
 			final Packet packet = handle.getNextPacket();
-
-			if(active.size() > 5){ //Keep active from filling and keeps it sep. from the TimerTask for thread safety
-				active.clear();
-				ui.clearPeers();
-			}
 
 			if(packet != null){
 				final IpV4Packet ippacket = packet.get(IpV4Packet.class);

@@ -20,6 +20,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import mlga.Boot;
 import mlga.io.Preferences;
 import mlga.io.Settings;
 
@@ -125,6 +126,7 @@ public class Overlay extends JPanel {
 			public void run(){
 				for (Peer p : peers){
 					if(p.age() >= 3500){
+						Boot.active.remove(p.getID());
 						peers.remove(p);
 					}
 				}
