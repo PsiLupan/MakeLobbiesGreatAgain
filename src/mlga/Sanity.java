@@ -16,7 +16,7 @@ import org.json.simple.parser.ParseException;
 import org.pcap4j.core.Pcaps;
 
 public class Sanity {
-	private final static Double version = 1.31;
+	private final static Double version = 1.32;
 	private static boolean headless = false;
 
 	public static boolean check(){
