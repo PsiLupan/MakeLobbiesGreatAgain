@@ -144,7 +144,7 @@ public class Boot {
 		for(PcapNetworkInterface i : Pcaps.findAllDevs()){
 			for(PcapAddress x : i.getAddresses()){
 				InetAddress xAddr = x.getAddress();
-				if(xAddr != null && x.getNetmask() != null && xAddr.getAddress().length == 4 && !xAddr.toString().equals("/0.0.0.0")){
+				if(xAddr != null && x.getNetmask() != null && !xAddr.toString().equals("/0.0.0.0")){
 					NetworkInterface inf = NetworkInterface.getByInetAddress(x.getAddress());
 					if(inf != null && inf.isUp() && !inf.isVirtual()){
 						inets.add(xAddr);
