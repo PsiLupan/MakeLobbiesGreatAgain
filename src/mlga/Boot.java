@@ -38,6 +38,7 @@ import org.pcap4j.packet.IpV4Packet;
 import org.pcap4j.packet.Packet;
 import org.pcap4j.packet.UdpPacket;
 
+import mlga.io.Backup;
 import mlga.io.Settings;
 import mlga.ui.Overlay;
 
@@ -56,7 +57,7 @@ public class Boot {
 		Settings.init();
 		Settings.set("autoload", Settings.get("autoload", "0")); //"autoload" is an ini-only toggle for advanced users.
 		setupTray();
-
+		
 		getLocalAddr();
 		nif = Pcaps.getDevByAddress(addr);
 		if(nif == null){
@@ -71,8 +72,12 @@ public class Boot {
 		handle = nif.openLive(snapLen, mode, timeout);
 		handle.setFilter("udp", BpfProgram.BpfCompileMode.OPTIMIZE);
 
+		if(Backup.enabled()){
+			Backup.startBackupDaemon();
+		}
+		
 		final Overlay ui = new Overlay();
-
+		
 		while(true){				
 			final Packet packet = handle.getNextPacket();
 
@@ -108,7 +113,7 @@ public class Boot {
 		final SystemTray tray = SystemTray.getSystemTray();
 		final PopupMenu popup = new PopupMenu();
 		final MenuItem exit = new MenuItem();
-		final TrayIcon trayIcon = new TrayIcon(Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource("resources/icon.png")), "MLGA", popup);
+		final TrayIcon trayIcon = new TrayIcon(Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource("icon.png")), "MLGA", popup);
 
 		exit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
