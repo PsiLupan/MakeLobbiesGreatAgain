@@ -159,9 +159,10 @@ public class Backup {
 			dir = new File(path+"/userdata/");
 			if(!dir.exists()){
 				System.err.println("Invalid Steam directory located!");
-				return null;
+				path = null;
 			}
-		}else{
+		}
+		if(path==null){
 			JOptionPane.showMessageDialog(null, "MLGA was unable to automatically locate your Steam installation folder, so please select it in the following proompt.", "Backup Location", JOptionPane.ERROR_MESSAGE);
 			JFileChooser fc = new JFileChooser();
 			fc.setCurrentDirectory(new java.io.File("."));
