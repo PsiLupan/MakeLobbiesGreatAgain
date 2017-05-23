@@ -164,7 +164,7 @@ public class Backup {
 			}
 		}
 		if(path==null){
-			JOptionPane.showMessageDialog(null, "MLGA was unable to automatically locate your Steam installation folder, so please select it in the following proompt.", "Backup Location", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "MLGA was unable to automatically locate your Steam installation folder, so please select it in the following prompt.", "Backup Location", JOptionPane.ERROR_MESSAGE);
 			JFileChooser fc = new JFileChooser();
 			fc.setCurrentDirectory(new java.io.File("."));
 			fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
