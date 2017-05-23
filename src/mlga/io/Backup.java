@@ -62,7 +62,7 @@ public class Backup {
 				Path steam = getSteam();
 				if(steam==null){
 					System.err.println("Steam path is null. Cannot enable automatic backups.");
-					JOptionPane.showMessageDialog(null, "Unable to locate valid STeam directory. Backups can not occur.", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, "Unable to locate valid Steam directory. Backups can not occur.", "Error", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 				watchDirectoryPath(steam);
@@ -115,7 +115,7 @@ public class Backup {
 						Path dir = (Path)key.watchable();
 						Path fullPath = dir.resolve((Path)watchEvent.context());
 						
-						System.out.println("File modified: " + fullPath);
+						System.out.println("Save File modified: " + fullPath);
 						// pass fully-built absolute filepath off to save handler:
 						saveFile(fullPath.toFile());
 					}
@@ -194,15 +194,15 @@ public class Backup {
 			System.out.println("\t+Updating file: "+f);
 			// The getParent() chain below reaches up and grabs the profile ID for this save's user, so we can keep all users as separate backups.
 			File copy = new File(backup_dir.getAbsolutePath()+"/"+f.getParentFile().getParentFile().getParentFile().getParentFile().getName()+"/"+f.getName());
-			System.out.println("Checking: "+copy.getAbsolutePath());
 			if(!copy.getParentFile().exists()){
 				copy.getParentFile().mkdirs();
 			}
+			
 			long last = 0L;
 			if(copy.exists()){
 				last = copy.lastModified();
 			}
-			if(f.lastModified()>=last){
+			if(f.lastModified()>last){
 				if(copy.exists()){
 					//A copy of this file already exists, so we must shuffle through existing backups, increment them all, and remove the oldest backup copy.
 					for(int i=max_extra_copies; i>0;i--){
@@ -210,10 +210,8 @@ public class Backup {
 						if(max.exists()){
 							if(i<max_extra_copies){//Increment version.
 								max.renameTo(backupFile(copy, (i+1)) );
-								System.out.println("Renamed "+i);
 							}else{
 								max.delete();//Delete oldest allowed copy.
-								System.out.println("Deleted backup "+i);
 							}
 						}
 					}
