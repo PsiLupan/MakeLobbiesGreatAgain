@@ -160,6 +160,7 @@ public class Backup {
 			if(!dir.exists()){
 				System.err.println("Invalid Steam directory located!");
 				path = null;
+				dir = null;
 			}
 		}
 		if(path==null){
