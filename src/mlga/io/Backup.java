@@ -115,7 +115,6 @@ public class Backup {
 						Path dir = (Path)key.watchable();
 						Path fullPath = dir.resolve((Path)watchEvent.context());
 						
-						System.out.println("Save File modified: " + fullPath);
 						// pass fully-built absolute filepath off to save handler:
 						saveFile(fullPath.toFile());
 					}
@@ -193,7 +192,6 @@ public class Backup {
 		}
 		// Accept only (existing Files), (*.profj* files), and ignore *.stmp temp files.
 		if(f.exists() && f.getAbsolutePath().contains("profj") && !f.getName().contains(".stmp")){ 
-			System.out.println("\t+Updating file: "+f);
 			// The getParent() chain below reaches up and grabs the profile ID for this save's user, so we can keep all users as separate backups.
 			File copy = new File(backup_dir.getAbsolutePath()+"/"+f.getParentFile().getParentFile().getParentFile().getParentFile().getName()+"/"+f.getName());
 			if(!copy.getParentFile().exists()){
