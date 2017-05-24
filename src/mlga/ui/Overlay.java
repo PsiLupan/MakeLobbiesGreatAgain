@@ -32,12 +32,18 @@ public class Overlay extends JPanel {
 	private boolean mode = false; 
 
 	private CopyOnWriteArrayList<Peer> peers = new CopyOnWriteArrayList<Peer>();
-	private final Font roboto = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemClassLoader().getResourceAsStream("resources/Roboto-Medium.ttf")).deriveFont(15f);
+	private Font roboto;
 	/** idx & fh are updated by listener and rendering events. <br>They track hovered index and font height.*/
 	private int idx = -1, fh = 0;
 
 	public Overlay() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, FontFormatException, IOException{
 		Preferences.init();
+		
+		if(ClassLoader.getSystemClassLoader().getResourceAsStream("resources/Roboto-Medium.ttf") != null){
+			roboto = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemClassLoader().getResourceAsStream("resources/Roboto-Medium.ttf")).deriveFont(15f);
+		}else{
+			roboto = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemClassLoader().getResourceAsStream("src/resources/Roboto-Medium.ttf")).deriveFont(15f);
+		}
 
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		this.setOpaque(false);

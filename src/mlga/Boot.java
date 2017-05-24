@@ -113,7 +113,12 @@ public class Boot {
 		final SystemTray tray = SystemTray.getSystemTray();
 		final PopupMenu popup = new PopupMenu();
 		final MenuItem exit = new MenuItem();
-		final TrayIcon trayIcon = new TrayIcon(Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource("icon.png")), "MLGA", popup);
+		TrayIcon trayIcon;
+		if(ClassLoader.getSystemResource("src/resources/icon.png") != null){
+			trayIcon = new TrayIcon(Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource("src/resources/icon.png")), "MLGA", popup);
+		}else{
+			trayIcon = new TrayIcon(Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource("resources/icon.png")), "MLGA", popup);
+		}
 
 		exit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
