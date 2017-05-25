@@ -12,7 +12,6 @@ import javax.swing.JOptionPane;
 
 import org.pcap4j.core.Pcaps;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
