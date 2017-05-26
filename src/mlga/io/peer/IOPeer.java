@@ -1,11 +1,11 @@
-package mlga.io;
+package mlga.io.peer;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /** Wrapper used to save/load Peer settings. 
- * Must ber serializable, so GSON can stream-encode them as objects.*/
+ * Must be serializable, so GSON can stream-encode them as objects.*/
 public class IOPeer implements Serializable{
 	private static final long serialVersionUID = 5828536744242544871L;
 	

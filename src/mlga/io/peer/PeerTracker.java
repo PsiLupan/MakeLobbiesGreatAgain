@@ -1,4 +1,4 @@
-package mlga.io;
+package mlga.io.peer;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;

@@ -1,24 +1,12 @@
 package mlga.io;
 
-import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
-import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.FileSystem;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
-import java.nio.file.attribute.BasicFileAttributes;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -57,81 +45,23 @@ public class Backup {
 	 * Runs in background , monitoring the Steam directory for DbD file changes, then copies those changed files over to a safe backup location.
 	 */
 	public static void startBackupDaemon(){
-		Thread t = new Thread("Backup_Thread"){
-			public void run(){
-				Path steam = getSteam();
-				if(steam==null){
-					System.err.println("Steam path is null. Cannot enable automatic backups.");
-					JOptionPane.showMessageDialog(null, "Unable to locate valid Steam directory. Backups can not occur.", "Error", JOptionPane.ERROR_MESSAGE);
+		Path steam = getSteam();
+		if(steam==null){
+			System.err.println("Steam path is null. Cannot enable automatic backups.");
+			JOptionPane.showMessageDialog(null, "Unable to locate valid Steam directory. Backups can not occur.", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		new DirectoryWatcher(steam.toFile(), true){
+			public void handle(File f, Event e){
+				if(e==Event.DELETE)
 					return;
-				}
-				watchDirectoryPath(steam);
+				saveFile(f);
+			}
+			
+			public boolean followDir(File dir){
+				return dir.getAbsolutePath().contains("381210") && dir.getAbsolutePath().toLowerCase().contains("profilesaves");
 			}
 		};
-		t.setDaemon(true);
-		t.start();
-	}
-
-	private static void watchDirectoryPath(Path path) {
-		// Sanity check - Check if path is a folder
-		try {
-			Boolean isFolder = (Boolean) Files.getAttribute(path,"basic:isDirectory", NOFOLLOW_LINKS);
-			if (!isFolder) {
-				throw new IllegalArgumentException("Path: " + path + " is not a folder");
-			}
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
-
-		System.out.println("Watching path: " + path);
-
-		FileSystem fs = path.getFileSystem ();
-		try(WatchService service = fs.newWatchService()) {
-			// Iterate all game directories for all Steam users on this PC, and if they match the game (381210) and contain a save dir, register them to be tracked:
-			Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-				public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-					File f = dir.toFile();
-					if(f.getAbsolutePath().contains("381210") && f.getAbsolutePath().toLowerCase().contains("profilesaves")){
-						dir.register(service, ENTRY_CREATE, ENTRY_MODIFY);
-						System.out.println("\t+Registered directory: "+dir);
-					}
-					return FileVisitResult.CONTINUE;
-				}
-			});
-			System.out.println("Watch registered...");
-			
-			// Start the infinite polling loop
-			WatchKey key = null;
-			while(true) {
-				key = service.take();
-				
-				for(WatchEvent<?> watchEvent : key.pollEvents()) {
-					if (watchEvent.kind() == OVERFLOW) {
-						//Ignore misc events.
-						continue;
-					} else {
-						//File was modified/created.
-						//Event context is FUBAR and uses relative paths, so we assemble a full absolute path:
-						Path dir = (Path)key.watchable();
-						Path fullPath = dir.resolve((Path)watchEvent.context());
-						
-						// pass fully-built absolute filepath off to save handler:
-						saveFile(fullPath.toFile());
-					}
-				}
-
-				if(!key.reset()) {
-					// The key's events must be cleared to allow for new ones.
-					// if this fails for some reason, the folder's likely missing suddenly.
-					break;
-				}
-			}
-
-		} catch(IOException | InterruptedException ioe) {
-			ioe.printStackTrace();
-			System.err.println("Unable to register for backup tracking!");
-		}
-
 	}
 
 	/** Gets, either automatically or via prompt, the directory Steam's <b>userdata</b> Folder is installed in.<br>
