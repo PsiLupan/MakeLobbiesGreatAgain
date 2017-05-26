@@ -16,7 +16,7 @@ public class PeerList {
 	//Method for adding new peer
 	
 	
-	public void savePeers(OutputStream out, List<IOPeer> peers) throws IOException {
+	public static void savePeers(OutputStream out, List<IOPeer> peers) throws IOException {
 		Gson gson = new Gson();
 		JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));
 		writer.setIndent("    ");

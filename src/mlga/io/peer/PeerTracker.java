@@ -1,6 +1,8 @@
 package mlga.io.peer;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -23,6 +25,12 @@ public class PeerTracker {
 			processLog(f);
 		}
 		System.out.println("Identified "+users.size()+" unique user/ip combos!");
+		try {
+			// Save example output list.
+			PeerList.savePeers(new FileOutputStream("peers.json"), users);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	/* TODO: On each completed name:ip pairing, run through all IOPeer object saved...
 	 * If the Peer.matches() works, but the Peer is missing its ID, set the ID and save.
