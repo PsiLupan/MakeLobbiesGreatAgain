@@ -10,10 +10,11 @@ import java.net.URL;
 
 import javax.swing.JOptionPane;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.pcap4j.core.Pcaps;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class Sanity {
 	private final static Double version = 1.33;
@@ -77,14 +78,15 @@ public class Sanity {
 		try {
 			URL update = new URL("https://api.github.com/repos/PsiLupan/MakeLobbiesGreatAgain/releases/latest");
 			BufferedReader buf = new BufferedReader(new InputStreamReader(update.openStream()));
-			JSONParser parser = new JSONParser();
-			JSONObject obj = (JSONObject)parser.parse(buf);
-			double newVersion = Double.parseDouble((String)obj.get("tag_name"));
+			//Gson gson = new Gson();
+			JsonElement ele = new JsonParser().parse(buf);
+			JsonObject obj = ele.getAsJsonObject();
+			double newVersion = Double.parseDouble(obj.get("tag_name").getAsString().trim());
 			if(version < newVersion){
 				message("An update is available!\nCurrent Version: "+version+", Latest Release Version: "+newVersion);
 				if(Desktop.isDesktopSupported()){
 					try {
-						Desktop.getDesktop().browse(new URL((String)obj.get("html_url")).toURI());
+						Desktop.getDesktop().browse(new URL(obj.get("html_url").getAsString().trim()).toURI());
 					} catch (IOException | URISyntaxException e1) {
 						e1.printStackTrace();
 						message("We can't open the URL for you, so go to https://github.com/PsiLupan/MakeLobbiesGreatAgain/releases/latest and install it!");
@@ -97,11 +99,9 @@ public class Sanity {
 				System.out.println("Version "+version+" :: Up to date!");
 				return true;
 			}
-		} catch (IOException | ParseException e) {
-			e.printStackTrace();
-			message("Error checking for latest version.");
-		} catch(NumberFormatException nfe){
-			message("Unable to determine latest version.");
+		} catch (IOException | NumberFormatException nfe){
+			nfe.printStackTrace();
+			message("Unable to determine latest version. \nPlease manually check for an update!");
 		}
 		return true;
 	}
