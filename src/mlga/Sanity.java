@@ -17,7 +17,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class Sanity {
-	private final static Double version = 1.32;
+	private final static Double version = 1.33;
 	private static boolean headless = false;
 
 	public static boolean check(){
