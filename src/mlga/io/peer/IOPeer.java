@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Wrapper used to save/load Peer settings. 
- * Must be serializable, so GSON can stream-encode them as objects.*/
+ * Must be serializable, so GSON can stream-encode them as objects.
+ */
 public class IOPeer implements Serializable{
 	private static final long serialVersionUID = 5828536744242544871L;
 	
@@ -64,6 +65,23 @@ public class IOPeer implements Serializable{
 	 * It tracks when this Peer was first discovered, for posterity. */
 	public long getFirstSeen(){
 		return this.firstSeen;
+	}
+
+	public boolean equals(Object o){
+		if(!(o instanceof IOPeer) )
+			return false;
+		IOPeer p2 = (IOPeer)o;
+		if(!getUID().equals(p2.getUID()) ){
+			return false;
+		}
+		if(ips.size()!=p2.ips.size())
+			return false;
+		for(int i=0; i<ips.size();i++){
+			int v = ips.get(i).compareTo(p2.ips.get(i));
+			if(v!=0)
+				return false;
+		}
+		return true;
 	}
 	
 }

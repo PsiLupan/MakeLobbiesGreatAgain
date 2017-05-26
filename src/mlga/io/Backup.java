@@ -68,7 +68,7 @@ public class Backup {
 	 * @return <i>null</i> if an invalid directory is found. 
 	 */
 	private static Path getSteam(){
-		//If we had=ve the Steam Path location already stored in Settings, we skip the lookup.
+		//If we have the Steam Path location already stored in Settings, we skip the lookup.
 		String p = Settings.get("steam_path", null);
 		if(p!=null){
 			return new File(p).toPath();
@@ -186,13 +186,9 @@ public class Backup {
 				output+=s;
 			}
 			r.close();
-			// Output has the following format:
-			// \n<Version information>\n\n<key>\t<registry type>\t<value>
 			if( !output.contains("    ") && !output.contains("\t")){
 				return null;
 			}
-
-			// Parse out the value
 			String[] parsed = output.split("\t|    ");
 			return parsed[parsed.length-1].trim();
 		}catch (Exception e) {

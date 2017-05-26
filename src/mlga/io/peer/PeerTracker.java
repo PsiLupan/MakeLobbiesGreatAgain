@@ -13,7 +13,8 @@ import java.util.ArrayList;
  */
 public class PeerTracker {
 	static File dir = new File(new File(System.getenv("APPDATA")).getParentFile().getAbsolutePath()+"/Local/DeadByDaylight/Saved/Logs/");
-	static ArrayList<String> users = new ArrayList<String>();
+	static ArrayList<IOPeer> users = new ArrayList<IOPeer>();
+	
 	public static void main(String[] args){
 		for(File f : dir.listFiles()){
 			if(f.isDirectory())continue;
@@ -61,9 +62,11 @@ public class PeerTracker {
 							active = false;
 							continue;
 						}
-						String us = uid+" = "+ip;
-						if(!users.contains(us)){
-							users.add(us);
+						IOPeer p = new IOPeer();
+						p.setUID(uid);
+						p.addIP(ip);
+						if(!users.contains(p)){
+							users.add(p);
 							System.out.println("\t"+uid+" = "+ip);
 						}
 						active = false;

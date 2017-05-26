@@ -26,9 +26,9 @@ import java.nio.file.WatchService;
  * @author ShadowMoose
  */
 public class DirectoryWatcher {
-	private File dir;
-	private Thread thread;
-	private boolean spider;
+	private final File dir;
+	private final Thread thread;
+	private final boolean spider;
 
 	/**
 	 * All possible filesystem changes that are listened for.
@@ -121,13 +121,12 @@ public class DirectoryWatcher {
 						continue;
 					} else {
 						// File was modified/created.
-						// Event context is FUBAR and uses relative paths, so we
-						// assemble a full absolute path:
+						// Assemble a complete, absolute path:
 						Path dir = (Path) key.watchable();
 						Path fullPath = dir.resolve((Path) watchEvent.context());
 
-						// pass fully-built absolute filepath off to 
-						// save handler:
+						// Pass fully-built absolute filepath off to 
+						// save handler function:
 						this.handle(fullPath.toFile(), kindToEvent(watchEvent.kind()));
 					}
 				}
