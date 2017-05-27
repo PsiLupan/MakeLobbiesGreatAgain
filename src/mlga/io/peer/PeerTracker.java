@@ -22,7 +22,7 @@ public class PeerTracker {
 	private static boolean saving = false;
 	private String uid = null;
 	private boolean active = false;
-	
+
 	/**
 	 * Creates a PeerTracker, which instantly loads the Peer List into memory.  <br>
 	 * Calling {@link #start()} will launch the passive listening component, which
@@ -30,26 +30,26 @@ public class PeerTracker {
 	 */
 	public PeerTracker(){
 		// PeerSavers create emergency backups, so loop to check primary file, then attempt fallback if needed.
-		for(int i=0; i<2; i++){
+		for(int i = 0; i < 2; i++){
 			try {
 				PeerReader ps = new PeerReader(FileUtil.getSaveName(peerFile, i));
 				while(ps.hasNext())
 					peers.add(ps.next());
 				System.out.println("Loaded "+peers.size()+" tracked users!");
-				if(i!=0){
+				if(i != 0){
 					// If we had to check a backup, re-save the backup as the primary instantly.
 					savePeers();
 				}
 				break;
 			} catch (IOException e) {
 				//e.printStackTrace();
-				if(i==0){
+				if(i == 0){
 					System.err.println("No Peers file located! Checking backups!");
 				}
 			}
 		}
 	}
-	
+
 	/** Launches this listener thread, in order to automatically update Peers. */
 	public void start(){
 		// Start off by updating from any existing logs that may not have been parsed yet.
@@ -64,7 +64,7 @@ public class PeerTracker {
 				processLog(f);
 			}
 		};
-		
+
 		// TODO: Adding a listener to each Peer, or a clever callback, might be better.
 		//    + Though, this method does cut down on file writes during times of many updates.
 		Thread t = new Thread("IOPeerSaver"){
@@ -76,7 +76,7 @@ public class PeerTracker {
 								// Intentionally hang if we located a Peer to save, to allow any other Peers to batch updates together.
 								Thread.sleep(10);
 							}catch(Exception e){e.printStackTrace();}
-							
+
 							savePeers();
 							// Exit for() loop and re-check list.
 							break;
@@ -106,7 +106,7 @@ public class PeerTracker {
 		System.out.println("Identified "+peers.size()+" unique user/ip combos!");
 		active = false;
 	}
-	
+
 	/**
 	 * Attempts to save the list of IOPeers.  <br>
 	 * Should be called whenever a Peer's information is updated.  <br><br>
@@ -134,7 +134,7 @@ public class PeerTracker {
 		saving = false;
 		return false;
 	}
-	
+
 	/** The main method of interfacing with the Peer List, 
 	 * this method either retrieves an existing IOPeer object which "owns" the given IP, 
 	 * or it returns the new IOPeer object generated - and containing - the new IP.
@@ -151,7 +151,7 @@ public class PeerTracker {
 		peers.add(p);
 		return p;
 	}
-	
+
 	/** 
 	 * Iterates through the Log file, pairing UIDs and IPs that it can find,
 	 * and adding them to the IOPeer list or updating existing IOPeers where missing info is found.
@@ -159,10 +159,9 @@ public class PeerTracker {
 	 * @param f The file to process.
 	 */
 	private void processLog(File f){
-		try{
-			BufferedReader br = new BufferedReader(new FileReader(f));
+		try (BufferedReader br = new BufferedReader(new FileReader(f))){
 			String l;
-			while((l=br.readLine())!=null){
+			while((l = br.readLine()) != null){
 				l = l.trim().toLowerCase();
 
 				if(l.contains("connectionactive: 1"))
@@ -184,7 +183,7 @@ public class PeerTracker {
 						InetAddress ina = null;
 						try {
 							ina = InetAddress.getByName(ip);
-							if(ina != null && ina.isAnyLocalAddress()){
+							if(ina == null || (ina != null && (ina.isAnyLocalAddress() || ina.isSiteLocalAddress()))){
 								uid = null;
 								active = false;
 								continue;
@@ -221,7 +220,6 @@ public class PeerTracker {
 
 				}
 			}
-			br.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

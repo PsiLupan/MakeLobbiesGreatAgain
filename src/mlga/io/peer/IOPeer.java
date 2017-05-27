@@ -92,11 +92,11 @@ public class IOPeer implements Serializable{
 		if(!getUID().equals(p2.getUID()) ){
 			return false;
 		}
-		if(ips.size()!=p2.ips.size())
+		if(ips.size() != p2.ips.size())
 			return false;
-		for(int i=0; i<ips.size();i++){
+		for(int i = 0; i < ips.size(); i++){
 			int v = ips.get(i).compareTo(p2.ips.get(i));
-			if(v!=0)
+			if(v != 0)
 				return false;
 		}
 		return true;

@@ -18,7 +18,7 @@ public class FileUtil {
 	 */
 	public static String getMlgaPath(){
 		String f = Settings.get("base_dir", null);
-		if(f==null){
+		if(f == null){
 			f = new File(System.getenv("APPDATA")+"/MLGA/").getAbsolutePath();
 			Settings.set("base_dir", f);
 		}
