@@ -64,13 +64,9 @@ public class Preferences {
 			CipherInputStream decStream = new CipherInputStream(fis, cipher);
 			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(decStream));
 
-			String line="";
-			while ((line = bufferedReader.readLine()) != null){
-				if(line.trim().startsWith(";") || !line.contains("=")){
-					continue;
-				}
+			bufferedReader.lines().parallel().filter(line -> !line.contains("=")).forEach((line)-> {
 				prefs.put(Integer.parseInt(line.split("=")[0].trim()), Boolean.valueOf(line.substring(line.indexOf('=')+1).trim()));
-			}
+			});
 			bufferedReader.close();
 		}catch(IOException ioe){
 			ioe.printStackTrace();
