@@ -70,7 +70,7 @@ public class PeerSaver {
 	private void savePeers(OutputStream out, List<IOPeer> peers) throws IOException {
 		Gson gson = new Gson();
 		JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));
-		writer.setIndent("    ");
+		writer.setIndent("");
 		writer.beginArray();
 		for (IOPeer p : peers) {
 			gson.toJson(p, IOPeer.class, writer);

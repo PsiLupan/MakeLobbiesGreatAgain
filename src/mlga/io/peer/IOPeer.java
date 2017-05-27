@@ -1,8 +1,7 @@
 package mlga.io.peer;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /** Wrapper used to save/load Peer settings. 
  * Must be serializable, so GSON can stream-encode them as objects.
@@ -15,7 +14,7 @@ public class IOPeer implements Serializable{
 	/** A version flag for each Peer object, for if something needs changing later. */
 	public final int version = 1;
 	/** List of all IPs this peer has been known under. */
-	private List<String> ips = new ArrayList<String>();
+	private CopyOnWriteArrayList<Integer> ips = new CopyOnWriteArrayList<Integer>();
 	/** The UID of this peer. May not actually be set (other than null), if we haven't found them in a log file yet. */
 	private String uid = null;
 	/** This peer's status; <br> -1 if this peer is unrated, 0 if blocked, 1 if loved. <br> Default is -1.*/
@@ -43,13 +42,13 @@ public class IOPeer implements Serializable{
 	
 	/** Adds the given IP to this list. */
 	public void addIP(String ip){
-		this.ips.add(ip.trim());
+		this.ips.add(ip.trim().hashCode());
 		this.saved = false;
 	}
 	
 	/** Checks if this IOPeer contains the given IP address. */
 	public boolean hasIP(String ip){
-		return ips.contains(ip.trim());
+		return ips.contains(ip.trim().hashCode());
 	}
 	
 	/** Check to see if this Peer Object has been known under this UID or IP before. */
