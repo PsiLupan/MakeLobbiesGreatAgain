@@ -62,12 +62,13 @@ public class Preferences {
 			cipher.init(Cipher.DECRYPT_MODE, desKey);
 			FileInputStream fis = new FileInputStream(prefsFile);
 			CipherInputStream decStream = new CipherInputStream(fis, cipher);
-			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(decStream));
-
-			bufferedReader.lines().parallel().filter(line -> !line.contains("=")).forEach((line)-> {
-				prefs.put(Integer.parseInt(line.split("=")[0].trim()), Boolean.valueOf(line.substring(line.indexOf('=')+1).trim()));
-			});
-			bufferedReader.close();
+			try(BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(decStream))){
+				bufferedReader.lines().parallel().filter(line -> !line.contains("=")).forEach((line)-> {
+					prefs.put(Integer.parseInt(line.split("=")[0].trim()), Boolean.valueOf(line.substring(line.indexOf('=')+1).trim()));
+				});
+			}
+			decStream.close();
+			fis.close();
 		}catch(IOException ioe){
 			ioe.printStackTrace();
 			JOptionPane.showMessageDialog(null, 
