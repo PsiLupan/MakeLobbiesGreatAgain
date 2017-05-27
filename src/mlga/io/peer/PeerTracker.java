@@ -1,12 +1,11 @@
 package mlga.io.peer;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Stream;
 
 import mlga.io.DirectoryWatcher;
 import mlga.io.FileUtil;
@@ -18,7 +17,7 @@ import mlga.io.FileUtil;
  */
 public class PeerTracker {
 	private File dbdLogDir = new File(new File(System.getenv("APPDATA")).getParentFile().getAbsolutePath()+"/Local/DeadByDaylight/Saved/Logs/");
-	private static File peerFile = new File(FileUtil.getMlgaPath()+"peers.json");
+	private static File peerFile = new File(FileUtil.getMlgaPath()+"peers.mlga");
 	private static CopyOnWriteArrayList<IOPeer> peers = new CopyOnWriteArrayList<IOPeer>();
 	private static boolean saving = false;
 	private String uid = null;
@@ -43,6 +42,7 @@ public class PeerTracker {
 				}
 				break;
 			} catch (IOException e) {
+				//e.printStackTrace();
 				if(i==0){
 					System.err.println("No Peers file located! Checking backups!");
 				}
@@ -159,9 +159,10 @@ public class PeerTracker {
 	 * @param f The file to process.
 	 */
 	private void processLog(File f){
-		try (Stream<String> stream = Files.lines(Paths.get(f.getPath()))) {		
-
-			stream.forEachOrdered((l)->{
+		try{
+			BufferedReader br = new BufferedReader(new FileReader(f));
+			String l;
+			while((l=br.readLine())!=null){
 				l = l.trim().toLowerCase();
 
 				if(l.contains("connectionactive: 1"))
@@ -170,7 +171,7 @@ public class PeerTracker {
 					active = false;
 				if(!active){
 					uid = null;
-					return;
+					continue;
 				}
 				if(l.contains("steam: - id:")){
 					uid = l.split("id:")[1].split("\\[")[1].split("\\]")[0].trim();
@@ -186,7 +187,7 @@ public class PeerTracker {
 							if(ina != null && ina.isAnyLocalAddress()){
 								uid = null;
 								active = false;
-								return;
+								continue;
 							}
 							IOPeer p = new IOPeer();
 							p.setUID(uid);
@@ -219,7 +220,8 @@ public class PeerTracker {
 					}
 
 				}
-			});
+			}
+			br.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -2,10 +2,11 @@ package mlga.io.peer;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.util.zip.GZIPInputStream;
+
+import javax.crypto.CipherInputStream;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
@@ -31,6 +32,7 @@ public class PeerReader {
 	public IOPeer next() throws IOException {
 		if (reader.hasNext()) {
 			IOPeer peer = gson.fromJson(reader, IOPeer.class);
+			peer.saved = true;
 			return peer;
 		}
 		reader.endArray();
@@ -53,8 +55,15 @@ public class PeerReader {
 		reader.close();
 	}
 
-	private InputStreamReader open(File f) throws FileNotFoundException, UnsupportedEncodingException{
-		//TODO: Encryption.
-		return new InputStreamReader(new FileInputStream(f), "UTF-8");
+	private InputStreamReader open(File f) throws IOException{
+		CipherInputStream decStream = null;
+		FileInputStream fis = new FileInputStream(f);
+		try{
+			decStream = new CipherInputStream(fis, Security.getCipher(true));
+		}catch(Exception e){
+			e.printStackTrace();
+			throw new IOException();
+		}
+		return new InputStreamReader(new GZIPInputStream(decStream), "UTF-8");
 	}
 }

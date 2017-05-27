@@ -38,46 +38,46 @@ public class FileUtil {
 			backup_dir.mkdirs();
 			System.out.println("Built backup directory: "+backup_dir.getAbsolutePath());
 		}
+		
 		if(!f.exists() ){
 			return false;
 		}
 		
+		System.out.println("Saving: "+f);
 		File copy = new File(backup_dir.getAbsolutePath()+"/"+f.getName());
 		if(!copy.getParentFile().exists()){
 			copy.getParentFile().mkdirs();
 		}
 
-		long last = 0L;
+		System.out.println(copy);
 		if(copy.exists()){
-			last = copy.lastModified();
-		}
-		if(f.lastModified()>last){
-			if(copy.exists()){
-				//A copy of this file already exists, so we must shuffle through existing backups, increment them all, and remove the oldest backup copy.
-				for(int i=max_extra_copies; i>0;i--){
-					File max = getSaveName(copy, i);
-					if(max.exists()){
-						if(i<max_extra_copies){//Increment version.
-							max.renameTo(getSaveName(copy, (i+1)) );
-						}else{
-							max.delete();//Delete oldest allowed copy.
-						}
+			//A copy of this file already exists, so we must shuffle through existing backups, increment them all, and remove the oldest backup copy.
+			for(int i=max_extra_copies; i>0;i--){
+				File max = getSaveName(copy, i);
+				System.out.println(max);
+				if(max.exists()){
+					if(i<max_extra_copies){//Increment version.
+						max.renameTo(getSaveName(copy, (i+1)) );
+					}else{
+						max.delete();//Delete oldest allowed copy.
 					}
 				}
-				//Finally, we increment the existing copy to '1'.
-				copy.renameTo(getSaveName(copy, 1) );
 			}
-			try {
+			//Finally, we increment the existing copy to '1'.
+			copy.renameTo(getSaveName(copy, 1) );
+		}
+		try {
+			if(f.exists()){
 				Files.copy(f.toPath(), copy.toPath(), StandardCopyOption.REPLACE_EXISTING);
 				System.out.println("\t+Made backup of file!");
-			} catch (IOException e) {
-				e.printStackTrace();
-				return false;
 			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Simplified version of {@link #saveFile(File, File, int)}, 
 	 * this method always uses the directory provided by {@link #getMlgaPath()},

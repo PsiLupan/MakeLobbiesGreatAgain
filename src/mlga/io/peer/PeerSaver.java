@@ -7,6 +7,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.List;
+import java.util.zip.GZIPOutputStream;
+
+import javax.crypto.Cipher;
+import javax.crypto.CipherOutputStream;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
@@ -50,11 +54,17 @@ public class PeerSaver {
 	/** This method handles opening an OutputStream to the given file.
 	 * @param f The file to open.
 	 * @return The stream opened to the desired file.
-	 * @throws FileNotFoundException 
+	 * @throws IOException 
 	 */
-	private OutputStream openStream(File f) throws FileNotFoundException{
-		return new FileOutputStream(saveFile);
-		//TODO: Encryption instead of raw stream after debugging's finished.
+	private OutputStream openStream(File f) throws IOException{
+		Cipher c;
+		try {
+			c = Security.getCipher(false);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new IOException();
+		}
+		return new GZIPOutputStream(new CipherOutputStream(new FileOutputStream(saveFile), c));
 	}
 	
 	private void savePeers(OutputStream out, List<IOPeer> peers) throws IOException {
