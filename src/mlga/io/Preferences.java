@@ -94,14 +94,11 @@ public class Preferences {
 
 	public static void remove(Integer ipHash){
 		prefs.remove(ipHash);
-		FileOutputStream o;
-		try {
-			o = new FileOutputStream(prefsFile);
+		try (FileOutputStream o = new FileOutputStream(prefsFile)) {
 			cipher.init(Cipher.ENCRYPT_MODE, desKey);
 			for(Integer k : prefs.keySet() ){
 				o.write(cipher.doFinal((k.toString().trim()+"="+Boolean.toString(prefs.get(k))+"\r\n").getBytes()));
 			}
-			o.close();
 		} catch (IOException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
 			e.printStackTrace();
 		}
@@ -110,14 +107,11 @@ public class Preferences {
 	public static void set(Integer key, Boolean state){
 		prefs.remove(key);
 		prefs.put(key, state);
-		FileOutputStream o;
-		try {
-			o = new FileOutputStream(prefsFile);
+		try (FileOutputStream o = new FileOutputStream(prefsFile)) {
 			cipher.init(Cipher.ENCRYPT_MODE, desKey);
 			for(Integer k : prefs.keySet() ){
 				o.write(cipher.doFinal((k.toString().trim()+"="+Boolean.toString(prefs.get(k))+"\r\n").getBytes()));
 			}
-			o.close();
 		} catch (IOException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
 			e.printStackTrace();
 		}
