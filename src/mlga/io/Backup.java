@@ -2,11 +2,8 @@ package mlga.io;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -19,7 +16,7 @@ import javax.swing.JOptionPane;
  * @author ShadowMoose
  */
 public class Backup {
-	private static File backup_dir = new File(System.getenv("APPDATA")+"/MLGA/backup/");
+	private static File backup_dir = new File(FileUtil.getMlgaPath()+"backup/");
 	/** Maximum copies of each file backup we'd like to store, <b>not including</b> the most recent backup. */
 	private static int max_extra_copies = 2;
 
@@ -116,56 +113,12 @@ public class Backup {
 	 * We'd want a prompt before this function runs, the first time the app runs, to see if the user wants us to back up their data.
 	 * */
 	private static boolean saveFile(File f){
-		if(!backup_dir.exists()){
-			backup_dir.mkdirs();
-			System.out.println("Built backup directory: "+backup_dir.getAbsolutePath());
-		}
 		// Accept only (existing Files), (*.profj* files), and ignore *.stmp temp files.
-		if(f.exists() && f.getAbsolutePath().contains("profj") && !f.getName().contains(".stmp")){ 
-			// The getParent() chain below reaches up and grabs the profile ID for this save's user, so we can keep all users as separate backups.
-			File copy = new File(backup_dir.getAbsolutePath()+"/"+f.getParentFile().getParentFile().getParentFile().getParentFile().getName()+"/"+f.getName());
-			if(!copy.getParentFile().exists()){
-				copy.getParentFile().mkdirs();
-			}
-			
-			long last = 0L;
-			if(copy.exists()){
-				last = copy.lastModified();
-			}
-			if(f.lastModified()>last){
-				if(copy.exists()){
-					//A copy of this file already exists, so we must shuffle through existing backups, increment them all, and remove the oldest backup copy.
-					for(int i=max_extra_copies; i>0;i--){
-						File max = backupFile(copy, i);
-						if(max.exists()){
-							if(i<max_extra_copies){//Increment version.
-								max.renameTo(backupFile(copy, (i+1)) );
-							}else{
-								max.delete();//Delete oldest allowed copy.
-							}
-						}
-					}
-					//Finally, we increment the existing copy to '1'.
-					copy.renameTo(backupFile(copy, 1) );
-				}
-				try {
-					Files.copy(f.toPath(), copy.toPath(), StandardCopyOption.REPLACE_EXISTING);
-					System.out.println("\t+Made backup of file!");
-				} catch (IOException e) {
-					e.printStackTrace();
-					return false;
-				}
-			}
-
+		if(f.exists() && f.getAbsolutePath().contains("profj") && !f.getName().contains(".stmp")){
+			File copy = new File(backup_dir.getAbsolutePath()+"/"+f.getParentFile().getParentFile().getParentFile().getParentFile().getName()+"/");
+			FileUtil.saveFile(f, copy, max_extra_copies);
 		}
 		return true;
-	}
-
-	/** Get a File object representing version <i>version</i> of the given File <i>f</i>.<br>
-	 * It is crucial (for ease of tracking) that all backup files follow the same naming conventions.<br>
-	 * This function exists to enforce those conventions. */
-	private static File backupFile(File f, int version){
-		return new File(f.getParentFile().getAbsolutePath()+"/"+version+" - "+f.getName());
 	}
 
 	/**

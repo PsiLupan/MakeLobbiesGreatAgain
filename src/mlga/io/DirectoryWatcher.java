@@ -73,7 +73,7 @@ public class DirectoryWatcher {
 
 	/**
 	 * Creates and starts a Threaded watcher, that will trigger this
-	 * DirectoryWatcher's {@link #handle()} method with any files that are
+	 * DirectoryWatcher's {@link #handle(File, Event)} method with any files that are
 	 * created or modified within the directory. <br>
 	 * This watcher runs as a daemon, and will terminate when all other
 	 * non-daemon Threads are complete.

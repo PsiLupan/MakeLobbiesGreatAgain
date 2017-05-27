@@ -29,19 +29,31 @@ public class IOPeer implements Serializable{
 	
 	/** Sets the UID of this peer, once we find it in the logs. */
 	public void setUID(String uid){
-		this.uid = uid;
+		this.uid = uid.trim();
+	}
+	
+	/** Check if this IOPeer has a UID set for it or not. <br>
+	 * Due to the nature of saving/loading, the UID will <b> not likely be null. </b> Use this check instead.
+	 */
+	public boolean hasUID(){
+		return (this.uid!=null && !this.uid.equals(""));
 	}
 	
 	/** Adds the given IP to this list. */
 	public void addIP(String ip){
-		this.ips.add(ip);
+		this.ips.add(ip.trim());
+	}
+	
+	/** Checks if this IOPeer contains the given IP address. */
+	public boolean hasIP(String ip){
+		return ips.contains(ip.trim());
 	}
 	
 	/** Check to see if this Peer Object has been known under this UID or IP before. */
 	public boolean matches(String ipOrUID){
-		if(ipOrUID.equals(this.uid))
+		if(ipOrUID.trim().equals(this.uid))
 			return true;
-		if(this.ips.contains(ipOrUID))
+		if(hasIP(ipOrUID))
 			return true;
 		return false;
 	}
@@ -51,7 +63,9 @@ public class IOPeer implements Serializable{
 		this.status = status;
 	}
 	
-	/** Get this peer's UID. */
+	/** Get this peer's UID. <br>
+	    See {@link #hasUID()} for possible values.
+	 */
 	public String getUID(){
 		return this.uid;
 	}
