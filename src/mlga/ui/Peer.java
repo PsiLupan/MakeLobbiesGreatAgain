@@ -1,20 +1,23 @@
 package mlga.ui;
 
-import mlga.io.Preferences;
+import mlga.io.peer.IOPeer;
 
-/** Simple wrapper to represent a Peer that is connected. */
+/** Simple wrapper to visually represent a Peer that is connected. */
 public class Peer {
 	private int id;
 	private long ping = 0;
 	private boolean blocked;
-	private boolean saved = false;
+	private boolean hasStatus = false;
 	private long last_seen;
 	
-	public Peer(int srcAddrHash, long rtt) {
-		this.id = srcAddrHash;
-		this.saved = Preferences.prefs.containsKey(this.id);
-		if(this.saved){
-			this.blocked = Preferences.prefs.get(this.id);
+	private IOPeer io;
+	
+	public Peer(int hash, long ttl, IOPeer io) {
+		this.io = io;
+		this.id = hash;
+		this.hasStatus = io.getStatus()!=-1;
+		if(this.hasStatus){
+			this.blocked = io.getStatus()==0;
 		}
 		this.last_seen = System.currentTimeMillis();
 	}
@@ -35,25 +38,25 @@ public class Peer {
 	
 	/** If we have saved, and also loved, this Peer. */
 	public boolean blocked(){
-		return this.saved && this.blocked;
+		return this.hasStatus && this.blocked;
 	}
 	
 	/** Save our opinion of this Peer. */
-	public void save(boolean block){
-		this.saved = true;
+	public void rate(boolean block){
+		this.hasStatus = true;
 		this.blocked = block;
-		Preferences.set(this.id, block);
+		this.io.setStatus(block?0:1);
 	}
 	
 	/** Remove this peer from the Preferences. */
 	public void unsave(){
-		this.saved = false;
-		Preferences.remove(this.id);
+		this.hasStatus = false;
+		this.io.setStatus(-1);
 	}
 	
 	/** If we've saved this Peer before. */
 	public boolean saved(){
-		return this.saved;
+		return this.hasStatus;
 	}
 	
 	/** Returns the time (in milliseconds) since this Peer was last pinged. */

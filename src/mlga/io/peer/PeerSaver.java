@@ -13,6 +13,12 @@ import com.google.gson.stream.JsonWriter;
 
 import mlga.io.FileUtil;
 
+/**
+ * Class for saving lists of IOPeers to JSON format.  <br>
+ * Handles output File encryption natively within the class as needed.
+ * @author ShadowMoose
+ *
+ */
 public class PeerSaver {
 	private final File saveFile;
 	
@@ -26,22 +32,18 @@ public class PeerSaver {
 	}
 	
 	/**
-	 * Saves the given list of Peers to this Saver's file.
+	 * Saves the given list of Peers to this Saver's file.  <br>
+	 * Automatically creates a backup file first if a save already exists.
 	 * @param peers The list to save.
-	 * @return True if saving works properly.
+	 * @throws IOException 
+	 * @throws FileNotFoundException 
 	 */
-	public boolean save(List<IOPeer> peers){
-		try{
-			// Keep a rolling backup of the Peers file, for safety.
-			if(this.saveFile.exists()){
-				FileUtil.saveFile(this.saveFile, "", 1);
-			}
-			this.savePeers(openStream(this.saveFile), peers);
-		}catch(Exception e){
-			e.printStackTrace();
-			return false;
+	public void save(List<IOPeer> peers) throws FileNotFoundException, IOException{
+		// Keep a rolling backup of the Peers file, for safety.
+		if(this.saveFile.exists()){
+			FileUtil.saveFile(this.saveFile, "", 1);
 		}
-		return true;
+		this.savePeers(openStream(this.saveFile), peers);
 	}
 	
 	
@@ -60,8 +62,9 @@ public class PeerSaver {
 		JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));
 		writer.setIndent("    ");
 		writer.beginArray();
-		for (IOPeer message : peers) {
-			gson.toJson(message, IOPeer.class, writer);
+		for (IOPeer p : peers) {
+			gson.toJson(p, IOPeer.class, writer);
+			p.saved = true;
 		}
 		writer.endArray();
 		writer.close();

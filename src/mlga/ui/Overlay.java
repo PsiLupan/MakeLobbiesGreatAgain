@@ -23,6 +23,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import mlga.Boot;
 import mlga.io.Preferences;
 import mlga.io.Settings;
+import mlga.io.peer.PeerTracker;
 
 public class Overlay extends JPanel {
 	private static final long serialVersionUID = -470849574354121503L;
@@ -35,9 +36,14 @@ public class Overlay extends JPanel {
 	private Font roboto;
 	/** idx & fh are updated by listener and rendering events. <br>They track hovered index and font height.*/
 	private int idx = -1, fh = 0;
+	
+	private final PeerTracker peerTracker;
 
 	public Overlay() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, FontFormatException, IOException{
 		Preferences.init();
+		
+		peerTracker = new PeerTracker();
+		peerTracker.start();
 		
 		if(ClassLoader.getSystemClassLoader().getResourceAsStream("resources/Roboto-Medium.ttf") != null){
 			roboto = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemClassLoader().getResourceAsStream("resources/Roboto-Medium.ttf")).deriveFont(15f);
@@ -63,9 +69,9 @@ public class Overlay extends JPanel {
 						}
 						Peer p = peers.get(idx);
 						if(!p.saved()){
-							p.save(true);
+							p.rate(true);
 						}else if(p.blocked()){
-							p.save(false);
+							p.rate(false);
 						}else{
 							p.unsave();
 						}
@@ -164,17 +170,17 @@ public class Overlay extends JPanel {
 		return mode;
 	}
 
-	private void addPeer(int srcAddrHash, long rtt){
-		peers.add(new Peer(srcAddrHash, rtt));
+	private void addPeer(int srcAddrHash, long rtt, String ip){
+		peers.add(new Peer(srcAddrHash, rtt, peerTracker.getPeer(ip)));
 	}
 
 	/** Sets a peer's ping, or creates their object. */
-	public void setPing(int id, long ping){
+	public void setPing(int id, long ping, String ip){
 		Peer p = this.getPeer(id);
 		if(p != null){
 			p.setPing(ping);
 		}else{
-			this.addPeer(id, ping);
+			this.addPeer(id, ping, ip);
 		}
 	}
 
