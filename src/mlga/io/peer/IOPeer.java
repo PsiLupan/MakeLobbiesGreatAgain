@@ -67,8 +67,9 @@ public class IOPeer implements Serializable{
 	}
 	
 	/**
-	 * Copies this IOPeer's data [IP List, rating] to the target IOPeer.
-	 * @param p
+	 * Copies this IOPeer's data (IP List & Status) to the target IOPeer.  <br>
+	 * This IOPeer's {@link #status} will overwrite p's.
+	 * @param p The IOPeer object to copy this Peer's data to.
 	 */
 	public void copyTo(IOPeer p){
 		p.ips.addAllAbsent(this.ips);

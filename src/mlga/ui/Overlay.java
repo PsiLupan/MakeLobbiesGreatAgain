@@ -10,6 +10,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -46,7 +47,9 @@ public class Overlay extends JPanel {
 		peerTracker = new PeerTracker();
 		peerTracker.start();
 		
-		roboto = Font.createFont(Font.TRUETYPE_FONT, FileUtil.localResource("Roboto-Medium.ttf")).deriveFont(15f);
+		InputStream is = FileUtil.localResource("Roboto-Medium.ttf");
+		roboto = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(15f);
+		is.close();
 
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		this.setOpaque(false);

@@ -77,7 +77,7 @@ public class MarkdownPanel extends JFrame{
 		});
 		
 		final JScrollPane scrollPane = new JScrollPane(ed);
-        scrollPane.setPreferredSize(new Dimension(1000, 300));
+		scrollPane.setPreferredSize(new Dimension(1000, 300));
 		
 		setTitle("MLGA Update "+newVersion);
 		add(scrollPane);

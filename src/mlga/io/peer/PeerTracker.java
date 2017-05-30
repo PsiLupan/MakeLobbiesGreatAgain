@@ -13,7 +13,7 @@ import mlga.io.FileUtil;
 import mlga.io.Preferences;
 
 /**
- * Incredibly grimy, unfinished (!) test class for parsing MLGA log files for (background) pairing of UID:IP to enable persistant blocks past dynamic IP ranges.
+ * Class for background parsing Dead by Daylight log files into pairing of UID:IP to enable persistant ratings past dynamic IP ranges.
  * @author ShadowMoose
  *
  */
@@ -69,7 +69,7 @@ public class PeerTracker {
 			}
 		};
 
-		// TODO: Adding a listener to each Peer, or a clever callback, might be better.
+		// Adding a listener to each Peer, or a clever callback, might be better.
 		//    + Though, this method does cut down on file writes during times of many updates.
 		Thread t = new Thread("IOPeerSaver"){
 			public void run(){
