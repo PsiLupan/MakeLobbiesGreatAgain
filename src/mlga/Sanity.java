@@ -16,8 +16,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import mlga.ui.MarkdownPanel;
+
 public class Sanity {
-	private final static Double version = 1.33;
+	private final static Double version = 1.30;
 	private static boolean headless = false;
 
 	public static boolean check(){
@@ -83,21 +85,13 @@ public class Sanity {
 			JsonObject obj = ele.getAsJsonObject();
 			double newVersion = Double.parseDouble(obj.get("tag_name").getAsString().trim());
 			if(version < newVersion){
-				message("An update is available!\nCurrent Version: "+version+", Latest Release Version: "+newVersion);
-				if(Desktop.isDesktopSupported()){
-					try {
-						Desktop.getDesktop().browse(new URL(obj.get("html_url").getAsString().trim()).toURI());
-					} catch (IOException | URISyntaxException e1) {
-						e1.printStackTrace();
-						message("We can't open the URL for you, so go to https://github.com/PsiLupan/MakeLobbiesGreatAgain/releases/latest and install it!");
-					}
-				}else{
-					message("We can't open the URL for you, so go to https://github.com/PsiLupan/MakeLobbiesGreatAgain/releases/latest and install it!");
-				}
-				return false;
+				String html = obj.get("body").getAsString().trim();
+				MarkdownPanel mp = new MarkdownPanel(newVersion, obj.get("name").getAsString(),  html);
+				// Prompts the user with the update log, and waits for it to close.
+				// If the user clicks a link, the JVM will terminate here.
+				mp.prompt();
 			}else{
 				System.out.println("Version "+version+" :: Up to date!");
-				return true;
 			}
 		} catch (IOException | NumberFormatException nfe){
 			nfe.printStackTrace();

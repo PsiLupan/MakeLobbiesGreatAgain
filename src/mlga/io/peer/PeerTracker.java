@@ -5,10 +5,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import mlga.io.DirectoryWatcher;
 import mlga.io.FileUtil;
+import mlga.io.Preferences;
 
 /**
  * Incredibly grimy, unfinished (!) test class for parsing MLGA log files for (background) pairing of UID:IP to enable persistant blocks past dynamic IP ranges.
@@ -52,6 +54,8 @@ public class PeerTracker {
 
 	/** Launches this listener thread, in order to automatically update Peers. */
 	public void start(){
+		// Initially check for any Legacy peer files.
+		this.checkLegacy();
 		// Start off by updating from any existing logs that may not have been parsed yet.
 		this.checkLogs();
 		// Register to listen for, and process, new log files.
@@ -92,6 +96,43 @@ public class PeerTracker {
 	}
 
 	/**
+	 * Checks for any legacy peer files using the (now Legacy) Preferences class.
+	 */
+	private void checkLegacy() {
+		if(Preferences.prefsFile.exists()){
+			Preferences.init();
+			//TODO: Can we support legacy saving? Not sure IP hash formats match.
+		}
+	}
+	
+	/**
+	 * Deduplicate list of Peers by combining values from matching UIDs. <br>
+	 * For UI purposes, it is potentially important that existing IOPeers within the list exist for the current runtime.
+	 * As such, this deduplication is used for saving, so duplicates are culled for future sessions.  <br>
+	 * @return
+	 */
+	private ArrayList<IOPeer> deduplicate(){
+		ArrayList<IOPeer> unique = new ArrayList<IOPeer>();
+		for(IOPeer p : peers){
+			boolean add = true;
+			for(IOPeer u : unique){
+				if(p.hasUID() && p.getUID().equals(u.getUID())){
+					// If this UID is already assigned to a Peer in the Unique List,
+					// append this Peer's data to the existing Peer, and skip adding this Peer to the Unique List.
+					System.out.println("Deduplicating ID: ["+p.getUID()+"] for saving.");
+					add = false;
+					p.copyTo(u);
+					break;
+				}
+			}
+			if(add)
+				unique.add(p);
+		}
+		System.out.println("Reduced Peerlist Size: ["+peers.size()+" -> "+unique.size()+"]");
+		return unique;
+	}
+
+	/**
 	 * Run through all log files, checking for new Peers.
 	 */
 	public void checkLogs(){
@@ -125,7 +166,7 @@ public class PeerTracker {
 		saving = true;
 		try {
 			PeerSaver ps = new PeerSaver(peerFile);
-			ps.save(peers);
+			ps.save(deduplicate());
 			saving = false;
 			return true;
 		} catch (Exception e) {

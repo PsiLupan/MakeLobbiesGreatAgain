@@ -66,6 +66,15 @@ public class IOPeer implements Serializable{
 		this.saved = false;
 	}
 	
+	/**
+	 * Copies this IOPeer's data [IP List, rating] to the target IOPeer.
+	 * @param p
+	 */
+	public void copyTo(IOPeer p){
+		p.ips.addAllAbsent(this.ips);
+		p.setStatus(this.status);
+	}
+	
 	/** Get this peer's UID. <br>
 	    See {@link #hasUID()} for possible values.
 	 */

@@ -11,6 +11,7 @@ import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -18,6 +19,8 @@ import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -39,6 +42,7 @@ import org.pcap4j.packet.Packet;
 import org.pcap4j.packet.UdpPacket;
 
 import mlga.io.Backup;
+import mlga.io.FileUtil;
 import mlga.io.Settings;
 import mlga.ui.Overlay;
 
@@ -78,7 +82,7 @@ public class Boot {
 		
 		final Overlay ui = new Overlay();
 		
-		while(true){				
+		while(true){
 			final Packet packet = handle.getNextPacket();
 
 			if(packet != null){
@@ -113,13 +117,15 @@ public class Boot {
 		final SystemTray tray = SystemTray.getSystemTray();
 		final PopupMenu popup = new PopupMenu();
 		final MenuItem exit = new MenuItem();
-		TrayIcon trayIcon;
-		if(ClassLoader.getSystemResource("src/resources/icon.png") != null){
-			trayIcon = new TrayIcon(Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource("src/resources/icon.png")), "MLGA", popup);
-		}else{
-			trayIcon = new TrayIcon(Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource("resources/icon.png")), "MLGA", popup);
+		TrayIcon trayIcon = null;
+		try {
+			InputStream is = FileUtil.localResource("icon.png");
+			trayIcon = new TrayIcon(ImageIO.read(is), "MLGA", popup);
+			is.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
 		}
-
+		
 		exit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				handle.close();

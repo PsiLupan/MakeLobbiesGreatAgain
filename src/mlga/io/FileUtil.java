@@ -2,6 +2,7 @@ package mlga.io;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 /**
@@ -96,6 +97,20 @@ public class FileUtil {
 	 * This function exists to enforce those conventions. */
 	public static File getSaveName(File f, int version){
 		return new File(f.getParentFile().getAbsolutePath()+"/"+(version!=0?version+" - ":"")+f.getName());
+	}
+	
+	/**
+	 * Generate an InputStream to the given resource file name.  <br>
+	 * Automatically toggles between JAR and Build paths.
+	 * @param resourceName The name or relative filepath (if resource is deeper than just "resources/") of the desired File.
+	 * @return Null if File cannot be found, otherwise the resource's Stream.
+	 */
+	public static InputStream localResource(String resourceName){
+		if(ClassLoader.getSystemClassLoader().getResourceAsStream("resources/"+resourceName) != null){
+			return ClassLoader.getSystemClassLoader().getResourceAsStream("resources/"+resourceName);
+		}else{
+			return ClassLoader.getSystemClassLoader().getResourceAsStream("src/resources/"+resourceName);
+		}
 	}
 
 }

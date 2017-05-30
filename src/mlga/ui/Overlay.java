@@ -21,6 +21,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import mlga.Boot;
+import mlga.io.FileUtil;
 import mlga.io.Preferences;
 import mlga.io.Settings;
 import mlga.io.peer.PeerTracker;
@@ -45,11 +46,7 @@ public class Overlay extends JPanel {
 		peerTracker = new PeerTracker();
 		peerTracker.start();
 		
-		if(ClassLoader.getSystemClassLoader().getResourceAsStream("resources/Roboto-Medium.ttf") != null){
-			roboto = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemClassLoader().getResourceAsStream("resources/Roboto-Medium.ttf")).deriveFont(15f);
-		}else{
-			roboto = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemClassLoader().getResourceAsStream("src/resources/Roboto-Medium.ttf")).deriveFont(15f);
-		}
+		roboto = Font.createFont(Font.TRUETYPE_FONT, FileUtil.localResource("Roboto-Medium.ttf")).deriveFont(15f);
 
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		this.setOpaque(false);
