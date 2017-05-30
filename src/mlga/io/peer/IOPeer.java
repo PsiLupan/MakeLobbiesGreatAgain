@@ -90,7 +90,7 @@ public class IOPeer implements Serializable{
 		if(!(o instanceof IOPeer) )
 			return false;
 		IOPeer p2 = (IOPeer)o;
-		if(!getUID().equals(p2.getUID()) ){
+		if((getUID()== null && p2.getUID()!=null) || getUID()!=null && !getUID().equals(p2.getUID()) ){
 			return false;
 		}
 		if(ips.size() != p2.ips.size())
