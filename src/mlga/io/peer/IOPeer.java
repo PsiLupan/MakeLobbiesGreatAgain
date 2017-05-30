@@ -11,11 +11,17 @@ public class IOPeer implements Serializable{
 	private transient static final long serialVersionUID = 5828536744242544871L;
 	
 	/** 
-	 * Status is stored locally (and saved to file) using this Enum's values. <br>
+	 * Status is stored locally (and saved to file) as an int, for potential future-proofing. <br>
+	 * However, all external accessors for Status use these values. <br>
 	 * This allows for future changes without having to hunt down all calls to getStatus()
 	 */
-	public static enum Status implements Serializable{
-		UNRATED, BLOCKED, LOVED;
+	public static enum Status{
+		UNRATED(-1), BLOCKED(0), LOVED(1);
+		
+		public final int val;
+		Status(int value){
+			this.val = value;
+		}
 	}
 
 	/** When this peer was first discovered. */
@@ -24,10 +30,10 @@ public class IOPeer implements Serializable{
 	public final int version = 1;
 	/** List of all IPs this peer has been known under. */
 	private CopyOnWriteArrayList<Integer> ips = new CopyOnWriteArrayList<Integer>();
-	/** The UID of this peer. May not actually be set (other than null), if we haven't found them in a log file yet. */
+	/** The UID of this peer. May not actually be set (default "" to avoid NPEs), if we haven't found them in a log file yet. */
 	private String uid = "";
-	/** This peer's status value, as set by the user. <br> Defaults to {@link Status.UNRATED}  */
-	private Status status = Status.UNRATED;
+	/** This peer's status value, stored as an integer for any future updates/refactoring. */
+	private int status = -1;
 	
 	/** Flag toggled when this is created/modified. Toggles back to false by the Saver class once this Peer has been saved to file. */
 	public transient boolean saved = false;
@@ -84,7 +90,7 @@ public class IOPeer implements Serializable{
 	
 	/** Sets this Peer's status to the int supplied. Check {@link IOPeer.Status} for values. */
 	public void setStatus(Status stat){
-		this.status = stat;
+		this.status = stat.val;
 		this.saved = false;
 	}
 	
@@ -105,13 +111,20 @@ public class IOPeer implements Serializable{
 		return this.uid;
 	}
 	
-	/** Get the {@link Status} of this Peer, as set. */
+	/** Get the {@link IOPeer.Status} of this Peer, as set by the user. */
 	public Status getStatus(){
-		return status;
+		for(Status s : Status.values()){
+			if(s.val == this.status){
+				return s;
+			}
+		}
+		System.err.println("Unknown status value: "+this.status); 
+		return Status.UNRATED;
 	}
 	
 	/** {@link #firstSeen} is automatically set at creation. <br>
-	 * It tracks when this Peer was first discovered, for posterity. */
+	 * It tracks when this Peer was first discovered, for posterity. 
+	 */
 	public long getFirstSeen(){
 		return this.firstSeen;
 	}
