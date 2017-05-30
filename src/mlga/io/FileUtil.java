@@ -82,7 +82,7 @@ public class FileUtil {
 	/**
 	 * Simplified version of {@link #saveFile(File, File, int)}, 
 	 * this method always uses the directory provided by {@link #getMlgaPath()},
-	 * and appends the supplied string to the end as a subdirectory path for the backup files.
+	 * and appends the supplied string to the directory as a subdirectory path for the backup files.
 	 * @param f The file to duplicate
 	 * @param subdirs The subdirectory path within the MLGA directory to use for the copies.
 	 * @param max_extra_copies The number of copies beyond the base copy desired.

@@ -96,12 +96,24 @@ public class PeerTracker {
 	}
 
 	/**
-	 * Checks for any legacy peer files using the (now Legacy) Preferences class.
+	 * Checks for any Legacy peer files using the (now outdated) Preferences class.
 	 */
 	private void checkLegacy() {
 		if(Preferences.prefsFile.exists()){
 			Preferences.init();
-			//TODO: Can we support legacy saving? Not sure IP hash formats match.
+			// Build IOPeers using Legacy save.
+			for (int key : Preferences.prefs.keySet()) {
+				// A new Peer is built for each IP hash.
+				// If/When they're identified later, the save procedure will combine them automatically.
+				IOPeer p = new IOPeer();
+				p.addLegacyIPHash(key);
+				p.setStatus(Preferences.prefs.get(key)?0:1);
+				peers.add(p);
+				System.out.println("Converted Legacy peer: "+key);
+			}
+			// Make a backup (just in case), then delete the Legacy file.
+			FileUtil.saveFile(Preferences.prefsFile, "legacy", 0);
+			Preferences.prefsFile.delete();
 		}
 	}
 	
@@ -119,7 +131,7 @@ public class PeerTracker {
 				if(p.hasUID() && p.getUID().equals(u.getUID())){
 					// If this UID is already assigned to a Peer in the Unique List,
 					// append this Peer's data to the existing Peer, and skip adding this Peer to the Unique List.
-					System.out.println("Deduplicating ID: ["+p.getUID()+"] for saving.");
+					System.out.println("Deduplicating ID: ["+p.getUID()+"] for saving."); //TODO: Remove verbose logging.
 					add = false;
 					p.copyTo(u);
 					break;
@@ -128,7 +140,7 @@ public class PeerTracker {
 			if(add)
 				unique.add(p);
 		}
-		System.out.println("Reduced Peerlist Size: ["+peers.size()+" -> "+unique.size()+"]");
+		System.out.println("Reduced Peerlist Size: ["+peers.size()+" -> "+unique.size()+"]");//TODO: Remove verbose logging.
 		return unique;
 	}
 

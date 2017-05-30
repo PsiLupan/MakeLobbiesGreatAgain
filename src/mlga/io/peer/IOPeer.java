@@ -28,6 +28,7 @@ public class IOPeer implements Serializable{
 		this.firstSeen = System.currentTimeMillis();
 	}
 	
+	
 	/** Sets the UID of this peer, once we find it in the logs. */
 	public void setUID(String uid){
 		this.uid = uid.trim();
@@ -43,13 +44,34 @@ public class IOPeer implements Serializable{
 	
 	/** Adds the given IP to this list. */
 	public void addIP(Inet4Address ip){
-		this.ips.add(ip.hashCode());
+		this.ips.addIfAbsent(formatIP(ip));
 		this.saved = false;
+	}
+	
+	/**
+	 * Special method, used for building a peer from a Legacy list of IP Hashes.  <br>
+	 * <b>Do not use this method outside of the Legacy conversion! </b><br>
+	 * If the way that IOPeer handles IP hashing ever changes, this method will become obsolete and be removed.
+	 * @param hash The pre-hashed IP.
+	 */
+	public void addLegacyIPHash(int hash){
+		this.ips.add(hash);
 	}
 	
 	/** Checks if this IOPeer contains the given IP address. */
 	public boolean hasIP(Inet4Address ip){
-		return ips.contains(ip.hashCode());
+		return ips.contains(formatIP(ip));
+	}
+	
+	/**
+	 * Wrapper function for converting INetAddrs into hashed IPs.  <br>
+	 * Formatting is handled in this method to simplify keeping IP data the same everywhere.  <br>
+	 * To modify the way IPs are saved, simply modify this method.
+	 * @param ip The IP to convert.
+	 * @return
+	 */
+	private int formatIP(Inet4Address ip){
+		return ip.hashCode();
 	}
 	
 	/** Sets this Peer's status to the int supplied. Check {@link #status} for values. */

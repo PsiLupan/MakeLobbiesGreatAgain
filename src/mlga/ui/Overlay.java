@@ -24,7 +24,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import mlga.Boot;
 import mlga.io.FileUtil;
-import mlga.io.Preferences;
 import mlga.io.Settings;
 import mlga.io.peer.PeerTracker;
 
@@ -43,8 +42,6 @@ public class Overlay extends JPanel {
 	private final PeerTracker peerTracker;
 
 	public Overlay() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, FontFormatException, IOException{
-		Preferences.init();
-		
 		peerTracker = new PeerTracker();
 		peerTracker.start();
 		
