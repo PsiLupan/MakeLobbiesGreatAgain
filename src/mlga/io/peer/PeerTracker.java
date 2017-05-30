@@ -3,6 +3,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -181,7 +182,7 @@ public class PeerTracker {
 	 * or it returns the new IOPeer object generated - and containing - the new IP.
 	 * @param ip
 	 */
-	public IOPeer getPeer(String ip){
+	public IOPeer getPeer(Inet4Address ip){
 		for(IOPeer p : peers){
 			if(p.hasIP(ip))
 				return p;
@@ -221,9 +222,9 @@ public class PeerTracker {
 					if(uid != null && active){
 						ip = l.split("address:")[1].trim();
 						if(ip.contains(":"))ip = ip.substring(0, ip.indexOf(":"));
-						InetAddress ina = null;
+						Inet4Address ina = null;
 						try {
-							ina = InetAddress.getByName(ip);
+							ina = (Inet4Address) Inet4Address.getByName(ip);
 							if(ina == null || (ina != null && (ina.isAnyLocalAddress() || ina.isSiteLocalAddress()))){
 								uid = null;
 								active = false;
@@ -231,18 +232,18 @@ public class PeerTracker {
 							}
 							IOPeer p = new IOPeer();
 							p.setUID(uid);
-							p.addIP(ip);
+							p.addIP(ina);
 							boolean matched = false;
 							for(IOPeer iop : peers){
-								if(iop.matches(uid) || iop.matches(ip)){
+								if(uid.equals(iop.getUID()) || iop.hasIP(ina)){
 									//System.out.println("\t+Found preexisting peer information. "+uid+" :: "+ip);
 									if(!iop.hasUID()){
 										System.out.println("\tDiscovered IP ["+ip+"] is UID: ["+uid+"]!");
 										iop.setUID(uid);
 									}
-									if(!iop.hasIP(ip)){
+									if(!iop.hasIP(ina)){
 										System.out.println("\tUser "+uid+" is @ new IP: "+ip);
-										iop.addIP(ip);
+										iop.addIP(ina);
 									}
 									matched = true;
 								}

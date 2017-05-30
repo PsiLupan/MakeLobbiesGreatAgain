@@ -98,7 +98,7 @@ public class Boot {
 						if(active.containsKey(srcAddrHash) && srcAddrHash != addrHash){
 							if(active.get(srcAddrHash) != null && payloadLen == 68  //Packets are STUN related: 56 is request, 68 is response
 									&& dstAddrHash == addrHash){
-								ui.setPing(srcAddrHash, handle.getTimestamp().getTime() - active.get(srcAddrHash).getTime(), ippacket.getHeader().getSrcAddr().getHostAddress());
+								ui.setPing(ippacket.getHeader().getSrcAddr(), handle.getTimestamp().getTime() - active.get(srcAddrHash).getTime());
 								active.put(srcAddrHash, null); //No longer expect ping
 							}
 						}else{

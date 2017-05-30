@@ -1,10 +1,12 @@
 package mlga.ui;
 
+import java.net.Inet4Address;
+
 import mlga.io.peer.IOPeer;
 
 /** Simple wrapper to visually represent a Peer that is connected. */
 public class Peer {
-	private int id;
+	private Inet4Address id;
 	private long ping = 0;
 	private boolean blocked;
 	private boolean hasStatus = false;
@@ -12,7 +14,7 @@ public class Peer {
 	
 	private IOPeer io;
 	
-	public Peer(int hash, long ttl, IOPeer io) {
+	public Peer(Inet4Address hash, long ttl, IOPeer io) {
 		this.io = io;
 		this.id = hash;
 		this.hasStatus = io.getStatus()!=-1;
@@ -27,7 +29,7 @@ public class Peer {
 		this.last_seen = System.currentTimeMillis();
 	}
 	
-	public int getID(){
+	public Inet4Address getID(){
 		return this.id;
 	}
 	

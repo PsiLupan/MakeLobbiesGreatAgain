@@ -1,6 +1,7 @@
 package mlga.io.peer;
 
 import java.io.Serializable;
+import java.net.Inet4Address;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /** Wrapper used to save/load Peer settings. 
@@ -41,23 +42,14 @@ public class IOPeer implements Serializable{
 	}
 	
 	/** Adds the given IP to this list. */
-	public void addIP(String ip){
-		this.ips.add(ip.trim().hashCode());
+	public void addIP(Inet4Address ip){
+		this.ips.add(ip.hashCode());
 		this.saved = false;
 	}
 	
 	/** Checks if this IOPeer contains the given IP address. */
-	public boolean hasIP(String ip){
-		return ips.contains(ip.trim().hashCode());
-	}
-	
-	/** Check to see if this Peer Object has been known under this UID or IP before. */
-	public boolean matches(String ipOrUID){
-		if(ipOrUID.trim().equals(this.uid))
-			return true;
-		if(hasIP(ipOrUID))
-			return true;
-		return false;
+	public boolean hasIP(Inet4Address ip){
+		return ips.contains(ip.hashCode());
 	}
 	
 	/** Sets this Peer's status to the int supplied. Check {@link #status} for values. */

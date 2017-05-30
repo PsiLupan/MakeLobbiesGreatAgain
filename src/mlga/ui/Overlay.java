@@ -11,6 +11,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Inet4Address;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -170,17 +171,17 @@ public class Overlay extends JPanel {
 		return mode;
 	}
 
-	private void addPeer(int srcAddrHash, long rtt, String ip){
-		peers.add(new Peer(srcAddrHash, rtt, peerTracker.getPeer(ip)));
+	private void addPeer(Inet4Address addr, long rtt){
+		peers.add(new Peer(addr, rtt, peerTracker.getPeer(addr)));
 	}
 
 	/** Sets a peer's ping, or creates their object. */
-	public void setPing(int id, long ping, String ip){
+	public void setPing(Inet4Address id, long ping){
 		Peer p = this.getPeer(id);
 		if(p != null){
 			p.setPing(ping);
 		}else{
-			this.addPeer(id, ping, ip);
+			this.addPeer(id, ping);
 		}
 	}
 
@@ -192,7 +193,7 @@ public class Overlay extends JPanel {
 		peers.clear();
 	}
 
-	public void removePeer(int i){
+	public void removePeer(Inet4Address i){
 		Peer p = this.getPeer(i);
 		if(p != null){
 			peers.remove(p);
@@ -200,9 +201,9 @@ public class Overlay extends JPanel {
 	}
 
 	/** Finds a Peer connection by its ID. */
-	private Peer getPeer(int id){
+	private Peer getPeer(Inet4Address id){
 		for(Peer p : peers){
-			if(p.getID() == id){
+			if(p.getID().equals(id)){
 				return p;
 			}
 		}
