@@ -10,6 +10,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class IOPeer implements Serializable{
 	private transient static final long serialVersionUID = 5828536744242544871L;
 	
+	/** 
+	 * Status is stored locally (and saved to file) using this Enum's values. <br>
+	 * This allows for future changes without having to hunt down all calls to getStatus()
+	 */
+	public static enum Status implements Serializable{
+		UNRATED, BLOCKED, LOVED;
+	}
+
 	/** When this peer was first discovered. */
 	private long firstSeen;
 	/** A version flag for each Peer object, for if something needs changing later. */
@@ -17,9 +25,9 @@ public class IOPeer implements Serializable{
 	/** List of all IPs this peer has been known under. */
 	private CopyOnWriteArrayList<Integer> ips = new CopyOnWriteArrayList<Integer>();
 	/** The UID of this peer. May not actually be set (other than null), if we haven't found them in a log file yet. */
-	private String uid = null;
-	/** This peer's status; <br> -1 if this peer is unrated, 0 if blocked, 1 if loved. <br> Default is -1.*/
-	private int status = -1;
+	private String uid = "";
+	/** This peer's status value, as set by the user. <br> Defaults to {@link Status.UNRATED}  */
+	private Status status = Status.UNRATED;
 	
 	/** Flag toggled when this is created/modified. Toggles back to false by the Saver class once this Peer has been saved to file. */
 	public transient boolean saved = false;
@@ -74,9 +82,9 @@ public class IOPeer implements Serializable{
 		return ip.hashCode();
 	}
 	
-	/** Sets this Peer's status to the int supplied. Check {@link #status} for values. */
-	public void setStatus(int status){
-		this.status = status;
+	/** Sets this Peer's status to the int supplied. Check {@link IOPeer.Status} for values. */
+	public void setStatus(Status stat){
+		this.status = stat;
 		this.saved = false;
 	}
 	
@@ -87,7 +95,7 @@ public class IOPeer implements Serializable{
 	 */
 	public void copyTo(IOPeer p){
 		p.ips.addAllAbsent(this.ips);
-		p.setStatus(this.status);
+		p.setStatus(this.getStatus());
 	}
 	
 	/** Get this peer's UID. <br>
@@ -97,9 +105,9 @@ public class IOPeer implements Serializable{
 		return this.uid;
 	}
 	
-	/** Get the {@link #status} of this Peer, as set. */
-	public int getStatus(){
-		return this.status;
+	/** Get the {@link Status} of this Peer, as set. */
+	public Status getStatus(){
+		return status;
 	}
 	
 	/** {@link #firstSeen} is automatically set at creation. <br>

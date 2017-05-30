@@ -11,6 +11,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import mlga.io.DirectoryWatcher;
 import mlga.io.FileUtil;
 import mlga.io.Preferences;
+import mlga.io.peer.IOPeer.Status;
 
 /**
  * Class for background parsing Dead by Daylight log files into pairing of UID:IP to enable persistant ratings past dynamic IP ranges.
@@ -107,7 +108,7 @@ public class PeerTracker {
 				// If/When they're identified later, the save procedure will combine them automatically.
 				IOPeer p = new IOPeer();
 				p.addLegacyIPHash(key);
-				p.setStatus(Preferences.prefs.get(key)?0:1);
+				p.setStatus(Preferences.prefs.get(key)?Status.BLOCKED:Status.LOVED);
 				peers.add(p);
 				System.out.println("Converted Legacy peer: "+key);
 			}
