@@ -44,7 +44,7 @@ public class GithubPanel extends JFrame{
 	
 	/**
 	 * Creates the new Panel and parses the supplied HTML.  <br>
-	 * <b> Supported Github Markdown: </b><i> Lists (unordered), Links, Images, Bold ('**' and '__'), Italics.  </i>
+	 * <b> Supported Github Markdown: </b><i> Lists (unordered), Links, Images, Bold ('**' and '__'), Strikethrough, & Italics.  </i>
 	 * @param currentVersion The version of the Jar currently running.
 	 */
 	public GithubPanel(double currentVersion){
@@ -108,12 +108,12 @@ public class GithubPanel extends JFrame{
 				s+="</ul>";
 			}
 			
-			s = parseTag(s, "\\*\\*", "b");// Bold
-			s = parseTag(s, "__", "b");// Also Bold
-			s = parseTag(s, "\\*", "i");// Italics
-			s = parseTag(s, "~~", "s");// Strikethrough (JEPanel uses HTML 3.2)
 			formatted+=s.trim()+(!list?"<br>":"");
 		}
+		formatted = parseTag(formatted, "\\*\\*", "b");// Bold
+		formatted = parseTag(formatted, "__", "b");// Also Bold
+		formatted = parseTag(formatted, "\\*", "i");// Italics
+		formatted = parseTag(formatted, "~~", "s");// Strikethrough (JEPanel uses HTML 3.2)
 		formatted = hyperlinks(formatted, "\\!\\[(.+?)\\]\\s?+\\((.+?)\\)", "<img src='[2]' alt='[1]'></img>");// Images
 		formatted = hyperlinks(formatted, "\\[(.+?)\\]\\s?+\\((.+?)\\)", "<a href='[2]'>[1]</a>");// Embedded Links
 		
@@ -144,13 +144,15 @@ public class GithubPanel extends JFrame{
 	
 	/** Replaced the given regex tag with the surrpounding HTML element tags. */
 	private String parseTag(String body, String tag, String replace){
-		boolean t = false;
-		// Uses split just for simple regex support.
-		while(body.split(tag).length>1){
-			body = body.replaceFirst(tag, "<"+(t?"/":"")+replace+">");
-			t=!t;
+		boolean open = false;
+		Pattern r = Pattern.compile(tag);
+		Matcher m = r.matcher(body);
+
+		while(m.find()) {
+			body = body.replaceFirst(tag, "<"+(open?"/":"")+replace+">");
+			open=!open;
 		}
-		if(t){
+		if(open){
 			// Uh oh, an unclosed tag.
 			body+="</"+replace+">";
 		}
@@ -168,8 +170,6 @@ public class GithubPanel extends JFrame{
 	 */
 	private String hyperlinks(String body, String pattern, String template){
 		Pattern r = Pattern.compile(pattern);
-
-		// Now create matcher object.
 		Matcher m = r.matcher(body);
 
 		while(m.find()) {
