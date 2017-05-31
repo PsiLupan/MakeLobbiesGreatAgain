@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,13 +19,12 @@ import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkEvent.EventType;
+import javax.swing.event.HyperlinkListener;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
-import javax.swing.event.HyperlinkListener;
 
 /**
  * A panel for rendering Github updates, somewhat faithfully.
@@ -34,11 +34,13 @@ public class GithubPanel extends JFrame{
 	private static final long serialVersionUID = -8603001629015114181L;
 	/** The project owner, name, and release JAR name, for this Github Repository. Used for lookup.*/
 	private static final String author = "PsiLupan", project = "MakeLobbiesGreatAgain", directJAR = "MLGA.jar";
+	/** The String flag to be included in the Release Notes Body if the update is mandatory for all below the new version. */
+	private static final String mandatory = "Required";
 	private String html = "";
 	private double version = 0;
 	private JEditorPane ed;
 	
-	private int updates = 0;
+	private int updates = 0, required = 0;
 	
 	/**
 	 * Creates the new Panel and parses the supplied HTML.  <br>
@@ -59,7 +61,7 @@ public class GithubPanel extends JFrame{
 		ed = new JEditorPane("text/html", html);
 		ed.setEditable(false);
 		ed.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
-		ed.setFont(new Font("Helvetica", 0, 14));
+		ed.setFont(new Font("Helvetica", 0, 12));
 		
 		ed.addHyperlinkListener(new HyperlinkListener(){
 			public void hyperlinkUpdate(HyperlinkEvent he) {
@@ -115,23 +117,29 @@ public class GithubPanel extends JFrame{
 		formatted = hyperlinks(formatted, "\\!\\[(.+?)\\]\\s?+\\((.+?)\\)", "<img src='[2]' alt='[1]'></img>");// Images
 		formatted = hyperlinks(formatted, "\\[(.+?)\\]\\s?+\\((.+?)\\)", "<a href='[2]'>[1]</a>");// Embedded Links
 		
-		formatted += "<br><center><a style='color: #0366d6;' href='https://github.com/"+author+"/"+project+"/releases/download/"+releaseVersion+"/"+directJAR+"'>Direct Download</a></center>";
+		formatted += "<br><center><a style='color: #0366d6;' href='https://github.com/"+author+"/"+project+"/releases/download/"+releaseVersion+"/"+directJAR+"'><b>[ Direct Download ]</b></a></center>";
 		this.html+=formatted;
 	}
 
 	/**
 	 * If there are updates, displays this panel to the user and hangs until closed.  <br>
 	 * Panel will terminate the JVM if the user clicks a link within it.
+	 * @return True if an update is located that is mandatory.
 	 */
-	public void prompt(){
-		if(updates<=0)return;
+	public boolean prompt(){
+		if(updates<=0)return true;
 		setVisible(true);
-
+		
 		try{
 			while(this.isDisplayable())Thread.sleep(200);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
+		if(required>0){
+			System.err.println("Mandatory updates: "+required);
+			return false;
+		}
+		return true;
 	}
 	
 	/** Replaced the given regex tag with the surrpounding HTML element tags. */
@@ -184,11 +192,18 @@ public class GithubPanel extends JFrame{
 		JsonElement ele = new JsonParser().parse(new InputStreamReader(is) );
 		is.close();
 		
+		SimpleDateFormat gdate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		
 		JsonArray arr = ele.getAsJsonArray();
 		for(int i=0; i<arr.size(); i++){
 			JsonObject obj = arr.get(i).getAsJsonObject();
 			try{
-				double nv = obj.get("tag_name").getAsDouble();
+				String vers = obj.get("tag_name").getAsString();
+				if(vers.contains("-")){
+					vers = vers.substring(0, vers.indexOf("-")).trim();
+				}
+				double nv = Double.parseDouble(vers);
 				if(nv<=this.version)continue;// Skip older updates.
 				System.out.println("Version: "+nv);
 				
@@ -196,7 +211,14 @@ public class GithubPanel extends JFrame{
 					html+="<hr />";
 				
 				String body = obj.get("body").getAsString().trim();
-				parse(obj.get("tag_name").getAsString().trim(), obj.get("name").getAsString(), body);
+				String title = "<b style='color:black;'>"+sdf.format( gdate.parse(obj.get("published_at").getAsString()))+":</b> "+obj.get("name").getAsString();
+				
+				if(body.contains(mandatory)){
+					required++;
+					title+="<b style='color: red;'> - (Required Update)</b>";
+				}
+				
+				parse(obj.get("tag_name").getAsString().trim(), title, body);
 				updates++;
 			}catch(ClassCastException cce){
 				System.out.println("Ignoring build: "+obj.get("tag_name").getAsString());

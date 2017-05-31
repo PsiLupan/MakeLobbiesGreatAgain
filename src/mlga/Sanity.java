@@ -13,7 +13,7 @@ import org.pcap4j.core.Pcaps;
 import mlga.ui.GithubPanel;
 
 public class Sanity {
-	private final static Double version = 1.0;
+	private final static Double version = 1.0;// TODO: Increment this back to correct release # after testing!
 	private static boolean headless = false;
 
 	public static boolean check(){
@@ -72,7 +72,10 @@ public class Sanity {
 
 	public static boolean checkUpdate(){
 		GithubPanel mp = new GithubPanel(version);
-		mp.prompt();
+		if(!mp.prompt()){
+			message("At least one update located is mandatory!\nSome updates can be very important for functionality and your security.\nPlease update MLGA before running!");
+			return false;
+		}
 		return true;
 	}
 
