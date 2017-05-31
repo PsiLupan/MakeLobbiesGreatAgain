@@ -33,9 +33,9 @@ public class IOPeer implements Serializable{
 	/** The UID of this peer. May not actually be set (default "" to avoid NPEs), if we haven't found them in a log file yet. */
 	private String uid = "";
 	/** This peer's status value, stored as an integer for any future updates/refactoring. */
-	private int status = -1;
+	private int status = Status.UNRATED.val;
 	
-	/** Flag toggled when this is created/modified. Toggles back to false by the Saver class once this Peer has been saved to file. */
+	/** Flag set when this IOPeer is created/modified and requires saving. Toggled back to true by the Saver class once this Peer has been saved to file. */
 	public transient boolean saved = false;
 	
 	public IOPeer(){

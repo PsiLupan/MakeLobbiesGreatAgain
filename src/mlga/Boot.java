@@ -26,6 +26,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import org.pcap4j.core.BpfProgram;
@@ -141,7 +142,12 @@ public class Boot {
 			addr = InetAddress.getByName(Settings.get("addr", ""));
 			return;
 		}
-		final JFrame frame = new JFrame("MLGA Network Device Locate");
+		try{
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		final JFrame frame = new JFrame("Network Device");
 		frame.setFocusableWindowState(true);
 
 		final JLabel ipLab = new JLabel("Select LAN IP obtained from Network Settings:", JLabel.LEFT);
