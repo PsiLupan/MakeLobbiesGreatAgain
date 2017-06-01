@@ -30,7 +30,7 @@ public class Backup {
 			Settings.set("backup_dest", backup_dir.getAbsolutePath());
 			Settings.set("backup_copies", max_extra_copies);
 		}
-		if(Settings.getDouble("backup_enabled", 0)==1){
+		if(Settings.getDouble("backup_enabled", 0) == 1){
 			backup_dir = new File(Settings.get("backup_dest", backup_dir.getAbsolutePath()) );
 			max_extra_copies = (int)Settings.getDouble("backup_copies", max_extra_copies);
 			return true;
@@ -50,7 +50,7 @@ public class Backup {
 		}
 		new DirectoryWatcher(steam.toFile(), true){
 			public void handle(File f, Event e){
-				if(e==Event.DELETE)
+				if(e == Event.DELETE)
 					return;
 				saveFile(f);
 			}

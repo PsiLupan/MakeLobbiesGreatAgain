@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+
+import javax.swing.JOptionPane;
 /**
  * Utility class for MLGA, includes various methods commonly needed by various modules of the program.
  * @author ShadowMoose
@@ -49,15 +51,21 @@ public class FileUtil {
 		if(!copy.getParentFile().exists()){
 			copy.getParentFile().mkdirs();
 		}
-
+		
 		System.out.println(copy);
 		if(copy.exists()){
-			//A copy of this file already exists, so we must shuffle through existing backups, increment them all, and remove the oldest backup copy.
-			for(int i=max_extra_copies; i>0;i--){
+			//A copy of this file already exists
+			if(copy.length() - f.length() > 9000){ //Verify the new file isn't corrupted, such as a massive filesize difference
+				JOptionPane.showMessageDialog(null, "WARNING: Possible loss of progress. Backup was not created.", "Error", JOptionPane.ERROR_MESSAGE);
+				return false;
+			}
+			
+			//Shuffle through existing backups, increment them all, and remove the oldest backup copy.
+			for(int i = max_extra_copies; i > 0; i--){
 				File max = getSaveName(copy, i);
 				System.out.println(max);
 				if(max.exists()){
-					if(i<max_extra_copies){//Increment version.
+					if(i < max_extra_copies){//Increment version.
 						max.renameTo(getSaveName(copy, (i+1)) );
 					}else{
 						max.delete();//Delete oldest allowed copy.
