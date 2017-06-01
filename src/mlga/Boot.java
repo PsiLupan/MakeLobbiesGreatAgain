@@ -74,7 +74,7 @@ public class Boot {
 		final PromiscuousMode mode = PromiscuousMode.NONPROMISCUOUS;
 		final int timeout = 0;
 		handle = nif.openLive(snapLen, mode, timeout);
-		handle.setFilter("udp", BpfProgram.BpfCompileMode.OPTIMIZE);
+		handle.setFilter("udp && !(len >= 150)", BpfProgram.BpfCompileMode.OPTIMIZE);
 
 		if(Backup.enabled()){
 			Backup.startBackupDaemon();

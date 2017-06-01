@@ -31,8 +31,6 @@ public class Overlay extends JPanel {
 	private static final long serialVersionUID = -470849574354121503L;
 
 	private boolean frameMove = false;
-	/** False for killer, True for surv*/
-	private boolean mode = false; 
 
 	private CopyOnWriteArrayList<Peer> peers = new CopyOnWriteArrayList<Peer>();
 	private Font roboto;
@@ -77,19 +75,6 @@ public class Overlay extends JPanel {
 						frameMove = !frameMove;
 						Settings.set("frame_x", frame.getLocationOnScreen().x);
 						Settings.set("frame_y", frame.getLocationOnScreen().y);
-					}
-				}
-				else if(SwingUtilities.isRightMouseButton(e)){
-					if(!e.isShiftDown()){ //Change between Killer/Survivor Mode
-						if(!peers.isEmpty())
-							peers.clear();
-						mode = !mode;
-					}
-					try {
-						Thread.sleep(200);
-						frame.repaint();
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
 					}
 				}
 			}
@@ -162,10 +147,6 @@ public class Overlay extends JPanel {
 		};
 		t.setDaemon(true);
 		t.start();
-	}
-
-	public boolean getMode(){
-		return mode;
 	}
 
 	private void addPeer(Inet4Address addr, long rtt){
@@ -247,7 +228,7 @@ public class Overlay extends JPanel {
 					g.setColor(Color.RED);
 				}
 
-				String render = (mode ? "Survivor":"Killer") + ": "+ rtt;
+				String render = "Ping: "+ rtt;
 				if(p.saved()){
 					render = (p.blocked() ? "BLOCKED: ":"LOVED: ") + rtt;
 				}
@@ -256,7 +237,7 @@ public class Overlay extends JPanel {
 			}
 		}else{
 			g.setColor(Color.RED);
-			g.drawString("No " + (mode ? "Survivors":"Killer"), 1, fh);
+			g.drawString("No Players", 1, fh);
 		}
 
 		g.dispose();
