@@ -13,7 +13,7 @@ import org.pcap4j.core.Pcaps;
 import mlga.ui.GithubPanel;
 
 public class Sanity {
-	private final static Double version = 1.0;// TODO: Increment this back to correct release # after testing!
+	private final static Double version = 1.32;
 	private static boolean headless = false;
 
 	public static boolean check(){

@@ -83,12 +83,15 @@ public class PeerTracker {
 							}catch(Exception e){e.printStackTrace();}
 
 							savePeers();
-							// Exit for() loop and re-check list.
 							break;
 						}
 					}
 					// Wait 100ms before rechecking Peers for changes.
-					try{Thread.sleep(100);}catch(Exception e){}
+					try{
+						Thread.sleep(100);
+					}
+					catch(Exception e){
+					}
 				}
 			}
 		};
@@ -110,7 +113,6 @@ public class PeerTracker {
 				p.addLegacyIPHash(key);
 				p.setStatus(Preferences.prefs.get(key)?Status.BLOCKED:Status.LOVED);
 				peers.add(p);
-				System.out.println("Converted Legacy peer: "+key);
 			}
 			// Make a backup (just in case), then delete the Legacy file.
 			FileUtil.saveFile(Preferences.prefsFile, "legacy", 0);
@@ -132,7 +134,6 @@ public class PeerTracker {
 				if(p.hasUID() && p.getUID().equals(u.getUID())){
 					// If this UID is already assigned to a Peer in the Unique List,
 					// append this Peer's data to the existing Peer, and skip adding this Peer to the Unique List.
-					System.out.println("Deduplicating ID: ["+p.getUID()+"] for saving."); //TODO: Remove verbose logging.
 					add = false;
 					p.copyTo(u);
 					break;
@@ -141,7 +142,6 @@ public class PeerTracker {
 			if(add)
 				unique.add(p);
 		}
-		System.out.println("Reduced Peerlist Size: ["+peers.size()+" -> "+unique.size()+"]");//TODO: Remove verbose logging.
 		return unique;
 	}
 
@@ -199,7 +199,6 @@ public class PeerTracker {
 			if(p.hasIP(ip))
 				return p;
 		}
-		System.out.println("New Peer located!");
 		IOPeer p = new IOPeer();
 		p.addIP(ip);
 		peers.add(p);
@@ -218,10 +217,12 @@ public class PeerTracker {
 			while((l = br.readLine()) != null){
 				l = l.trim().toLowerCase();
 
-				if(l.contains("connectionactive: 1"))
+				if(l.contains("connectionactive: 1")){
 					active = true;
-				if(l.contains("connectionactive: 0"))
+				}
+				if(l.contains("connectionactive: 0")){
 					active = false;
+				}
 				if(!active){
 					uid = null;
 					continue;
@@ -248,13 +249,10 @@ public class PeerTracker {
 							boolean matched = false;
 							for(IOPeer iop : peers){
 								if(uid.equals(iop.getUID()) || iop.hasIP(ina)){
-									//System.out.println("\t+Found preexisting peer information. "+uid+" :: "+ip);
 									if(!iop.hasUID()){
-										System.out.println("\tDiscovered IP ["+ip+"] is UID: ["+uid+"]!");
 										iop.setUID(uid);
 									}
 									if(!iop.hasIP(ina)){
-										System.out.println("\tUser "+uid+" is @ new IP: "+ip);
 										iop.addIP(ina);
 									}
 									matched = true;
@@ -262,7 +260,6 @@ public class PeerTracker {
 							}
 							if(!matched){
 								peers.add(p);
-								System.out.println("\tNew Peer: "+uid+" = "+ip);
 							}
 						} catch (UnknownHostException e) {
 							e.printStackTrace();

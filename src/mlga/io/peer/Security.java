@@ -24,6 +24,7 @@ public class Security {
 		SecretKey desKey;
 		Cipher cipher = null;
 		byte[] mac = new byte[8];
+		
 		int i = 0;
 		if(Boot.nif.getLinkLayerAddresses().get(0) != null){
 			for(byte b : Boot.nif.getLinkLayerAddresses().get(0).getAddress()){

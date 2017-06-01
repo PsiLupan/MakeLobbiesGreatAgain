@@ -39,9 +39,9 @@ public class GithubPanel extends JFrame{
 	private String html = "";
 	private double version = 0;
 	private JEditorPane ed;
-	
+
 	private int updates = 0, required = 0;
-	
+
 	/**
 	 * Creates the new Panel and parses the supplied HTML.  <br>
 	 * <b> Supported Github Markdown: </b><i> Lists (unordered), Links, Images, Bold ('**' and '__'), Strikethrough, & Italics.  </i>
@@ -49,7 +49,7 @@ public class GithubPanel extends JFrame{
 	 */
 	public GithubPanel(double currentVersion){
 		this.version = currentVersion;
-		
+
 		setTitle("MLGA Update");
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -57,12 +57,14 @@ public class GithubPanel extends JFrame{
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
-		if(updates<=0)return;
+		if(updates <= 0){
+			return;
+		}
 		ed = new JEditorPane("text/html", html);
 		ed.setEditable(false);
 		ed.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
 		ed.setFont(new Font("Helvetica", 0, 12));
-		
+
 		ed.addHyperlinkListener(new HyperlinkListener(){
 			public void hyperlinkUpdate(HyperlinkEvent he) {
 				// Listen to link clicks and open them in the browser.
@@ -83,7 +85,7 @@ public class GithubPanel extends JFrame{
 		pack();
 		setLocationRelativeTo(null);
 	}
-	
+
 	/**
 	 * Parse the given markup into HTML, and append it to the full html string.
 	 * @param releaseVersion The Version Number, exactly as Github lists it.
@@ -96,18 +98,18 @@ public class GithubPanel extends JFrame{
 		boolean list = false;
 		for(String s : markup.split("\n")){
 			if(s.startsWith("  *")){
-				s = "\t"+s.replaceFirst("\\*", "&#9676;")+"<br>";
+				s = "\t" + s.replaceFirst("\\*", "&#9676;")+"<br>";
 			}else if(s.startsWith("* ")){
 				if(!list){
-					s="<ul>"+s;
-					list=true;
+					s = "<ul>" + s;
+					list = true;
 				}
 				s = s.replaceFirst("\\* ", "<li>")+"</li>";
 			}else if(list){
 				list = false;
-				s+="</ul>";
+				s += "</ul>";
 			}
-			
+
 			formatted+=s.trim()+(!list?"<br>":"");
 		}
 		formatted = parseTag(formatted, "\\*\\*", "b");// Bold
@@ -116,9 +118,9 @@ public class GithubPanel extends JFrame{
 		formatted = parseTag(formatted, "~~", "s");// Strikethrough (JEPanel uses HTML 3.2)
 		formatted = hyperlinks(formatted, "\\!\\[(.+?)\\]\\s?+\\((.+?)\\)", "<img src='[2]' alt='[1]'></img>");// Images
 		formatted = hyperlinks(formatted, "\\[(.+?)\\]\\s?+\\((.+?)\\)", "<a href='[2]'>[1]</a>");// Embedded Links
-		
+
 		formatted += "<br><center><a style='color: #0366d6;' href='https://github.com/"+author+"/"+project+"/releases/download/"+releaseVersion+"/"+directJAR+"'><b>[ Direct Download ]</b></a></center>";
-		this.html+=formatted;
+		this.html += formatted;
 	}
 
 	/**
@@ -127,21 +129,23 @@ public class GithubPanel extends JFrame{
 	 * @return True if an update is located that is mandatory.
 	 */
 	public boolean prompt(){
-		if(updates<=0)return true;
+		if(updates <= 0){
+			return true;
+		}
 		setVisible(true);
-		
+
 		try{
 			while(this.isDisplayable())Thread.sleep(200);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		if(required>0){
+		if(required > 0){
 			System.err.println("Mandatory updates: "+required);
 			return false;
 		}
 		return true;
 	}
-	
+
 	/** Replaced the given regex tag with the surrpounding HTML element tags. */
 	private String parseTag(String body, String tag, String replace){
 		boolean open = false;
@@ -150,15 +154,15 @@ public class GithubPanel extends JFrame{
 
 		while(m.find()) {
 			body = body.replaceFirst(tag, "<"+(open?"/":"")+replace+">");
-			open=!open;
+			open = !open;
 		}
 		if(open){
 			// Uh oh, an unclosed tag.
-			body+="</"+replace+">";
+			body += "</"+replace+">";
 		}
 		return body;
 	}
-	
+
 	/**
 	 * Matches (using regex groups) for pattern in body, then replaces any full match strings with template.  <br>
 	 * Template can contain references to group numbers, matched by the regex statement, to be inserted back into the template.  <br>
@@ -174,14 +178,14 @@ public class GithubPanel extends JFrame{
 
 		while(m.find()) {
 			String tmp = template;
-			for(int i=0; i<=m.groupCount();i++){
+			for(int i = 0; i <= m.groupCount(); i++){
 				tmp = tmp.replace("["+i+"]", m.group(i));
 			}
 			body = body.replace(m.group(0), tmp);
 		}
 		return body;
 	}
-	
+
 	/**
 	 * Connects to Github to check for project updates.
 	 * @throws MalformedURLException
@@ -191,12 +195,12 @@ public class GithubPanel extends JFrame{
 		InputStream is = new URL("https://api.github.com/repos/"+author+"/"+project+"/releases").openStream();
 		JsonElement ele = new JsonParser().parse(new InputStreamReader(is) );
 		is.close();
-		
+
 		SimpleDateFormat gdate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		
+
 		JsonArray arr = ele.getAsJsonArray();
-		for(int i=0; i<arr.size(); i++){
+		for(int i = 0; i < arr.size(); i++){
 			JsonObject obj = arr.get(i).getAsJsonObject();
 			try{
 				String vers = obj.get("tag_name").getAsString();
@@ -204,20 +208,21 @@ public class GithubPanel extends JFrame{
 					vers = vers.substring(0, vers.indexOf("-")).trim();
 				}
 				double nv = Double.parseDouble(vers);
-				if(nv<=this.version)continue;// Skip older updates.
+				if(nv <= this.version)
+					continue;// Skip older updates.
 				System.out.println("Version: "+nv);
-				
-				if(i>0)
+
+				if(i > 0)
 					html+="<hr />";
-				
+
 				String body = obj.get("body").getAsString().trim();
 				String title = "<b style='color:black;'>"+sdf.format( gdate.parse(obj.get("published_at").getAsString()))+":</b> "+obj.get("name").getAsString();
-				
+
 				if(body.contains(mandatory)){
 					required++;
-					title+="<b style='color: red;'> - (Required Update)</b>";
+					title += "<b style='color: red;'> - (Required Update)</b>";
 				}
-				
+
 				parse(obj.get("tag_name").getAsString().trim(), title, body);
 				updates++;
 			}catch(ClassCastException cce){

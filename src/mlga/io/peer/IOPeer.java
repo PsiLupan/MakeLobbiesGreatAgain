@@ -130,18 +130,21 @@ public class IOPeer implements Serializable{
 	}
 
 	public boolean equals(Object o){
-		if(!(o instanceof IOPeer) )
-			return false;
-		IOPeer p2 = (IOPeer)o;
-		if((getUID()== null && p2.getUID()!=null) || getUID()!=null && !getUID().equals(p2.getUID()) ){
+		if(!(o instanceof IOPeer)){
 			return false;
 		}
-		if(ips.size() != p2.ips.size())
+		IOPeer p2 = (IOPeer)o;
+		if((getUID() == null && p2.getUID() != null) || getUID() != null && !getUID().equals(p2.getUID())){
 			return false;
+		}
+		if(ips.size() != p2.ips.size()){
+			return false;
+		}
 		for(int i = 0; i < ips.size(); i++){
 			int v = ips.get(i).compareTo(p2.ips.get(i));
-			if(v != 0)
+			if(v != 0){
 				return false;
+			}
 		}
 		return true;
 	}
