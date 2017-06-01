@@ -16,8 +16,7 @@ Primary Feature:
 
 Optional Features: 
 * Double-Click to lock/unlock the overlay for dragging
-* Right-click to change from Survivor to Killer mode
-* Shift + Left Click on the Killer or the individual Survivor, highlighted in a darker color, to toggle to BLOCKED, LOVED, or back to the normal display
+* Shift + Left Click on a player, highlighted in a darker color for current selection, to toggle to BLOCKED, LOVED, or back to the normal display
 * To exit, simply look for Jake's face in your system tray near the clock, right-click, and select Exit.
 
 ## HOW TO INSTALL AND USE:
@@ -44,7 +43,3 @@ You may need to run the application via Command Prompt (this is due to the PCap4
 * Choose Save As and name it MLGADebug.bat with the option All Files selected
 * Right-click the new batch file and Run as Administrator
 * Submit a picture or copy of the text to an Issue
-
-## Libaries in use in the project:
-* Pcap4J - https://github.com/kaitoy/pcap4j and its associated dependencies
-* Npcap - https://nmap.org/npcap/
