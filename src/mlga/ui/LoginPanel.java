@@ -31,14 +31,15 @@ import com.google.gson.JsonParser;
 
 
 /**
- * The LoginPanel loads a list from my server of all available authentication methods, and prompts the user to choose one.
+ * The LoginPanel loads a list from the server, containing the available authentication modules - 
+ * which are all tied into the primary Tracker System.
  * @author ShadowMoose
  *
  */
 public class LoginPanel extends JFrame{
 	private static final long serialVersionUID = 1L;
 	private String code = null;
-	
+	private final String server = "https://mlga.rofl.wtf/";
 	/**
 	 * Prepare the panel. Once open, it will prompt the user to choose a method for authentication.
 	 */
@@ -51,6 +52,7 @@ public class LoginPanel extends JFrame{
 		}
 		
 		JLabel lbl = new JLabel("<html>Select a service to sign in:</html>", SwingConstants.CENTER);
+		// ^ Why does this max-width with html tags?
 		lbl.setPreferredSize(new Dimension(300, 10));
 		lbl.setFont(new Font("Helvetica", 0, 20));
 		
@@ -58,16 +60,15 @@ public class LoginPanel extends JFrame{
 		jp.setLayout(new BoxLayout(jp, BoxLayout.Y_AXIS));
 		jp.add(lbl);
 		
-		
 		try {
-			InputStream is = new URL("https://mlga.rofl.wtf/").openStream();
+			InputStream is = new URL(server+"list.json").openStream();
 			JsonElement ele = new JsonParser().parse(new InputStreamReader(is) );
 			is.close();
 			JsonArray arr = ele.getAsJsonArray();
 			for(int i = 0; i < arr.size(); i++){
 				JsonObject obj = arr.get(i).getAsJsonObject();
 				String name = obj.get("name").getAsString();
-				JButton b = build(name, "https://mlga.rofl.wtf/"+name.toLowerCase()+"/", obj.get("description").getAsString());
+				JButton b = build(name, server+name.toLowerCase()+"/", obj.get("description").getAsString());
 				jp.add(b);
 			}
 		} catch (IOException e) {
@@ -75,7 +76,7 @@ public class LoginPanel extends JFrame{
 		}
 		
 		JScrollPane sc = new JScrollPane(jp);
-		sc.setPreferredSize(new Dimension(325, 400));
+		sc.setPreferredSize(new Dimension(325, 370));
 		add(sc);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		pack();
@@ -127,8 +128,11 @@ public class LoginPanel extends JFrame{
 				} catch (IOException | URISyntaxException e) {
 					e.printStackTrace();
 				}
-				LoginPanel.this.code = JOptionPane.showInputDialog(LoginPanel.this, "Enter the code you've been given: ");
-				LoginPanel.this.dispose();
+				String c = JOptionPane.showInputDialog(LoginPanel.this, "Enter the code you've been given: ");
+				if(c!=null){
+					LoginPanel.this.code = c;
+					LoginPanel.this.dispose();
+				}
 			}
 		});
 		return ll;
@@ -136,7 +140,7 @@ public class LoginPanel extends JFrame{
 	
 	/** Get the auth code from this panel. */
 	public String getCode(){
-		if(this.code.trim().equals(""))
+		if(this.code == null || this.code.trim().equals(""))
 			return null;
 		return this.code;
 	}
