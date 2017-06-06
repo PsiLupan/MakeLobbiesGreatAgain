@@ -38,7 +38,9 @@ public class Overlay extends JPanel {
 	private int idx = -1, fh = 0;
 	
 	private final PeerTracker peerTracker;
-
+	
+	private final JWindow frame;
+	
 	public Overlay() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, FontFormatException, IOException{
 		peerTracker = new PeerTracker();
 		peerTracker.start();
@@ -49,7 +51,7 @@ public class Overlay extends JPanel {
 
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		this.setOpaque(false);
-		final JWindow frame = new JWindow();
+		frame = new JWindow();
 		frame.setBackground(new Color(0, 0, 0, 0));
 		frame.setFocusableWindowState(false);
 
@@ -188,6 +190,10 @@ public class Overlay extends JPanel {
 		return null;
 	}
 
+	/** Dispose this Overlay's Window. */
+	public void close(){
+		this.frame.dispose();
+	}
 	@Override
 	public Dimension getPreferredSize() {
 		return new Dimension(110, 100);

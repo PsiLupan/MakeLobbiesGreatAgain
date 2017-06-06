@@ -228,7 +228,12 @@ public class PeerTracker {
 					continue;
 				}
 				if(l.contains("steam: - id:")){
-					uid = l.split("id:")[1].split("\\[")[1].split("\\]")[0].trim();
+					try{
+						uid = l.split("id:")[1].split("\\[")[1].split("\\]")[0].trim();
+					}catch(IndexOutOfBoundsException e){
+						uid = null;
+						System.err.println("Error parsing line: "+l);
+					}
 				}
 				if(l.contains("-- ipaddress:")){
 					String ip = "";

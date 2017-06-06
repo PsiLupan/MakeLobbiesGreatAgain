@@ -9,6 +9,7 @@ import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -52,7 +53,8 @@ public class Boot {
 	
 	private static InetAddress addr = null;
 	private static PcapHandle handle = null;
-
+	private static Overlay ui;
+	
 	public static void main(String[] args) throws UnsupportedLookAndFeelException, AWTException, ClassNotFoundException, InterruptedException,
 	FontFormatException, InstantiationException, IllegalAccessException, IOException, PcapNativeException, NotOpenException {
 		if(!Sanity.check()){
@@ -80,7 +82,7 @@ public class Boot {
 			Backup.startBackupDaemon();
 		}
 		
-		final Overlay ui = new Overlay();
+		ui = new Overlay();
 		
 		while(true){
 			final Packet packet = handle.getNextPacket();
@@ -117,10 +119,10 @@ public class Boot {
 		final SystemTray tray = SystemTray.getSystemTray();
 		final PopupMenu popup = new PopupMenu();
 		final MenuItem exit = new MenuItem();
-		TrayIcon trayIcon = null;
+		final TrayIcon trayIcon = new TrayIcon(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB), "MLGA", popup);
 		try {
 			InputStream is = FileUtil.localResource("icon.png");
-			trayIcon = new TrayIcon(ImageIO.read(is), "MLGA", popup);
+			trayIcon.setImage(ImageIO.read(is));
 			is.close();
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -128,6 +130,8 @@ public class Boot {
 		
 		exit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				tray.remove(trayIcon);
+				ui.close();
 				handle.close();
 				System.exit(0);
 			}
@@ -176,7 +180,7 @@ public class Boot {
 					"Error", JOptionPane.ERROR_MESSAGE);
 			System.exit(1);
 		}
-
+		lanIP.setFocusable(false);
 		final JButton start = new JButton("Start");
 		start.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
