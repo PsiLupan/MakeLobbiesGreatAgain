@@ -132,7 +132,10 @@ public class Boot {
 			public void actionPerformed(ActionEvent e) {
 				tray.remove(trayIcon);
 				ui.close();
+				System.out.println("Terminated UI...");
+				System.out.println("Cleaning up system resources. Could take a while...");
 				handle.close();
+				System.out.println("Killed handle.");
 				System.exit(0);
 			}
 		});

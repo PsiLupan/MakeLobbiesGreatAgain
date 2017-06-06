@@ -85,7 +85,12 @@ public class IOPeer implements Serializable{
 	 * @return
 	 */
 	private int formatIP(Inet4Address ip){
-		return ip.hashCode();
+		int hash = 0;
+		int len = ip.getAddress().length;
+		int i = len > 4 ? len - 4 : 0;
+		for (; i < len; i++)
+			hash = (hash << 8) | (ip.getAddress()[i] & 0xff);
+		return hash;
 	}
 	
 	/** Sets this Peer's status to the int supplied. Check {@link IOPeer.Status} for values. */
