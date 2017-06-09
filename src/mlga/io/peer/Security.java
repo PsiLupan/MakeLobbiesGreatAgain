@@ -10,7 +10,6 @@ import javax.crypto.spec.DESKeySpec;
 import mlga.Boot;
 /**
  * Class to simplify key generation/file access.
- * @author ShadowMoose
  */
 public class Security {
 	
