@@ -9,7 +9,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 /**
- * Backup is an all-in-one class built to ask for permission, monitor, and then save backup copies of the user's saves. <br>
+ * Backup is a class built to ask for permission, monitor, and then save backup copies of the user's saves. <br>
  * To do this, it attempts first to automatically locate the user's Steam installation by reading the registry. 
  * If this fails, it will prompt for them to manually select their installation.  <br>
  * The process runs in the background as a low-cost daemon, and will automatically terminate when the Main program does.
@@ -71,16 +71,16 @@ public class Backup {
 			return new File(p).toPath();
 		}
 
-		//Steam stores the path it lives at in the Windows Registry. So far as I can tell, this is the best approach to locating it.
-		//This method of calling CMD to lookup a registry key is "hacky", but Windows compliant over most versions. Might need to actually use a library though.
-		//There should be a fallback prompt to manually select the directory anyways, so it's not a huge deal if this approach fails occasionally on some systems.
+		// Steam stores the path it lives at in the Windows Registry. So far as I can tell, this is the best approach to locating it.
+		// This method of calling CMD to lookup a registry key is "hacky", but Windows compliant over most versions. Might need to actually use a library though.
+		// There is a fallback prompt to manually select the directory anyways, so it's not a huge deal if this approach fails occasionally on some systems.
 		String path = readRegistry("HKEY_CURRENT_USER\\SOFTWARE\\Valve\\Steam\\", "SteamPath");
 		System.out.println("Steam path: ["+path+"]");
 		
 		File dir = null;
 		
-		//If auto-lookup fails, we prompt for the user to manually supply a path via file selector.
-		//We then save this path to Settings, so the user can manually alter it (and so we never need to run the lookup again).
+		// If auto-lookup fails, we prompt for the user to manually supply a path via file selector.
+		// We then save this path to Settings, so the user can manually alter it (and so we never need to run the lookup again).
 		if(path!=null){
 			dir = new File(path+"/userdata/");
 			if(!dir.exists()){
@@ -89,6 +89,7 @@ public class Backup {
 				dir = null;
 			}
 		}
+		// If the path wasn't located - or was invalid - prompt for user input:
 		if(path==null){
 			JOptionPane.showMessageDialog(null, "MLGA was unable to automatically locate your Steam installation folder, so please select it in the following prompt.", "Backup Location", JOptionPane.ERROR_MESSAGE);
 			JFileChooser fc = new JFileChooser();
@@ -108,21 +109,20 @@ public class Backup {
 		return null;
 	}
 
-	/** Attempts to back up any copies of valid saves it can find for game 381210, "Dead By Daylight". <br>
-	 * This code will <b>absolutely not</b> work automatically on anything other than a Windows setup, but should work on most Win versions. <br>
-	 * We'd want a prompt before this function runs, the first time the app runs, to see if the user wants us to back up their data.
-	 * */
-	private static boolean saveFile(File f){
+	/**
+	 * Attempts to back up any copies of valid saves it can find for filetypes "profj", ignoring the tempt ".stmp" files.
+	 */
+	private static void saveFile(File f){
 		// Accept only (existing Files), (*.profj* files), and ignore *.stmp temp files.
 		if(f.exists() && f.getAbsolutePath().contains("profj") && !f.getName().contains(".stmp")){
 			File copy = new File(backup_dir.getAbsolutePath()+"/"+f.getParentFile().getParentFile().getParentFile().getParentFile().getName()+"/");
 			FileUtil.saveFile(f, copy, max_extra_copies);
 		}
-		return true;
 	}
 
 	/**
-	 * 
+	 * Queries the Windows Registry for the given key.  <br>
+	 * This will <b>absolutely not</b> work outside of a Windows environment.  <br>
 	 * @param location path in the registry
 	 * @param key registry key
 	 * @return registry value or null if not found

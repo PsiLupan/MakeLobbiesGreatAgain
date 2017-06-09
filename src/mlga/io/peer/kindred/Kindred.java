@@ -23,8 +23,9 @@ import mlga.io.peer.IOPeer;
 import mlga.ui.LoginPanel;
 
 /**
- * The Kindred System enables tracking and mapping of PeerID->IP through the database
- * curated by all registered users.
+ * The Kindred System enables mapping & tracking of PeerID->IP through the database,
+ * which is curated online by all registered users.  <br>
+ * All data is kept anonymous, and personal user ratings are not reported to the server.
  * @author ShadowMoose
  */
 public class Kindred {

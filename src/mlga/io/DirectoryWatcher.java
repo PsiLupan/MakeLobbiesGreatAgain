@@ -56,7 +56,7 @@ public class DirectoryWatcher {
 	 * @param spider
 	 *            - If this Watcher should recursively scan for subdirectories.
 	 *            <br>
-	 *            If true, you <i>must</i> override {@link #getDirs(File)} to
+	 *            If true, you <i>must</i> override {@link #followDir(File)} to
 	 *            control which directories are accepted.
 	 */
 	public DirectoryWatcher(File dir, boolean spider) {

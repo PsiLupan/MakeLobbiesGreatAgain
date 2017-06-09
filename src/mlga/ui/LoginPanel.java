@@ -31,8 +31,10 @@ import com.google.gson.JsonParser;
 
 
 /**
+ * For verification, the Kindred System requires an account registered from one of several supported sites.
+ * <br>
  * The LoginPanel loads a list from the server, containing the available authentication modules - 
- * which are all tied into the primary Tracker System.
+ * which are all tied into the Kindred System.
  * @author ShadowMoose
  *
  */
@@ -83,7 +85,10 @@ public class LoginPanel extends JFrame{
 		setLocationRelativeTo(null);
 	}
 	
-	/** Display and hang until this panel is closed. */
+	/** 
+	 * Display prompt, and hang until this panel is closed. <br>
+	 * Use {@link #getCode()} to access the user-entered value.
+	 */
 	public void prompt(){
 		setVisible(true);
 		try{
@@ -143,11 +148,5 @@ public class LoginPanel extends JFrame{
 		if(this.code == null || this.code.trim().equals(""))
 			return null;
 		return this.code;
-	}
-	
-	public static void main(String[] args) throws Exception{
-		LoginPanel lp = new LoginPanel();
-		lp.prompt();
-		System.out.println("Code: "+lp.getCode());
 	}
 }
