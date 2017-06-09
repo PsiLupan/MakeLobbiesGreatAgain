@@ -35,21 +35,22 @@ public class PeerReader {
 			peer.saved = true;
 			return peer;
 		}
-		reader.endArray();
-		reader.close();
 		return null;
 	}
 	
 	/** If this PeerStream has more IOPeers left to read. */
-	public boolean hasNext(){
-		try {
-			return reader.hasNext();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return false;
-	}
-	
+    public boolean hasNext(){
+        try {
+            if(!reader.hasNext()){
+                this.close();
+                return false;
+            }
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 	public void close() throws IOException{
 		reader.endArray();
 		reader.close();

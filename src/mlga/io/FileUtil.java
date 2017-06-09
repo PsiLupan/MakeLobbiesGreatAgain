@@ -104,7 +104,7 @@ public class FileUtil {
 	 * It is crucial (for ease of tracking) that all backup files follow the same naming conventions.<br>
 	 * This function exists to enforce those conventions. */
 	public static File getSaveName(File f, int version){
-		return new File(f.getParentFile().getAbsolutePath()+"/"+(version!=0?version+" - ":"")+f.getName());
+		return new File(f.getParentFile().getAbsolutePath()+"/"+(version != 0 ? version+" - ":"")+f.getName());
 	}
 	
 	/**
