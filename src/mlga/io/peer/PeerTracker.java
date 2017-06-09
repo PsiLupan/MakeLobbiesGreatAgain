@@ -44,8 +44,8 @@ public class PeerTracker {
 					savePeers();
 				}
 				break;
-			} catch (IOException e) {
-				//e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
 				if(i == 0){
 					System.err.println("No Peers file located! Checking backups!");
 				}
