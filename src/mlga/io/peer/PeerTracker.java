@@ -12,6 +12,7 @@ import mlga.io.DirectoryWatcher;
 import mlga.io.FileUtil;
 import mlga.io.Preferences;
 import mlga.io.peer.IOPeer.Status;
+import mlga.io.peer.kindred.Kindred;
 
 /**
  * Class for background parsing Dead by Daylight log files into pairing of UID:IP to enable persistant ratings past dynamic IP ranges.
@@ -25,13 +26,17 @@ public class PeerTracker {
 	private static boolean saving = false;
 	private String uid = null;
 	private boolean active = false;
-
+	private final Kindred kindred;
+	
 	/**
 	 * Creates a PeerTracker, which instantly loads the Peer List into memory.  <br>
 	 * Calling {@link #start()} will launch the passive listening component, which
 	 * will keep the Peer List updated as new logs are created.
 	 */
 	public PeerTracker(){
+		//Initialize Kindred System.
+		this.kindred = new Kindred();
+		
 		// PeerSavers create emergency backups, so loop to check primary file, then attempt fallback if needed.
 		for(int i = 0; i < 2; i++){
 			try {
@@ -51,6 +56,10 @@ public class PeerTracker {
 				}
 			}
 		}
+		/*for(IOPeer p : peers){
+			if(p.hasUID())
+				p.addToKindred(kindred);
+		}//*/
 	}
 
 	/** Launches this listener thread, in order to automatically update Peers. */
@@ -115,8 +124,9 @@ public class PeerTracker {
 				peers.add(p);
 			}
 			// Make a backup (just in case), then delete the Legacy file.
-			FileUtil.saveFile(Preferences.prefsFile, "legacy", 0);
-			Preferences.prefsFile.delete();
+			if(FileUtil.saveFile(Preferences.prefsFile, "legacy", 0)){
+				Preferences.prefsFile.delete();
+			}
 		}
 	}
 	
@@ -256,15 +266,18 @@ public class PeerTracker {
 								if(uid.equals(iop.getUID()) || iop.hasIP(ina)){
 									if(!iop.hasUID()){
 										iop.setUID(uid);
+										p.addToKindred(kindred);
 									}
 									if(!iop.hasIP(ina)){
 										iop.addIP(ina);
+										p.addToKindred(kindred);
 									}
 									matched = true;
 								}
 							}
 							if(!matched){
 								peers.add(p);
+								p.addToKindred(kindred);
 							}
 						} catch (UnknownHostException e) {
 							e.printStackTrace();
@@ -276,6 +289,7 @@ public class PeerTracker {
 
 				}
 			}
+			kindred.submit();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

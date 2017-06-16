@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.net.Inet4Address;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import mlga.io.peer.kindred.Kindred;
+
 /** Wrapper used to save/load Peer settings. 
  * Must be serializable, so GSON can stream-encode them as objects.
  */
@@ -107,6 +109,20 @@ public class IOPeer implements Serializable{
 	public void copyTo(IOPeer p){
 		p.ips.addAllAbsent(this.ips);
 		p.setStatus(this.getStatus());
+	}
+	
+	/**
+	 * Since all IOPeer data is isolated within the class, 
+	 * this exposes a method to add this Peer's data to the Kindred DB Queue.
+	 * @param k The Kindred object to queue this Peer on.
+	 */
+	public void addToKindred(Kindred k){
+		if(!this.hasUID()){
+			return;
+		}
+		for(int ip : this.ips){
+			k.addPair(this.uid, ip);
+		}
 	}
 	
 	/** Get this peer's UID. <br>
