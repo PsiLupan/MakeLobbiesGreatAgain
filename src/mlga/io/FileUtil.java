@@ -55,7 +55,7 @@ public class FileUtil {
 		System.out.println(copy);
 		if(copy.exists()){
 			//A copy of this file already exists
-			if(copy.length() - f.length() > 9000){ //Verify the new file isn't corrupted, such as a massive filesize difference
+			if(f.length() < 12000 && (copy.length() - f.length()) > 10000){ //Verify the new file isn't corrupted, such as a massive filesize difference
 				JOptionPane.showMessageDialog(null, "WARNING: Possible loss of progress. Backup was not created.", "Error", JOptionPane.ERROR_MESSAGE);
 				return false;
 			}
