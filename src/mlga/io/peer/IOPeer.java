@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.net.Inet4Address;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import mlga.io.peer.kindred.Kindred;
-
 /** Wrapper used to save/load Peer settings. 
  * Must be serializable, so GSON can stream-encode them as objects.
  */
@@ -37,7 +35,7 @@ public class IOPeer implements Serializable{
 	/** This peer's status value, stored as an integer for any future updates/refactoring. */
 	private int status = Status.UNRATED.val;
 	
-	/** Flag set when this IOPeer is created/modified and requires saving. Toggled back to true by the Saver class once this Peer has been saved to file. */
+	/** Flag automatically set when this IOPeer is created/modified and requires saving. <br> Toggled back to true by the Saver class once this Peer has been saved to file. */
 	public transient boolean saved = false;
 	
 	public IOPeer(){
@@ -58,20 +56,24 @@ public class IOPeer implements Serializable{
 		return (this.uid!=null && !this.uid.equals(""));
 	}
 	
-	/** Adds the given IP to this list. */
+	/** Adds the given IP to this list.  <br>
+	 * Will not add duplicates.
+	 */
 	public void addIP(Inet4Address ip){
 		this.ips.addIfAbsent(formatIP(ip));
 		this.saved = false;
 	}
 	
 	/**
-	 * Special method, used for building a peer from a Legacy list of IP Hashes.  <br>
-	 * <b>Do not use this method outside of the Legacy conversion! </b><br>
-	 * If the way that IOPeer handles IP hashing ever changes, this method will become obsolete and be removed.
+	 * Special method, used for building a Peer from server responses or Legacy IPs, which are already hashed.  <br>
+	 * Will not add duplicates.  <br>
+	 * If the way that IOPeer handles IP hashing ever changes, Legacy IPs must be discontinued.
+	 * 
 	 * @param hash The pre-hashed IP.
 	 */
-	public void addLegacyIPHash(int hash){
-		this.ips.add(hash);
+	public void addPrehashedIP(int hash){
+		this.ips.addIfAbsent(hash);
+		this.saved = false;
 	}
 	
 	/** Checks if this IOPeer contains the given IP address. */
@@ -103,26 +105,24 @@ public class IOPeer implements Serializable{
 	
 	/**
 	 * Copies this IOPeer's data (IP List & Status) to the target IOPeer.  <br>
-	 * This IOPeer's {@link #status} will overwrite p's.
+	 * This IOPeer's {@link #status} will overwrite p's if it has been set.
 	 * @param p The IOPeer object to copy this Peer's data to.
 	 */
 	public void copyTo(IOPeer p){
 		p.ips.addAllAbsent(this.ips);
-		p.setStatus(this.getStatus());
+		if(this.getStatus()!=Status.UNRATED){
+			p.setStatus(this.getStatus());
+		}
+		p.saved = false;
 	}
 	
-	/**
-	 * Since all IOPeer data is isolated within the class, 
-	 * this exposes a method to add this Peer's data to the Kindred DB Queue.
-	 * @param k The Kindred object to queue this Peer on.
+	/** Build an array if the IPs currently stored by this IOPeer.  <br>
+	 * This is *only* to be used in places where the IP List must be submitted raw.
+	 * @return An immutable array of Integer IPs.
 	 */
-	public void addToKindred(Kindred k){
-		if(!this.hasUID()){
-			return;
-		}
-		for(int ip : this.ips){
-			k.addPair(this.uid, ip);
-		}
+	public int[] getIPs(){
+		int[] ret = this.ips.stream().mapToInt(i -> i).toArray();
+		return ret;
 	}
 	
 	/** Get this peer's UID. <br>

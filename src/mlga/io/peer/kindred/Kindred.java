@@ -10,6 +10,7 @@ import java.net.URLEncoder;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.zip.GZIPOutputStream;
 
 import com.google.gson.Gson;
@@ -29,7 +30,10 @@ import mlga.ui.LoginPanel;
  * @author ShadowMoose
  */
 public class Kindred {
-	private final String target_url = "https://mlga.rofl.wtf/submit_report.php";
+	private final String KINDRED_VERSION = "1";
+	private final String submit_peer_url = "https://mlga.rofl.wtf/submit_report.php";
+	private final String lookup_peer_url = " https://mlga.rofl.wtf/check_ip.php";
+	
 	private String token = null;
 	private JsonArray queue = new JsonArray();
 	private boolean saving = false;
@@ -62,34 +66,55 @@ public class Kindred {
 	}
 	
 	/**
-	 * Look up the given IP hash, and attempt to generate an IOPeer object if successful.
-	 * @param ip
-	 * @return
+	 * Look up the given IP hash, and adds the missing information to the given IOPeer.
+	 * @param iop The IOPeer to be mutated.
 	 */
-	public IOPeer lookup(int ip){
-		if(this.token == null){
-			return null;
+	public void updatePeer(IOPeer iop){
+		if(iop.hasUID()){
+			return;
 		}
-		//TODO: Needs to be async, and probably threaded.
-		// Either thread it here with a callback IOPeer object, 
-		// or thread it on the IOPeer side and simply pass data back through this call.
-		return null;
+		System.out.println("KINDRED: Attempting to ID Peer through KINDRED...");
+		
+		JsonArray ar = new JsonArray();
+		for(int i : iop.getIPs()){
+			ar.add(i);
+		}
+		JsonObject re = this.postToUrl(lookup_peer_url, ar, "peer_ips");
+		if(re==null){
+			//System.err.println("KINDRED: Invalid server response!");
+			return;
+		}
+		if(re.get("success")==null){
+			System.err.println("KINDRED: COuld not identify Peer.");
+			return;
+		}
+		iop.setUID(re.get("uid").getAsString());
+		JsonArray rarr = re.getAsJsonArray("known_ips");
+		for(int x=0; x<rarr.size();x++){
+			int ip = rarr.get(x).getAsInt();
+			iop.addPrehashedIP(ip);
+		}
 	}
 	
 	/**
-	 * Adds the given IP/ID pair to this Kindred object, and prepares to submit when called.  <br>
+	 * Adds the IOPeer's details to this Kindred object, and prepares to submit when called.  <br>
 	 * See {@link mlga.io.peer.IOPeer#addToKindred(Kindred)} for more.
-	 * @param id The UID of this Peer.
-	 * @param ipHash The hasehd IP, in the format IOPeer generates.
+	 * @param iop The IOPeer to submit to KINDRED.
 	 */
-	public void addPair(String id, int ipHash){
+	public void addPeer(IOPeer iop){
 		if(this.token==null){
 			return;
 		}
-		JsonObject ob = new JsonObject();
-		ob.addProperty("uid", id);
-		ob.addProperty("ip", ipHash);
-		this.queue.add(ob);
+		if(!iop.hasUID()){
+			return;
+		}
+		
+		for (int ip : iop.getIPs()){
+			JsonObject ob = new JsonObject();
+			ob.addProperty("uid", iop.getUID());
+			ob.addProperty("ip", ip);
+			this.queue.add(ob);
+		}
 	}
 	
 	/**
@@ -125,27 +150,46 @@ public class Kindred {
 	 * @return
 	 */
 	private boolean post(){
-		if(this.token == null){
+		JsonObject resp = this.postToUrl(submit_peer_url, this.queue, "manifest");
+		if(resp==null){
+			System.err.println("KINDRED: Invalid server response.");
 			return false;
+		}
+		System.out.println("KINDRED: "+resp.get("success").getAsString());
+		return true;
+	}
+	
+	/**
+	 * Formats and POSTs the given JsonArray to the supplied URL.  <br>
+	 * GZips and Base64_encodes the data to a string.  <br>
+	 * Additionally handles error checking and token invalidation.
+	 * @param target The URL to POST to.
+	 * @param arr The Data Array to provide.
+	 * @return Expects a JSON response, and returns a parsed JsonObject (or null on error/missing token).
+	 */
+	private JsonObject postToUrl(String target, JsonArray arr, String array_key){
+		if(this.token == null){
+			return null;
 		}
 		String out = null;
 		try{
-			//It's JSON data, so it's worth compressing:
+			//It's JSON data, so it's likely worth compressing:
 			ByteArrayOutputStream obj = new ByteArrayOutputStream();
 			GZIPOutputStream gzip = new GZIPOutputStream(obj);
-			gzip.write(new Gson().toJson(this.queue).getBytes("UTF-8"));
+			gzip.write(new Gson().toJson(arr).getBytes("UTF-8"));
 			gzip.close();
 			out = Base64.getEncoder().encodeToString(obj.toByteArray());
-			//System.out.println("Shrunk: "+new Gson().toJson(this.queue).length()+" -> "+out.length());
 		}catch(IOException e){
 			e.printStackTrace();
 		}
 		if(out == null){
-			return false;
+			System.err.println("KINDRED: Error encoding!");
+			return null;
 		}
 		Map<String,String> params = new HashMap<>();
 		params.put("token", this.token);
-		params.put("manifest", out);
+		params.put("kindred_version", this.KINDRED_VERSION);
+		params.put(array_key, out);
 		this.queue = new JsonArray();
 
 		try{
@@ -158,7 +202,7 @@ public class Kindred {
 			}
 			//System.out.println(postData.toString());
 			byte[] postDataBytes = postData.toString().getBytes("UTF-8");
-			URL url = new URL(target_url);
+			URL url = new URL(target);
 			HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 			conn.setRequestMethod("POST");
 			conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -167,29 +211,23 @@ public class Kindred {
 			conn.getOutputStream().write(postDataBytes);
 			
 			InputStream is = conn.getInputStream();
-			/*String str = "";
-			int i=0;
-			while((i = is.read())!=-1)
-				str+=(char)i;
-			System.out.println(str);//*/
 			JsonElement ele = new JsonParser().parse(new InputStreamReader(is) );
 			is.close();
 			JsonObject resp = ele.getAsJsonObject();
 			if(resp.get("reset_token")!=null && resp.get("reset_token").getAsBoolean()){
-				System.err.println("Resetting token.");
+				System.err.println("KINDRED: Resetting token.");
 				this.token = null;
 				Settings.remove("kindred_token");
 				this.prompt();
 			}
 			if(resp.get("error")!=null){
 				System.err.println("KINDRED: "+resp.get("error").getAsString());
-				return false;
+				return null;
 			}
-			System.out.println("KINDRED: "+resp.get("success").getAsString());
+			return resp;
 		}catch(Exception e){
 			e.printStackTrace();
-			return false;
 		}
-		return true;
+		return null;
 	}
 }
