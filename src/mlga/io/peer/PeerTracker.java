@@ -56,10 +56,6 @@ public class PeerTracker {
 				}
 			}
 		}
-		/*for(IOPeer p : peers){
-			if(p.hasUID())
-				p.addToKindred(kindred);
-		}//*/
 	}
 
 	/** Launches this listener thread, in order to automatically update Peers. */
