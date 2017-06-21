@@ -39,7 +39,7 @@ public class Peer {
 		return this.ping;
 	}
 	
-	/** If we have saved, and also loved, this Peer. */
+	/** If we have saved, and also blocked, this Peer. */
 	public boolean blocked(){
 		return this.hasStatus && this.blocked;
 	}

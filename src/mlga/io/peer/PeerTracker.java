@@ -90,7 +90,6 @@ public class PeerTracker {
 								// Intentionally hang if we located a Peer to save, to allow any other Peers to batch updates together.
 								Thread.sleep(10);
 							}catch(Exception e){e.printStackTrace();}
-
 							savePeers();
 							break;
 						}
@@ -119,7 +118,7 @@ public class PeerTracker {
 				// A new Peer is built for each IP hash.
 				// If/When they're identified later, the save procedure will combine them automatically.
 				IOPeer p = new IOPeer();
-				p.addLegacyIPHash(key);
+				p.addPrehashedIP(key);
 				p.setStatus(Preferences.prefs.get(key)?Status.BLOCKED:Status.LOVED);
 				peers.add(p);
 			}
@@ -205,14 +204,20 @@ public class PeerTracker {
 	 * @param ip
 	 */
 	public IOPeer getPeer(Inet4Address ip){
+		IOPeer ret = null;
 		for(IOPeer p : peers){
 			if(p.hasIP(ip))
-				return p;
+				ret = p;
 		}
-		IOPeer p = new IOPeer();
-		p.addIP(ip);
-		peers.add(p);
-		return p;
+		if(ret==null){
+			ret = new IOPeer();
+			ret.addIP(ip);
+			peers.add(ret);
+		}
+		if(!ret.hasUID()){
+			kindred.updatePeer(ret);
+		}
+		return ret;
 	}
 
 	/** 
@@ -240,6 +245,7 @@ public class PeerTracker {
 				if(l.contains("steam: - id:")){
 					try{
 						uid = l.split("id:")[1].split("\\[")[1].split("\\]")[0].trim();
+						//TODO: Change this to account for weird names.
 					}catch(IndexOutOfBoundsException e){
 						uid = null;
 						System.err.println("Error parsing line: "+l);
@@ -266,18 +272,18 @@ public class PeerTracker {
 								if(uid.equals(iop.getUID()) || iop.hasIP(ina)){
 									if(!iop.hasUID()){
 										iop.setUID(uid);
-										p.addToKindred(kindred);
+										kindred.addPeer(iop);
 									}
 									if(!iop.hasIP(ina)){
 										iop.addIP(ina);
-										p.addToKindred(kindred);
+										kindred.addPeer(iop);
 									}
 									matched = true;
 								}
 							}
 							if(!matched){
 								peers.add(p);
-								p.addToKindred(kindred);
+								kindred.addPeer(p);
 							}
 						} catch (UnknownHostException e) {
 							e.printStackTrace();
