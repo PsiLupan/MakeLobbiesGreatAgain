@@ -45,6 +45,10 @@ public class Settings{
 	public static void set(String key, Object value){
 		loaded.remove(key);
 		loaded.put(key, value.toString());
+		save();
+	}
+	
+	private static void save(){
 		FileOutputStream o;
 		try {
 			o = new FileOutputStream(save);
@@ -68,5 +72,14 @@ public class Settings{
 	/** See #get(). Returns the value of the key, converted to a double. Mostly just here for convenient casting.*/
 	public static double getDouble(String key, double def){
 		return Double.parseDouble(get(key, ""+def));
+	}
+
+	/**
+	 * Removes the given setting key.
+	 * @param key
+	 */
+	public static void remove(String key) {
+		loaded.remove(key);
+		save();
 	}
 }

@@ -39,6 +39,13 @@ public class Kindred {
 	 * Will prompt the user for authentication if they haven't been previously prompted.
 	 */
 	public Kindred(){
+		prompt();
+	}
+	
+	/**
+	 * Prompts the user for the Kindred token, if one isn't set already.
+	 */
+	private void prompt(){
 		if(Settings.get("kindred_token", null) == null){
 			LoginPanel lp = new LoginPanel();
 			lp.prompt();
@@ -100,7 +107,7 @@ public class Kindred {
 		Thread t = new Thread("Kindred"){
 			public void run(){
 				try{
-					Thread.sleep(3000);
+					Thread.sleep(2000);
 					System.out.println("KINDRED: Submitting data for ~["+Kindred.this.queue.size()+"] Peers...");
 					if(!Kindred.this.post()){
 						System.err.println("KINDRED: Error submitting data.");
@@ -168,6 +175,12 @@ public class Kindred {
 			JsonElement ele = new JsonParser().parse(new InputStreamReader(is) );
 			is.close();
 			JsonObject resp = ele.getAsJsonObject();
+			if(resp.get("reset_token")!=null && resp.get("reset_token").getAsBoolean()){
+				System.err.println("Resetting token.");
+				this.token = null;
+				Settings.remove("kindred_token");
+				this.prompt();
+			}
 			if(resp.get("error")!=null){
 				System.err.println("KINDRED: "+resp.get("error").getAsString());
 				return false;
