@@ -54,6 +54,7 @@ public class Boot {
 	private static InetAddress addr = null;
 	private static PcapHandle handle = null;
 	private static Overlay ui;
+	private static boolean running = true;
 	
 	public static void main(String[] args) throws UnsupportedLookAndFeelException, AWTException, ClassNotFoundException, InterruptedException,
 	FontFormatException, InstantiationException, IllegalAccessException, IOException, PcapNativeException, NotOpenException {
@@ -84,7 +85,7 @@ public class Boot {
 		
 		ui = new Overlay();
 		
-		while(true){
+		while(running){
 			final Packet packet = handle.getNextPacket();
 
 			if(packet != null){
@@ -130,6 +131,7 @@ public class Boot {
 		
 		exit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				running = false;
 				tray.remove(trayIcon);
 				ui.close();
 				System.out.println("Terminated UI...");
