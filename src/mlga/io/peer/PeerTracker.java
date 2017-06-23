@@ -240,8 +240,8 @@ public class PeerTracker {
 				}
 				if(l.contains("steam: - id:")){
 					try{
-						uid = l.split("id:")[1].split("\\[")[1].split("\\]")[0].trim();
-						//TODO: Change this to account for weird names.
+						uid = l.substring(l.lastIndexOf('[')+1);
+						uid = uid.substring(0, uid.indexOf(']'));
 					}catch(IndexOutOfBoundsException e){
 						uid = null;
 						System.err.println("Error parsing line: "+l);

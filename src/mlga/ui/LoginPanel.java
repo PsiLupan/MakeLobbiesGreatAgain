@@ -90,6 +90,14 @@ public class LoginPanel extends JFrame{
 	 * Use {@link #getCode()} to access the user-entered value.
 	 */
 	public void prompt(){
+		JOptionPane.showMessageDialog(null, 
+				"Using community-submitted data, MLGA can now track all Players reliably, even through Dynamic IPs and Proxies.\n"
+				+ "In order to validate submitted data, you may (optionally) access this feature with a one-time account authentication.\n"
+				+ "You will now be prompted for a web login through one of several options. Your account information is not sent to MLGA.\n"
+				+ "\n"
+				+ "It is highly recommended that you use this feature, as it greatly enhances MLGA's ability to track your Loved/Blocked list.\n"
+				+ "If you do not wish to use this system, simply close the next window.",
+				"Kindred - Optional", JOptionPane.INFORMATION_MESSAGE);
 		setVisible(true);
 		try{
 			while(this.isDisplayable())Thread.sleep(200);
