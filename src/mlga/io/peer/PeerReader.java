@@ -23,6 +23,7 @@ public class PeerReader {
 	
 	/** Builds a Peer Reader for the given File. */
 	public PeerReader(File f) throws IOException{
+		f.createNewFile();
 		this.gson = new Gson();
 		reader = new JsonReader(open(f));
 		reader.beginArray();
