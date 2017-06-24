@@ -23,10 +23,11 @@ public class PeerReader {
 	
 	/** Builds a Peer Reader for the given File. */
 	public PeerReader(File f) throws IOException{
-		f.createNewFile();
-		this.gson = new Gson();
-		reader = new JsonReader(open(f));
-		reader.beginArray();
+		if(!f.createNewFile()){
+			this.gson = new Gson();
+			reader = new JsonReader(open(f));
+			reader.beginArray();
+		}
 	}
 	
 	/** Gets the next unread IOPeer in the list, or null if none remain. */
