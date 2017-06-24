@@ -43,7 +43,9 @@ public class PeerReader {
 	/** If this PeerStream has more IOPeers left to read. */
     public boolean hasNext(){
         try {
-            if(reader == null || !reader.hasNext()){
+        	if(reader == null){
+        		return false;
+        	}else if(!reader.hasNext()){
                 this.close();
                 return false;
             }
