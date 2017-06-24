@@ -63,7 +63,7 @@ public class FileUtil {
 			//Shuffle through existing backups, increment them all, and remove the oldest backup copy.
 			for(int i = max_extra_copies; i > 0; i--){
 				File max = getSaveName(copy, i);
-				System.out.println(max);
+				//System.out.println(max);
 				if(max.exists()){
 					if(i < max_extra_copies){//Increment version.
 						max.renameTo(getSaveName(copy, (i+1)) );

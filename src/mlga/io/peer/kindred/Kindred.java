@@ -31,7 +31,7 @@ import mlga.ui.LoginPanel;
 public class Kindred {
 	private final String KINDRED_VERSION = "1";
 	private final String submit_peer_url = "https://mlga.rofl.wtf/submit_report.php";
-	private final String lookup_peer_url = " https://mlga.rofl.wtf/check_ip.php";
+	private final String lookup_peer_url = "https://mlga.rofl.wtf/check_ip.php";
 	
 	private String token = null;
 	private JsonArray queue = new JsonArray();
@@ -88,10 +88,12 @@ public class Kindred {
 			return;
 		}
 		iop.setUID(re.get("uid").getAsString());
+		System.out.println("Found UID: "+re.get("uid").getAsString());
 		JsonArray rarr = re.getAsJsonArray("known_ips");
 		for(int x=0; x<rarr.size();x++){
 			int ip = rarr.get(x).getAsInt();
 			iop.addPrehashedIP(ip);
+			System.out.println("Found IP:" +ip);
 		}
 	}
 	
