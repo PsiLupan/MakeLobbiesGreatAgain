@@ -59,9 +59,8 @@ public class Kindred {
 			}
 		}
 		this.token = Settings.get("kindred_token", "false");
-		if(this.token.equals("false")){
+		if(this.token.equals("false"))
 			this.token = null;
-		}
 	}
 	
 	/**
@@ -69,9 +68,8 @@ public class Kindred {
 	 * @param iop The IOPeer to be mutated.
 	 */
 	public void updatePeer(IOPeer iop){
-		if(iop.hasUID()){
+		if(iop.hasUID())
 			return;
-		}
 		System.out.println("KINDRED: Attempting to ID Peer through KINDRED...");
 		
 		JsonArray ar = new JsonArray();
@@ -79,17 +77,17 @@ public class Kindred {
 			ar.add(i);
 		}
 		JsonObject re = this.postToUrl(lookup_peer_url, ar, "peer_ips");
-		if(re==null){
+		if(re == null){
 			//System.err.println("KINDRED: Invalid server response!");
 			return;
 		}
-		if(re.get("success")==null){
-			System.err.println("KINDRED: COuld not identify Peer.");
+		if(re.get("success") == null){
+			System.err.println("KINDRED: Could not identify Peer.");
 			return;
 		}
 		iop.setUID(re.get("uid").getAsString());
 		JsonArray rarr = re.getAsJsonArray("known_ips");
-		for(int x=0; x<rarr.size();x++){
+		for(int x = 0; x < rarr.size(); x++){
 			int ip = rarr.get(x).getAsInt();
 			iop.addPrehashedIP(ip);
 		}
@@ -101,12 +99,10 @@ public class Kindred {
 	 * @param iop The IOPeer to submit to KINDRED.
 	 */
 	public void addPeer(IOPeer iop){
-		if(this.token==null){
+		if(this.token == null)
 			return;
-		}
-		if(!iop.hasUID()){
+		if(!iop.hasUID())
 			return;
-		}
 		
 		for (int ip : iop.getIPs()){
 			JsonObject ob = new JsonObject();
@@ -123,9 +119,8 @@ public class Kindred {
 	 * Calling this while Kindred is already saving will do nothing.
 	 */
 	public void submit(){
-		if(this.token == null || this.saving || this.queue.size()==0){
+		if(this.token == null || this.saving || this.queue.size() == 0)
 			return;
-		}
 		System.out.println("KINDRED: Upload queued.");
 		this.saving = true;
 		Thread t = new Thread("Kindred"){
@@ -133,9 +128,8 @@ public class Kindred {
 				try{
 					Thread.sleep(2000);
 					System.out.println("KINDRED: Submitting data for ~["+Kindred.this.queue.size()+"] Peers...");
-					if(!Kindred.this.post()){
+					if(!Kindred.this.post())
 						System.err.println("KINDRED: Error submitting data.");
-					}
 				}catch(Exception e){e.printStackTrace();}
 				Kindred.this.saving = false;
 			}
@@ -150,7 +144,7 @@ public class Kindred {
 	 */
 	private boolean post(){
 		JsonObject resp = this.postToUrl(submit_peer_url, this.queue, "manifest");
-		if(resp==null){
+		if(resp == null){
 			System.err.println("KINDRED: Invalid server response.");
 			return false;
 		}
@@ -167,9 +161,8 @@ public class Kindred {
 	 * @return Expects a JSON response, and returns a parsed JsonObject (or null on error/missing token).
 	 */
 	private JsonObject postToUrl(String target, JsonArray arr, String array_key){
-		if(this.token == null){
+		if(this.token == null)
 			return null;
-		}
 		String out = null;
 		try{
 			//It's JSON data, so it's likely worth compressing:
@@ -194,7 +187,8 @@ public class Kindred {
 		try{
 			StringBuilder postData = new StringBuilder();
 			for (Map.Entry<String,String> param : params.entrySet()) {
-				if (postData.length() != 0) postData.append('&');
+				if (postData.length() != 0) 
+					postData.append('&');
 				postData.append(URLEncoder.encode(param.getKey(), "UTF-8"));
 				postData.append('=');
 				postData.append(URLEncoder.encode(param.getValue(), "UTF-8"));
@@ -213,13 +207,13 @@ public class Kindred {
 			JsonElement ele = new JsonParser().parse(new InputStreamReader(is) );
 			is.close();
 			JsonObject resp = ele.getAsJsonObject();
-			if(resp.get("reset_token")!=null && resp.get("reset_token").getAsBoolean()){
+			if(resp.get("reset_token") != null && resp.get("reset_token").getAsBoolean()){
 				System.err.println("KINDRED: Resetting token.");
 				this.token = null;
 				Settings.remove("kindred_token");
 				this.prompt();
 			}
-			if(resp.get("error")!=null){
+			if(resp.get("error") != null){
 				System.err.println("KINDRED: "+resp.get("error").getAsString());
 				return null;
 			}
