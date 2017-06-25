@@ -123,7 +123,7 @@ public class Overlay extends JPanel {
 			public void run(){
 				for (Peer p : peers){
 					if(p.age() >= 3500){
-						Boot.active.remove(p.getID());
+						Boot.active.remove(p.getID().hashCode());
 						peers.remove(p);
 					}
 				}

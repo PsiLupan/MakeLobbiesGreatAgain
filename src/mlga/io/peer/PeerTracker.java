@@ -27,7 +27,7 @@ public class PeerTracker {
 	private String uid = null;
 	private boolean active = false;
 	private final Kindred kindred;
-	
+
 	/**
 	 * Creates a PeerTracker, which instantly loads the Peer List into memory.  <br>
 	 * Calling {@link #start()} will launch the passive listening component, which
@@ -36,7 +36,7 @@ public class PeerTracker {
 	public PeerTracker(){
 		//Initialize Kindred System.
 		this.kindred = new Kindred();
-		
+
 		// PeerSavers create emergency backups, so loop to check primary file, then attempt fallback if needed.
 		for(int i = 0; i < 2; i++){
 			try {
@@ -85,7 +85,9 @@ public class PeerTracker {
 							try{
 								// Intentionally hang if we located a Peer to save, to allow any other Peers to batch updates together.
 								Thread.sleep(10);
-							}catch(Exception e){e.printStackTrace();}
+							}catch(Exception e){
+								e.printStackTrace();
+							}
 							savePeers();
 							break;
 						}
@@ -95,6 +97,7 @@ public class PeerTracker {
 						Thread.sleep(100);
 					}
 					catch(Exception e){
+						e.printStackTrace();
 					}
 				}
 			}
@@ -124,7 +127,7 @@ public class PeerTracker {
 			}
 		}
 	}
-	
+
 	/**
 	 * Deduplicate list of Peers by combining values from matching UIDs. <br>
 	 * For UI purposes, it is potentially important that existing IOPeers within the list exist for the current runtime.
@@ -155,12 +158,14 @@ public class PeerTracker {
 	 */
 	public void checkLogs(){
 		for(File f : dbdLogDir.listFiles()){
-			if(f.isDirectory())
-				continue;
-			if(!f.getName().endsWith(".log"))
-				continue;
-			System.out.println(f.getName());
-			processLog(f);
+			if(f != null){
+				if(f.isDirectory())
+					continue;
+				if(!f.getName().endsWith(".log"))
+					continue;
+				System.out.println(f.getName());
+				processLog(f);
+			}
 		}
 		System.out.println("Identified "+peers.size()+" unique user/ip combos!");
 		active = false;
