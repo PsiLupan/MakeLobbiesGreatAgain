@@ -44,16 +44,15 @@ public class PeerTracker implements Runnable{
 				while(ps.hasNext())
 					peers.add(ps.next());
 				System.out.println("Loaded "+peers.size()+" tracked users!");
-				if(i != 0){
-					// If we had to check a backup, re-save the backup as the primary instantly.
+				
+				if(i != 0) // If we had to check a backup, re-save the backup as the primary instantly.
 					savePeers();
-				}
+				
 				break;
 			} catch (Exception e) {
 				e.printStackTrace();
-				if(i == 0){
+				if(i == 0)
 					System.err.println("No Peers file located! Checking backups!");
-				}
 			}
 		}
 	}
@@ -123,9 +122,8 @@ public class PeerTracker implements Runnable{
 				peers.add(p);
 			}
 			// Make a backup (just in case), then delete the Legacy file.
-			if(FileUtil.saveFile(Preferences.prefsFile, "legacy", 0)){
+			if(FileUtil.saveFile(Preferences.prefsFile, "legacy", 0))
 				Preferences.prefsFile.delete();
-			}
 		}
 	}
 
@@ -211,14 +209,14 @@ public class PeerTracker implements Runnable{
 			if(p.hasIP(ip))
 				ret = p;
 		}
-		if(ret==null){
+		if(ret == null){
 			ret = new IOPeer();
 			ret.addIP(ip);
 			peers.add(ret);
 		}
-		if(!ret.hasUID()){
+		if(!ret.hasUID())
 			kindred.updatePeer(ret);
-		}
+		
 		return ret;
 	}
 
@@ -234,12 +232,11 @@ public class PeerTracker implements Runnable{
 			while((l = br.readLine()) != null){
 				l = l.trim().toLowerCase();
 
-				if(l.contains("connectionactive: 1")){
+				if(l.contains("connectionactive: 1"))
 					active = true;
-				}
-				if(l.contains("connectionactive: 0")){
+				else if(l.contains("connectionactive: 0"))
 					active = false;
-				}
+				
 				if(!active){
 					uid = null;
 					continue;
@@ -262,7 +259,8 @@ public class PeerTracker implements Runnable{
 									+ "Please submit an issue with %LocalAppData%/DeadByDaylight/saved/logs/" + f.getName() + " attached.");
 						}
 						ip = addrSplit[1].trim();
-						if(ip.contains(":"))ip = ip.substring(0, ip.indexOf(":"));
+						if(ip.contains(":"))
+							ip = ip.substring(0, ip.indexOf(":"));
 						Inet4Address ina = null;
 						try {
 							ina = (Inet4Address) Inet4Address.getByName(ip);
