@@ -254,9 +254,10 @@ public class PeerTracker implements Runnable{
 					String ip = "";
 					if(uid != null && active){
 						String[] addrSplit = l.split("address:");
-						if(addrSplit.length < 2){ //Should technically address this by looking at a log causing it, but this is for debugging
-							throw new IOException("ArrayOutOfBounds from incorrect log parsing. "
-									+ "Please submit an issue with %LocalAppData%/DeadByDaylight/saved/logs/" + f.getName() + " attached.");
+						if(addrSplit.length < 2){ //This is caused by log files that end abruptly, such as a crash
+							uid = null;
+							active = false;
+							continue;
 						}
 						ip = addrSplit[1].trim();
 						if(ip.contains(":"))
