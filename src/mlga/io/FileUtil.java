@@ -22,10 +22,10 @@ public class FileUtil {
 	public static String getMlgaPath(){
 		String f = Settings.get("base_dir", null);
 		if(f == null){
-			f = new File(System.getenv("APPDATA")+"/MLGA/").getAbsolutePath();
+			f = new File(System.getenv("APPDATA") + "/MLGA/").getAbsolutePath();
 			Settings.set("base_dir", f);
 		}
-		return (f.endsWith("/")?f:(f+"/"));
+		return (f.endsWith("/") ? f : (f + "/"));
 	}
 	
 	
@@ -39,18 +39,17 @@ public class FileUtil {
 	public static boolean saveFile(File f, File backup_dir, int max_extra_copies){
 		if(!backup_dir.exists()){
 			backup_dir.mkdirs();
-			System.out.println("Built backup directory: "+backup_dir.getAbsolutePath());
+			System.out.println("Built backup directory: " + backup_dir.getAbsolutePath());
 		}
 		
-		if(!f.exists() ){
+		if(!f.exists()){
 			return false;
 		}
 		
-		System.out.println("Saving: "+f);
-		File copy = new File(backup_dir.getAbsolutePath()+"/"+f.getName());
-		if(!copy.getParentFile().exists()){
+		System.out.println("Saving: " + f);
+		File copy = new File(backup_dir.getAbsolutePath() + "/" + f.getName());
+		if(!copy.getParentFile().exists())
 			copy.getParentFile().mkdirs();
-		}
 		
 		System.out.println(copy);
 		if(copy.exists()){
@@ -97,14 +96,14 @@ public class FileUtil {
 	 * @return True if the save works.
 	 */
 	public static boolean saveFile(File f, String subdirs, int max_extra_copies) {
-		return saveFile(f, new File(getMlgaPath()+subdirs+"/"), max_extra_copies);
+		return saveFile(f, new File(getMlgaPath() + subdirs + "/"), max_extra_copies);
 	}
 	
 	/** Get a File object representing version <i>version</i> of the given File <i>f</i>.<br>
 	 * It is crucial (for ease of tracking) that all backup files follow the same naming conventions.<br>
 	 * This function exists to enforce those conventions. */
 	public static File getSaveName(File f, int version){
-		return new File(f.getParentFile().getAbsolutePath()+"/"+(version != 0 ? version+" - ":"")+f.getName());
+		return new File(f.getParentFile().getAbsolutePath() + "/" + (version != 0 ? version+" - ":"") + f.getName());
 	}
 	
 	/**
@@ -114,10 +113,10 @@ public class FileUtil {
 	 * @return Null if File cannot be found, otherwise the resource's Stream.
 	 */
 	public static InputStream localResource(String resourceName){
-		if(ClassLoader.getSystemClassLoader().getResourceAsStream("resources/"+resourceName) != null){
-			return ClassLoader.getSystemClassLoader().getResourceAsStream("resources/"+resourceName);
+		if(ClassLoader.getSystemClassLoader().getResourceAsStream("resources/" + resourceName) != null){
+			return ClassLoader.getSystemClassLoader().getResourceAsStream("resources/" + resourceName);
 		}else{
-			return ClassLoader.getSystemClassLoader().getResourceAsStream("src/resources/"+resourceName);
+			return ClassLoader.getSystemClassLoader().getResourceAsStream("src/resources/" + resourceName);
 		}
 	}
 
