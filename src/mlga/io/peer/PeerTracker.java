@@ -19,7 +19,7 @@ import mlga.io.peer.kindred.Kindred;
  * @author ShadowMoose
  *
  */
-public class PeerTracker {
+public class PeerTracker implements Runnable{
 	private File dbdLogDir = new File(new File(System.getenv("APPDATA")).getParentFile().getAbsolutePath()+"/Local/DeadByDaylight/Saved/Logs/");
 	private static File peerFile = new File(FileUtil.getMlgaPath()+"peers.mlga");
 	private static CopyOnWriteArrayList<IOPeer> peers = new CopyOnWriteArrayList<IOPeer>();
@@ -77,33 +77,34 @@ public class PeerTracker {
 
 		// Adding a listener to each Peer, or a clever callback, might be better.
 		//    + Though, this method does cut down on file writes during times of many updates.
-		Thread t = new Thread("IOPeerSaver"){
-			public void run(){
-				while(true){
-					for(IOPeer p : peers){
-						if(!p.saved){
-							try{
-								// Intentionally hang if we located a Peer to save, to allow any other Peers to batch updates together.
-								Thread.sleep(10);
-							}catch(Exception e){
-								e.printStackTrace();
-							}
-							savePeers();
-							break;
-						}
-					}
-					// Wait 100ms before rechecking Peers for changes.
-					try{
-						Thread.sleep(100);
-					}
-					catch(Exception e){
-						e.printStackTrace();
-					}
-				}
-			}
-		};
+		Thread t = new Thread(this, "IOPeerSaver");
 		t.setDaemon(true);
 		t.start();
+	}
+
+	@Override
+	public void run() {
+		while(true){
+			for(IOPeer p : peers){
+				if(!p.saved){
+					try{
+						// Intentionally hang if we located a Peer to save, to allow any other Peers to batch updates together.
+						Thread.sleep(10);
+					}catch(Exception e){
+						e.printStackTrace();
+					}
+					savePeers();
+					break;
+				}
+			}
+			// Wait 100ms before rechecking Peers for changes.
+			try{
+				Thread.sleep(100);
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/**
@@ -255,6 +256,10 @@ public class PeerTracker {
 				if(l.contains("-- ipaddress:")){
 					String ip = "";
 					if(uid != null && active){
+						if(l.length() < 2){ //Should technically address this by looking at a log causing it, but this is for debugging
+							System.out.println(l);
+							continue;
+						}
 						ip = l.split("address:")[1].trim();
 						if(ip.contains(":"))ip = ip.substring(0, ip.indexOf(":"));
 						Inet4Address ina = null;
