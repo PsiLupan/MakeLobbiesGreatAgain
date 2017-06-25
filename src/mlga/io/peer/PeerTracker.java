@@ -256,10 +256,12 @@ public class PeerTracker implements Runnable{
 				if(l.contains("-- ipaddress:")){
 					String ip = "";
 					if(uid != null && active){
-						if(l.length() < 2){ //Should technically address this by looking at a log causing it, but this is for debugging
-							throw new IOException("ArrayOutOfBounds from incorrect log parsing. Please submit an issue with " + f.getName() + " attached.");
+						String[] addrSplit = l.split("address:");
+						if(addrSplit.length < 2){ //Should technically address this by looking at a log causing it, but this is for debugging
+							throw new IOException("ArrayOutOfBounds from incorrect log parsing. "
+									+ "Please submit an issue with %LocalAppData%/DeadByDaylight/saved/logs/" + f.getName() + " attached.");
 						}
-						ip = l.split("address:")[1].trim();
+						ip = addrSplit[1].trim();
 						if(ip.contains(":"))ip = ip.substring(0, ip.indexOf(":"));
 						Inet4Address ina = null;
 						try {
