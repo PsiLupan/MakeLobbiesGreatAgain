@@ -31,7 +31,7 @@ import mlga.ui.LoginPanel;
 public class Kindred {
 	private final String KINDRED_VERSION = "1";
 	private final String submit_peer_url = "https://mlga.rofl.wtf/submit_report.php";
-	private final String lookup_peer_url = " https://mlga.rofl.wtf/check_ip.php";
+	private final String lookup_peer_url = "https://mlga.rofl.wtf/check_ip.php";
 	
 	private String token = null;
 	private JsonArray queue = new JsonArray();
