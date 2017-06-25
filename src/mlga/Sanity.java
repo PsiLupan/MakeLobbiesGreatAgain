@@ -19,10 +19,9 @@ public class Sanity {
 	public static boolean check(){
 		boolean[] checks = {checkGraphics(), checkUpdate(), checkJava(), checkPCap()};
 
-		for(boolean e : checks){
-			if(!e){
+		for(boolean check : checks){
+			if(!check)
 				return false;
-			}
 		}
 		return true;
 	}
@@ -40,10 +39,10 @@ public class Sanity {
 	/** Check the current Java Version. */
 	private static boolean checkJava(){
 		String v = System.getProperty("java.version");
-		System.out.println("Java Version: "+v);
+		System.out.println("Java Version: " + v);
 		double version = Double.parseDouble(v.substring(0, v.indexOf('.', 2)));
 		if(version < 1.8){
-			message("Java version 1.8 or higher is required!\nYou are currently using "+version+"!\n");
+			message("Java version 1.8 or higher is required!\nYou are currently using " + version + "!\n");
 			return false;
 		}
 		return true;
@@ -56,7 +55,7 @@ public class Sanity {
 		}catch(Error e){
 			e.printStackTrace();
 			message("You MUST have NPCap or WinPCap installed to allow this program to monitor the lobby!"
-					+(Desktop.isDesktopSupported()?"\nAn installer link will attempt to open...":"Please go to https://www.winpcap.org/ and install it."));
+					+(Desktop.isDesktopSupported()?"\nAn installer link will attempt to open.":"Please go to https://www.winpcap.org/ and install it."));
 			if(Desktop.isDesktopSupported()){
 				try {
 					Desktop.getDesktop().browse(new URL("https://nmap.org/npcap/").toURI());
@@ -81,8 +80,7 @@ public class Sanity {
 
 	private static void message(String out){
 		System.err.println(out);
-		if(!headless){
+		if(!headless)
 			JOptionPane.showMessageDialog(null, out, "Error", JOptionPane.ERROR_MESSAGE);
-		}
 	}
 }
