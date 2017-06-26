@@ -117,7 +117,7 @@ public class LoginPanel extends JFrame{
 		URL url = null;
 		Image im = null;
 		try {
-			url = new URL(base+"logo.png");
+			url = new URL(base + "logo.png");
 			im = ImageIO.read(url);
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -142,7 +142,7 @@ public class LoginPanel extends JFrame{
 					e.printStackTrace();
 				}
 				String c = JOptionPane.showInputDialog(LoginPanel.this, "Enter the code you've been given: ");
-				if(c!=null){
+				if(c != null){
 					LoginPanel.this.code = c;
 					LoginPanel.this.dispose();
 				}

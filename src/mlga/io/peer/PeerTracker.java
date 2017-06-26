@@ -19,7 +19,7 @@ import mlga.io.peer.kindred.Kindred;
  * @author ShadowMoose
  *
  */
-public class PeerTracker {
+public class PeerTracker implements Runnable{
 	private File dbdLogDir = new File(new File(System.getenv("APPDATA")).getParentFile().getAbsolutePath()+"/Local/DeadByDaylight/Saved/Logs/");
 	private static File peerFile = new File(FileUtil.getMlgaPath()+"peers.mlga");
 	private static CopyOnWriteArrayList<IOPeer> peers = new CopyOnWriteArrayList<IOPeer>();
@@ -27,7 +27,7 @@ public class PeerTracker {
 	private String uid = null;
 	private boolean active = false;
 	private final Kindred kindred;
-	
+
 	/**
 	 * Creates a PeerTracker, which instantly loads the Peer List into memory.  <br>
 	 * Calling {@link #start()} will launch the passive listening component, which
@@ -36,7 +36,7 @@ public class PeerTracker {
 	public PeerTracker(){
 		//Initialize Kindred System.
 		this.kindred = new Kindred();
-		
+
 		// PeerSavers create emergency backups, so loop to check primary file, then attempt fallback if needed.
 		for(int i = 0; i < 2; i++){
 			try {
@@ -44,16 +44,15 @@ public class PeerTracker {
 				while(ps.hasNext())
 					peers.add(ps.next());
 				System.out.println("Loaded "+peers.size()+" tracked users!");
-				if(i != 0){
-					// If we had to check a backup, re-save the backup as the primary instantly.
+				
+				if(i != 0) // If we had to check a backup, re-save the backup as the primary instantly.
 					savePeers();
-				}
+				
 				break;
 			} catch (Exception e) {
 				e.printStackTrace();
-				if(i == 0){
+				if(i == 0)
 					System.err.println("No Peers file located! Checking backups!");
-				}
 			}
 		}
 	}
@@ -77,30 +76,34 @@ public class PeerTracker {
 
 		// Adding a listener to each Peer, or a clever callback, might be better.
 		//    + Though, this method does cut down on file writes during times of many updates.
-		Thread t = new Thread("IOPeerSaver"){
-			public void run(){
-				while(true){
-					for(IOPeer p : peers){
-						if(!p.saved){
-							try{
-								// Intentionally hang if we located a Peer to save, to allow any other Peers to batch updates together.
-								Thread.sleep(10);
-							}catch(Exception e){e.printStackTrace();}
-							savePeers();
-							break;
-						}
-					}
-					// Wait 100ms before rechecking Peers for changes.
-					try{
-						Thread.sleep(100);
-					}
-					catch(Exception e){
-					}
-				}
-			}
-		};
+		Thread t = new Thread(this, "IOPeerSaver");
 		t.setDaemon(true);
 		t.start();
+	}
+
+	@Override
+	public void run() {
+		while(true){
+			for(IOPeer p : peers){
+				if(!p.saved){
+					try{
+						// Intentionally hang if we located a Peer to save, to allow any other Peers to batch updates together.
+						Thread.sleep(10);
+					}catch(Exception e){
+						e.printStackTrace();
+					}
+					savePeers();
+					break;
+				}
+			}
+			// Wait 100ms before rechecking Peers for changes.
+			try{
+				Thread.sleep(100);
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/**
@@ -119,12 +122,11 @@ public class PeerTracker {
 				peers.add(p);
 			}
 			// Make a backup (just in case), then delete the Legacy file.
-			if(FileUtil.saveFile(Preferences.prefsFile, "legacy", 0)){
+			if(FileUtil.saveFile(Preferences.prefsFile, "legacy", 0))
 				Preferences.prefsFile.delete();
-			}
 		}
 	}
-	
+
 	/**
 	 * Deduplicate list of Peers by combining values from matching UIDs. <br>
 	 * For UI purposes, it is potentially important that existing IOPeers within the list exist for the current runtime.
@@ -155,12 +157,14 @@ public class PeerTracker {
 	 */
 	public void checkLogs(){
 		for(File f : dbdLogDir.listFiles()){
-			if(f.isDirectory())
-				continue;
-			if(!f.getName().endsWith(".log"))
-				continue;
-			System.out.println(f.getName());
-			processLog(f);
+			if(f != null){
+				if(f.isDirectory())
+					continue;
+				if(!f.getName().endsWith(".log"))
+					continue;
+				System.out.println(f.getName());
+				processLog(f);
+			}
 		}
 		System.out.println("Identified "+peers.size()+" unique user/ip combos!");
 		active = false;
@@ -205,14 +209,14 @@ public class PeerTracker {
 			if(p.hasIP(ip))
 				ret = p;
 		}
-		if(ret==null){
+		if(ret == null){
 			ret = new IOPeer();
 			ret.addIP(ip);
 			peers.add(ret);
 		}
-		if(!ret.hasUID()){
+		if(!ret.hasUID())
 			kindred.updatePeer(ret);
-		}
+		
 		return ret;
 	}
 
@@ -228,12 +232,11 @@ public class PeerTracker {
 			while((l = br.readLine()) != null){
 				l = l.trim().toLowerCase();
 
-				if(l.contains("connectionactive: 1")){
+				if(l.contains("connectionactive: 1"))
 					active = true;
-				}
-				if(l.contains("connectionactive: 0")){
+				else if(l.contains("connectionactive: 0"))
 					active = false;
-				}
+				
 				if(!active){
 					uid = null;
 					continue;
@@ -250,8 +253,15 @@ public class PeerTracker {
 				if(l.contains("-- ipaddress:")){
 					String ip = "";
 					if(uid != null && active){
-						ip = l.split("address:")[1].trim();
-						if(ip.contains(":"))ip = ip.substring(0, ip.indexOf(":"));
+						String[] addrSplit = l.split("address:");
+						if(addrSplit.length < 2){ //This is caused by log files that end abruptly, such as a crash
+							uid = null;
+							active = false;
+							continue;
+						}
+						ip = addrSplit[1].trim();
+						if(ip.contains(":"))
+							ip = ip.substring(0, ip.indexOf(":"));
 						Inet4Address ina = null;
 						try {
 							ina = (Inet4Address) Inet4Address.getByName(ip);

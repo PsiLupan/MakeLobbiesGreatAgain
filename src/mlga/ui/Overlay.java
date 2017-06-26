@@ -62,9 +62,9 @@ public class Overlay extends JPanel {
 			public void mouseClicked(MouseEvent e){
 				if(!SwingUtilities.isRightMouseButton(e)){
 					if(e.isShiftDown()){
-						if(idx < 0 || idx >= peers.size() || peers.isEmpty() || e.getX() < 0 || e.getY() < 0){
+						if(idx < 0 || idx >= peers.size() || peers.isEmpty() || e.getX() < 0 || e.getY() < 0)
 							return;
-						}
+
 						Peer p = peers.get(idx);
 						if(!p.saved()){
 							p.rate(true);
@@ -101,9 +101,8 @@ public class Overlay extends JPanel {
 		frame.addMouseMotionListener(new MouseMotionListener(){
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				if(frameMove){
+				if(frameMove)
 					frame.setLocation(e.getXOnScreen() - (getPreferredSize().width / 2), e.getYOnScreen() - 6);
-				}
 			}
 
 			@Override
@@ -122,8 +121,8 @@ public class Overlay extends JPanel {
 			@Override
 			public void run(){
 				for (Peer p : peers){
-					if(p.age() >= 3500){
-						Boot.active.remove(p.getID());
+					if(p.age() >= 5000){
+						Boot.active.remove(p.getID().hashCode());
 						peers.remove(p);
 					}
 				}
@@ -175,17 +174,15 @@ public class Overlay extends JPanel {
 
 	public void removePeer(Inet4Address i){
 		Peer p = this.getPeer(i);
-		if(p != null){
+		if(p != null)
 			peers.remove(p);
-		}
 	}
 
 	/** Finds a Peer connection by its ID. */
 	private Peer getPeer(Inet4Address id){
 		for(Peer p : peers){
-			if(p.getID().equals(id)){
+			if(p.getID().equals(id))
 				return p;
-			}
 		}
 		return null;
 	}
@@ -235,9 +232,9 @@ public class Overlay extends JPanel {
 				}
 
 				String render = "Ping: "+ rtt;
-				if(p.saved()){
+				if(p.saved())
 					render = (p.blocked() ? "BLOCKED: ":"LOVED: ") + rtt;
-				}
+				
 				g.drawString(render, 1, fh*(i+1));
 				++i;
 			}

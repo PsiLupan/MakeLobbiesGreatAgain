@@ -77,7 +77,7 @@ public class Boot {
 		final PromiscuousMode mode = PromiscuousMode.NONPROMISCUOUS;
 		final int timeout = 0;
 		handle = nif.openLive(snapLen, mode, timeout);
-		handle.setFilter("udp && !(len >= 150)", BpfProgram.BpfCompileMode.OPTIMIZE);
+		handle.setFilter("udp && less 150", BpfProgram.BpfCompileMode.OPTIMIZE);
 
 		if(Backup.enabled()){
 			Backup.startBackupDaemon();
@@ -146,16 +146,14 @@ public class Boot {
 		tray.add(trayIcon);
 	}
 
-	public static void getLocalAddr() throws InterruptedException, PcapNativeException, UnknownHostException, SocketException{
+	public static void getLocalAddr() throws InterruptedException, PcapNativeException, UnknownHostException, SocketException, 
+	ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
 		if(Settings.getDouble("autoload", 0) == 1){
 			addr = InetAddress.getByName(Settings.get("addr", ""));
 			return;
 		}
-		try{
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		}catch(Exception e){
-			e.printStackTrace();
-		}
+		
+		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		final JFrame frame = new JFrame("Network Device");
 		frame.setFocusableWindowState(true);
 
@@ -218,8 +216,7 @@ public class Boot {
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		while(frame.isVisible()){
+		while(frame.isVisible())
 			Thread.sleep(10);
-		}
 	}
 }

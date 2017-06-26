@@ -25,9 +25,8 @@ import java.nio.file.WatchService;
  * 
  * @author ShadowMoose
  */
-public class DirectoryWatcher {
+public class DirectoryWatcher implements Runnable{
 	private final File dir;
-	private final Thread thread;
 	private final boolean spider;
 
 	/**
@@ -62,13 +61,14 @@ public class DirectoryWatcher {
 	public DirectoryWatcher(File dir, boolean spider) {
 		this.dir = dir;
 		this.spider = spider;
-		this.thread = new Thread("FileWatcher-" + dir.getAbsolutePath() + "-" + Math.random()) {
-			public void run() {
-				watchDirectoryPath();
-			}
-		};
-		this.thread.setDaemon(true);
-		this.thread.start();
+		Thread thread = new Thread(this, "FileWatcher-" + dir.getAbsolutePath() + "-" + Math.random());
+		thread.setDaemon(true);
+		thread.start();
+	}
+	
+	@Override
+	public void run() {
+		watchDirectoryPath();
 	}
 
 	/**
