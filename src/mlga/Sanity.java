@@ -10,10 +10,8 @@ import javax.swing.JOptionPane;
 
 import org.pcap4j.core.Pcaps;
 
-import mlga.ui.GithubPanel;
-
 public class Sanity {
-	private final static Double version = 1.39;
+	private final static Double version = 1.00;
 	private static boolean headless = false;
 
 	public static boolean check(){
@@ -70,11 +68,7 @@ public class Sanity {
 	}
 
 	public static boolean checkUpdate(){
-		GithubPanel mp = new GithubPanel(version);
-		if(!mp.prompt()){
-			message("At least one update located is mandatory!\nSome updates can be very important for functionality and your security.\nPlease update MLGA before running!");
-			return false;
-		}
+		System.out.println("MLGA Stripped Version: "+version);
 		return true;
 	}
 

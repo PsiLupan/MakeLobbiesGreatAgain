@@ -33,8 +33,7 @@ public class Overlay extends JPanel {
 
 	private CopyOnWriteArrayList<Peer> peers = new CopyOnWriteArrayList<Peer>();
 	private Font roboto;
-	/** idx & fh are updated by listener and rendering events. <br>They track hovered index and font height.*/
-	private int idx = -1, fh = 0;
+	private int fh = 0;
 	
 	private final JWindow frame;
 	
@@ -102,7 +101,7 @@ public class Overlay extends JPanel {
 			@Override
 			public void run(){
 				for (Peer p : peers){
-					if(p.age() >= 5000){
+					if(p.age() >= 2500){
 						Boot.active.remove(p.getID().hashCode());
 						peers.remove(p);
 					}
@@ -174,7 +173,7 @@ public class Overlay extends JPanel {
 	}
 	@Override
 	public Dimension getPreferredSize() {
-		return new Dimension(110, 100);
+		return new Dimension(90, 100);
 	}
 
 	@Override
@@ -199,10 +198,6 @@ public class Overlay extends JPanel {
 		if(!peers.isEmpty()){
 			short i = 0;
 			for(Peer p : peers){
-				if(idx == i){
-					g.setColor(new Color(0f,0f,0f));
-					g.fillRect(1, fh*i+1, getPreferredSize().width, fh+1);//Pronounce hovered Peer.
-				}
 				long rtt = p.getPing();
 				if(rtt <= 140){
 					g.setColor(Color.GREEN);
