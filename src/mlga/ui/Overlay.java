@@ -25,7 +25,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 import mlga.Boot;
 import mlga.io.FileUtil;
 import mlga.io.Settings;
-import mlga.io.peer.PeerTracker;
 
 public class Overlay extends JPanel {
 	private static final long serialVersionUID = -470849574354121503L;
@@ -37,13 +36,9 @@ public class Overlay extends JPanel {
 	/** idx & fh are updated by listener and rendering events. <br>They track hovered index and font height.*/
 	private int idx = -1, fh = 0;
 	
-	private final PeerTracker peerTracker;
-	
 	private final JWindow frame;
 	
 	public Overlay() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, FontFormatException, IOException{
-		peerTracker = new PeerTracker();
-		peerTracker.start();
 		
 		InputStream is = FileUtil.localResource("Roboto-Medium.ttf");
 		roboto = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(15f);
@@ -61,19 +56,7 @@ public class Overlay extends JPanel {
 			@Override
 			public void mouseClicked(MouseEvent e){
 				if(!SwingUtilities.isRightMouseButton(e)){
-					if(e.isShiftDown()){
-						if(idx < 0 || idx >= peers.size() || peers.isEmpty() || e.getX() < 0 || e.getY() < 0)
-							return;
-
-						Peer p = peers.get(idx);
-						if(!p.saved()){
-							p.rate(true);
-						}else if(p.blocked()){
-							p.rate(false);
-						}else{
-							p.unsave();
-						}
-					}else if (e.getClickCount() >= 2){
+					if (e.getClickCount() >= 2){
 						frameMove = !frameMove;
 						Settings.set("frame_x", frame.getLocationOnScreen().x);
 						Settings.set("frame_y", frame.getLocationOnScreen().y);
@@ -87,7 +70,6 @@ public class Overlay extends JPanel {
 
 			@Override
 			public void mouseExited(MouseEvent e) {
-				idx = -1;
 			}
 
 			@Override
@@ -107,7 +89,6 @@ public class Overlay extends JPanel {
 
 			@Override
 			public void mouseMoved(MouseEvent e) {
-				idx = Math.min(peers.size() - 1, (int) Math.floor(e.getY() / (fh)));
 			}
 
 		});
@@ -151,7 +132,7 @@ public class Overlay extends JPanel {
 	}
 
 	private void addPeer(Inet4Address addr, long rtt){
-		peers.add(new Peer(addr, rtt, peerTracker.getPeer(addr)));
+		peers.add(new Peer(addr, rtt));
 	}
 
 	/** Sets a peer's ping, or creates their object. */
@@ -231,10 +212,7 @@ public class Overlay extends JPanel {
 					g.setColor(Color.RED);
 				}
 
-				String render = "Ping: "+ rtt;
-				if(p.saved())
-					render = (p.blocked() ? "BLOCKED: ":"LOVED: ") + rtt;
-				
+				String render = "Ping: "+ rtt;				
 				g.drawString(render, 1, fh*(i+1));
 				++i;
 			}
