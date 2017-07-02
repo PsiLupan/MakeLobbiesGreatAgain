@@ -53,7 +53,7 @@ public class IOPeer implements Serializable{
 	 * Due to the nature of saving/loading, the UID will <b> not likely be null. </b> Use this check instead.
 	 */
 	public boolean hasUID(){
-		return (this.uid!=null && !this.uid.equals(""));
+		return (this.uid != null && !this.uid.equals("") && this.uid.length() > 16);
 	}
 	
 	/** Adds the given IP to this list.  <br>
@@ -110,7 +110,7 @@ public class IOPeer implements Serializable{
 	 */
 	public void copyTo(IOPeer p){
 		p.ips.addAllAbsent(this.ips);
-		if(this.getStatus()!=Status.UNRATED){
+		if(this.getStatus() != Status.UNRATED){
 			p.setStatus(this.getStatus());
 		}
 		p.saved = false;
