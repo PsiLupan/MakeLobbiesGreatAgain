@@ -245,6 +245,9 @@ public class PeerTracker implements Runnable{
 					try{
 						uid = l.substring(l.lastIndexOf('[')+1);
 						uid = uid.substring(0, uid.indexOf(']'));
+						if(uid.length() < 17){
+							throw new IndexOutOfBoundsException();
+						}
 					}catch(IndexOutOfBoundsException e){
 						uid = null;
 						System.err.println("Error parsing line: "+l);

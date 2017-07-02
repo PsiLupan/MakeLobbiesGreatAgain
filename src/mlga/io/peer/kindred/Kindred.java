@@ -88,8 +88,10 @@ public class Kindred {
 		iop.setUID(re.get("uid").getAsString());
 		JsonArray rarr = re.getAsJsonArray("known_ips");
 		for(int x = 0; x < rarr.size(); x++){
-			int ip = rarr.get(x).getAsInt();
-			iop.addPrehashedIP(ip);
+			if(rarr.get(x).getAsString().length() > 16){
+				int ip = rarr.get(x).getAsInt();
+				iop.addPrehashedIP(ip);
+			}
 		}
 	}
 	
