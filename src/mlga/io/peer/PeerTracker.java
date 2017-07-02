@@ -70,7 +70,7 @@ public class PeerTracker implements Runnable{
 					return;
 				if(!f.getName().endsWith(".log"))
 					return;
-				processLog(f);
+				processLog(f, true);
 			}
 		};
 
@@ -163,7 +163,7 @@ public class PeerTracker implements Runnable{
 				if(!f.getName().endsWith(".log"))
 					continue;
 				System.out.println(f.getName());
-				processLog(f);
+				processLog(f, false);
 			}
 		}
 		System.out.println("Identified "+peers.size()+" unique user/ip combos!");
@@ -225,8 +225,10 @@ public class PeerTracker implements Runnable{
 	 * and adding them to the IOPeer list or updating existing IOPeers where missing info is found.
 	 * 
 	 * @param f The file to process.
+	 * @param newFile If this file is new data, in a recently-created file.
 	 */
-	private void processLog(File f){
+	private void processLog(File f, final boolean newFile){
+		String lastID = "";
 		try (BufferedReader br = new BufferedReader(new FileReader(f))){
 			String l;
 			while((l = br.readLine()) != null){
@@ -284,7 +286,10 @@ public class PeerTracker implements Runnable{
 										iop.addIP(ina);
 									}
 									matched = true;
-									kindred.addPeer(iop);
+									if(newFile && !lastID.equals(iop.getUID())){
+										lastID = iop.getUID();
+										kindred.addPeer(iop);
+									}
 								}
 							}
 							if(!matched){
@@ -293,6 +298,7 @@ public class PeerTracker implements Runnable{
 								p.addIP(ina);
 								peers.add(p);
 								kindred.addPeer(p);
+								lastID = p.getUID();
 							}
 						} catch (UnknownHostException e) {
 							e.printStackTrace();
