@@ -273,24 +273,24 @@ public class PeerTracker implements Runnable{
 								active = false;
 								continue;
 							}
-							IOPeer p = new IOPeer();
-							p.setUID(uid);
-							p.addIP(ina);
+							
 							boolean matched = false;
 							for(IOPeer iop : peers){
 								if(uid.equals(iop.getUID()) || iop.hasIP(ina)){
 									if(!iop.hasUID()){
 										iop.setUID(uid);
-										kindred.addPeer(iop);
 									}
 									if(!iop.hasIP(ina)){
 										iop.addIP(ina);
-										kindred.addPeer(iop);
 									}
 									matched = true;
+									kindred.addPeer(iop);
 								}
 							}
 							if(!matched){
+								IOPeer p = new IOPeer();
+								p.setUID(uid);
+								p.addIP(ina);
 								peers.add(p);
 								kindred.addPeer(p);
 							}

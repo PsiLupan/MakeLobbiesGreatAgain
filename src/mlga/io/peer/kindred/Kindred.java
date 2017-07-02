@@ -96,8 +96,7 @@ public class Kindred {
 	}
 	
 	/**
-	 * Adds the IOPeer's details to this Kindred object, and prepares to submit when called.  <br>
-	 * See {@link mlga.io.peer.IOPeer#addToKindred(Kindred)} for more.
+	 * Adds the IOPeer's details to this Kindred object, and prepares to submit when called.
 	 * @param iop The IOPeer to submit to KINDRED.
 	 */
 	public void addPeer(IOPeer iop){
