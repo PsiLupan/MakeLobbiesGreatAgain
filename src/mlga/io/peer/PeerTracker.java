@@ -195,13 +195,7 @@ public class PeerTracker implements Runnable{
 	 * @param ip
 	 */
 	public IOPeer getPeer(Inet4Address ip){
-		IOPeer ret = null;
-		for(IOPeer p : peers){
-			if(p.hasIP(ip)){
-				ret = p;
-				break;
-			}
-		}
+		IOPeer ret = peers.stream().filter(p -> p.hasIP(ip)).findFirst().orElse(null);
 		
 		if(ret == null){
 			ret = new IOPeer();
