@@ -72,10 +72,10 @@ public class PeerSaver {
 		JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));
 		writer.setIndent("");
 		writer.beginArray();
-		for (IOPeer p : peers) {
+		peers.forEach(p -> {
 			gson.toJson(p, IOPeer.class, writer);
 			p.saved = true;
-		}
+		});
 		writer.endArray();
 		writer.close();
 	}

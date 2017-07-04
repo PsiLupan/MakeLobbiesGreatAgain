@@ -7,7 +7,6 @@ import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
-
 import mlga.io.DirectoryWatcher;
 import mlga.io.FileUtil;
 import mlga.io.Preferences;
@@ -44,10 +43,10 @@ public class PeerTracker implements Runnable{
 				while(ps.hasNext())
 					peers.add(ps.next());
 				System.out.println("Loaded "+peers.size()+" tracked users!");
-				
+
 				if(i != 0) // If we had to check a backup, re-save the backup as the primary instantly.
 					savePeers();
-				
+
 				break;
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -68,6 +67,8 @@ public class PeerTracker implements Runnable{
 			public void handle(File f, Event e){
 				if(e == Event.DELETE)
 					return;
+				if(e == Event.CREATE)
+					return;
 				if(!f.getName().endsWith(".log"))
 					return;
 				processLog(f, true);
@@ -84,18 +85,14 @@ public class PeerTracker implements Runnable{
 	@Override
 	public void run() {
 		while(true){
-			for(IOPeer p : peers){
-				if(!p.saved){
-					try{
-						// Intentionally hang if we located a Peer to save, to allow any other Peers to batch updates together.
-						Thread.sleep(10);
-					}catch(Exception e){
-						e.printStackTrace();
-					}
-					savePeers();
-					break;
-				}
-			}
+			peers.stream().filter(p -> !p.saved).forEach(p->{
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} 
+				savePeers();
+			});
 			// Wait 100ms before rechecking Peers for changes.
 			try{
 				Thread.sleep(100);
@@ -113,14 +110,12 @@ public class PeerTracker implements Runnable{
 		if(Preferences.prefsFile.exists()){
 			Preferences.init();
 			// Build IOPeers using Legacy save.
-			for (int key : Preferences.prefs.keySet()) {
-				// A new Peer is built for each IP hash.
-				// If/When they're identified later, the save procedure will combine them automatically.
+			Preferences.prefs.keySet().forEach(key -> {
 				IOPeer p = new IOPeer();
 				p.addPrehashedIP(key);
-				p.setStatus(Preferences.prefs.get(key)?Status.BLOCKED:Status.LOVED);
+				p.setStatus(Preferences.prefs.get(key) ? Status.BLOCKED : Status.LOVED);
 				peers.add(p);
-			}
+			});
 			// Make a backup (just in case), then delete the Legacy file.
 			if(FileUtil.saveFile(Preferences.prefsFile, "legacy", 0))
 				Preferences.prefsFile.delete();
@@ -135,7 +130,7 @@ public class PeerTracker implements Runnable{
 	 */
 	private ArrayList<IOPeer> deduplicate(){
 		ArrayList<IOPeer> unique = new ArrayList<IOPeer>();
-		for(IOPeer p : peers){
+		peers.forEach(p -> {
 			boolean add = true;
 			for(IOPeer u : unique){
 				if(p.hasUID() && p.getUID().equals(u.getUID())){
@@ -148,7 +143,8 @@ public class PeerTracker implements Runnable{
 			}
 			if(add)
 				unique.add(p);
-		}
+		});
+
 		return unique;
 	}
 
@@ -206,17 +202,20 @@ public class PeerTracker implements Runnable{
 	public IOPeer getPeer(Inet4Address ip){
 		IOPeer ret = null;
 		for(IOPeer p : peers){
-			if(p.hasIP(ip))
+			if(p.hasIP(ip)){
 				ret = p;
+				break;
+			}
 		}
-		if(ret == null){
+		
+		if(ret != null){
 			ret = new IOPeer();
 			ret.addIP(ip);
 			peers.add(ret);
 		}
 		if(!ret.hasUID())
 			kindred.updatePeer(ret);
-		
+
 		return ret;
 	}
 
@@ -238,7 +237,7 @@ public class PeerTracker implements Runnable{
 					active = true;
 				else if(l.contains("connectionactive: 0"))
 					active = false;
-				
+
 				if(!active){
 					uid = null;
 					continue;
@@ -275,7 +274,7 @@ public class PeerTracker implements Runnable{
 								active = false;
 								continue;
 							}
-							
+
 							boolean matched = false;
 							for(IOPeer iop : peers){
 								if(uid.equals(iop.getUID()) || iop.hasIP(ina)){
@@ -286,10 +285,11 @@ public class PeerTracker implements Runnable{
 										iop.addIP(ina);
 									}
 									matched = true;
-									if(newFile && !lastID.equals(iop.getUID())){
-										lastID = iop.getUID();
+									if(newFile && !lastID.equals(iop.getUID().trim())){
+										lastID = iop.getUID().trim();
 										kindred.addPeer(iop);
 									}
+									break;
 								}
 							}
 							if(!matched){

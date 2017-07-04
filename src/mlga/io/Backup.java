@@ -52,6 +52,8 @@ public class Backup {
 			public void handle(File f, Event e){
 				if(e == Event.DELETE)
 					return;
+				if(e == Event.CREATE)
+					return;
 				saveFile(f);
 			}
 			

@@ -86,13 +86,9 @@ public class Kindred {
 			return;
 		}
 		iop.setUID(re.get("uid").getAsString());
-		JsonArray rarr = re.getAsJsonArray("known_ips");
-		for(int x = 0; x < rarr.size(); x++){
-			if(rarr.get(x).getAsString().length() > 16){
-				int ip = rarr.get(x).getAsInt();
-				iop.addPrehashedIP(ip);
-			}
-		}
+		re.getAsJsonArray("known_ips").forEach((r) ->{
+			iop.addPrehashedIP(r.getAsInt());;
+		});
 	}
 	
 	/**
@@ -131,7 +127,9 @@ public class Kindred {
 					System.out.println("KINDRED: Submitting data for ~["+Kindred.this.queue.size()+"] Peers...");
 					if(!Kindred.this.post())
 						System.err.println("KINDRED: Error submitting data.");
-				}catch(Exception e){e.printStackTrace();}
+				}catch(Exception e){
+					e.printStackTrace();
+				}
 				Kindred.this.saving = false;
 			}
 		};
