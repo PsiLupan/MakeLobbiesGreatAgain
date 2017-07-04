@@ -67,12 +67,12 @@ public class LoginPanel extends JFrame{
 			JsonElement ele = new JsonParser().parse(new InputStreamReader(is) );
 			is.close();
 			JsonArray arr = ele.getAsJsonArray();
-			for(int i = 0; i < arr.size(); i++){
-				JsonObject obj = arr.get(i).getAsJsonObject();
+			arr.forEach(e -> {
+				JsonObject obj = e.getAsJsonObject();
 				String name = obj.get("name").getAsString();
 				JButton b = build(name, server+name.toLowerCase()+"/", obj.get("description").getAsString());
 				jp.add(b);
-			}
+			});
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -100,7 +100,8 @@ public class LoginPanel extends JFrame{
 				"Kindred - Optional", JOptionPane.INFORMATION_MESSAGE);
 		setVisible(true);
 		try{
-			while(this.isDisplayable())Thread.sleep(200);
+			while(this.isDisplayable())
+				Thread.sleep(200);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
