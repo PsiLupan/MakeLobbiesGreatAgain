@@ -120,12 +120,10 @@ public class Overlay extends JPanel {
 		cleanTime.scheduleAtFixedRate(new TimerTask(){
 			@Override
 			public void run(){
-				for (Peer p : peers){
-					if(p.age() >= 5000){
-						Boot.active.remove(p.getID().hashCode());
-						peers.remove(p);
-					}
-				}
+				peers.stream().filter(p -> p.age() >= 5000).forEach(p ->{
+					Boot.active.remove(p.getID().hashCode());
+					peers.remove(p);
+				});
 			}
 		}, 0, 2500);
 
@@ -180,11 +178,7 @@ public class Overlay extends JPanel {
 
 	/** Finds a Peer connection by its ID. */
 	private Peer getPeer(Inet4Address id){
-		for(Peer p : peers){
-			if(p.getID().equals(id))
-				return p;
-		}
-		return null;
+		return peers.stream().filter(p -> p.getID().equals(id)).findFirst().orElse(null);
 	}
 
 	/** Dispose this Overlay's Window. */
