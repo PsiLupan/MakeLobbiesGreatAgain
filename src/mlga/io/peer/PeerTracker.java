@@ -85,14 +85,9 @@ public class PeerTracker implements Runnable{
 	@Override
 	public void run() {
 		while(true){
-			peers.stream().filter(p -> !p.saved).forEach(p->{
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				} 
+			if(peers.stream().anyMatch(p -> !p.saved)){
 				savePeers();
-			});
+			}
 			// Wait 100ms before rechecking Peers for changes.
 			try{
 				Thread.sleep(100);
@@ -208,7 +203,7 @@ public class PeerTracker implements Runnable{
 			}
 		}
 		
-		if(ret != null){
+		if(ret == null){
 			ret = new IOPeer();
 			ret.addIP(ip);
 			peers.add(ret);
