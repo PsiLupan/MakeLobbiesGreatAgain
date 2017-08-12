@@ -58,6 +58,7 @@ public class Boot {
 	
 	public static void main(String[] args) throws UnsupportedLookAndFeelException, AWTException, ClassNotFoundException, InterruptedException,
 	FontFormatException, InstantiationException, IllegalAccessException, IOException, PcapNativeException, NotOpenException {
+		System.setProperty("jna.nosys","true");
 		if(!Sanity.check()){
 			System.exit(1);
 		}
