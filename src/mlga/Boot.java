@@ -136,7 +136,7 @@ public class Boot {
 				"Shift + Left Click on a player, highlighted in a darker color for current selection, " + 
 				"to toggle to BLOCKED, LOVED, or back to the normal display.";
 				JOptionPane.showMessageDialog(null, message, "Information");
-			});
+			}
 		});
 		exit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
