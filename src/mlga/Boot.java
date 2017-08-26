@@ -135,7 +135,7 @@ public class Boot {
 				String message = "Double-Click to lock/unlock the overlay for dragging\n" + 
 				"Shift + Left Click on a player, highlighted in a darker color for current selection, " + 
 				"to toggle to BLOCKED, LOVED, or back to the normal display.";
-				JOptionPane.showMessageDialog(null, message, "Information");
+				JOptionPane.showMessageDialog(null, message, "Information", JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
 		exit.addActionListener(new ActionListener() {
