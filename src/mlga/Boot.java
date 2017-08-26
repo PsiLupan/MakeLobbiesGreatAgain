@@ -121,6 +121,7 @@ public class Boot {
 		final SystemTray tray = SystemTray.getSystemTray();
 		final PopupMenu popup = new PopupMenu();
 		final MenuItem exit = new MenuItem();
+		final MenuItem info = new InfoItem();
 		final TrayIcon trayIcon = new TrayIcon(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB), "MLGA", popup);
 		try {
 			InputStream is = FileUtil.localResource("icon.png");
@@ -129,7 +130,14 @@ public class Boot {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-		
+		info.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String message = "Double-Click to lock/unlock the overlay for dragging\n" + 
+				"Shift + Left Click on a player, highlighted in a darker color for current selection, " + 
+				"to toggle to BLOCKED, LOVED, or back to the normal display.";
+				JOptionPane.showMessageDialog(null, message, "Information");
+			});
+		});
 		exit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				running = false;
@@ -143,7 +151,9 @@ public class Boot {
 			}
 		});
 		exit.setLabel("Exit");
+		info.setLabel("Help");
 		popup.add(exit);
+		popup.add(info);
 		tray.add(trayIcon);
 	}
 
