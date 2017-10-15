@@ -30,9 +30,9 @@ public class Preferences {
 	public final static File prefsFile = new File("mlga.prefs.ini");
 	public static ConcurrentHashMap<Integer, Boolean> prefs = new ConcurrentHashMap<Integer, Boolean>();
 
-	public static void init(){
-		try{
-			if(!prefsFile.exists()){
+	public static void init() {
+		try {
+			if (!prefsFile.exists()) {
 				return;
 			}
 
@@ -40,30 +40,30 @@ public class Preferences {
 
 			FileInputStream fis = new FileInputStream(prefsFile);
 			CipherInputStream decStream = new CipherInputStream(fis, cipher);
-			try(BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(decStream))){
-				bufferedReader.lines().parallel().filter(line -> !line.contains("=")).forEach((line)-> {
-					prefs.put(Integer.parseInt(line.split("=")[0].trim()), Boolean.valueOf(line.substring(line.indexOf('=')+1).trim()));
+			try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(decStream))) {
+				bufferedReader.lines().parallel().filter(line -> !line.contains("=")).forEach((line) -> {
+					prefs.put(Integer.parseInt(line.split("=")[0].trim()), Boolean.valueOf(line.substring(line.indexOf('=') + 1).trim()));
 				});
 			}
 			decStream.close();
 			fis.close();
-		}catch(IOException ioe){
+		} catch (IOException ioe) {
 			ioe.printStackTrace();
-			JOptionPane.showMessageDialog(null, 
-					"Preferences file was unable to be opened; Cannot convert from legacy Format!", 
+			JOptionPane.showMessageDialog(null,
+					"Preferences file was unable to be opened; Cannot convert from legacy Format!",
 					"Error", JOptionPane.ERROR_MESSAGE);
 			System.exit(1);
-		}catch(NullPointerException npe){
+		} catch (NullPointerException npe) {
 			npe.printStackTrace();
-			JOptionPane.showMessageDialog(null, 
-					"Legacy Error: A null pointer was thrown. This means your device either doesn't have a MAC address somehow or you need to run in Admin Mode.", 
+			JOptionPane.showMessageDialog(null,
+					"Legacy Error: A null pointer was thrown. This means your device either doesn't have a MAC address somehow or you need to run in Admin Mode.",
 					"Error", JOptionPane.ERROR_MESSAGE);
 			System.exit(1);
-		}catch(InvalidKeyException | InvalidKeySpecException | NoSuchAlgorithmException | NoSuchPaddingException e){
+		} catch (InvalidKeyException | InvalidKeySpecException | NoSuchAlgorithmException | NoSuchPaddingException e) {
 			e.printStackTrace();
 			prefsFile.delete();
-			JOptionPane.showMessageDialog(null, 
-					"The existing legacy preference file was corrupted or broken by an update.\nThe former preferences will not be converted.", 
+			JOptionPane.showMessageDialog(null,
+					"The existing legacy preference file was corrupted or broken by an update.\nThe former preferences will not be converted.",
 					"Error", JOptionPane.ERROR_MESSAGE);
 			System.exit(1);
 		}

@@ -22,10 +22,10 @@ import java.nio.file.WatchService;
 /**
  * Generic class for registering with the OS to watch directories for file
  * changes, and passing those events off the simple Java functions.
- * 
+ *
  * @author ShadowMoose
  */
-public class DirectoryWatcher implements Runnable{
+public class DirectoryWatcher implements Runnable {
 	private final File dir;
 	private final boolean spider;
 
@@ -49,14 +49,12 @@ public class DirectoryWatcher implements Runnable{
 	 * created or modified within the directory. <br>
 	 * This watcher runs as a daemon, and will terminate when all other
 	 * non-daemon Threads are complete.
-	 * 
-	 * @param dir
-	 *            - The base directory to watch.
-	 * @param spider
-	 *            - If this Watcher should recursively scan for subdirectories.
-	 *            <br>
-	 *            If true, you <i>must</i> override {@link #followDir(File)} to
-	 *            control which directories are accepted.
+	 *
+	 * @param dir    - The base directory to watch.
+	 * @param spider - If this Watcher should recursively scan for subdirectories.
+	 *               <br>
+	 *               If true, you <i>must</i> override {@link #followDir(File)} to
+	 *               control which directories are accepted.
 	 */
 	public DirectoryWatcher(File dir, boolean spider) {
 		this.dir = dir;
@@ -65,7 +63,7 @@ public class DirectoryWatcher implements Runnable{
 		thread.setDaemon(true);
 		thread.start();
 	}
-	
+
 	@Override
 	public void run() {
 		watchDirectoryPath();
@@ -144,6 +142,7 @@ public class DirectoryWatcher implements Runnable{
 	/**
 	 * To avoid import crazyness, we simply provide our own custom wrapper for
 	 * Kinds, which we convert to here.
+	 *
 	 * @param k The Kind to convert.
 	 */
 	private Event kindToEvent(Kind<?> k) {
@@ -159,12 +158,10 @@ public class DirectoryWatcher implements Runnable{
 	/**
 	 * Called automatically whenever a File is deleted, modified, or created
 	 * within this Watcher's Directory.
-	 * 
-	 * @param f
-	 *            - The File that was added or changed. <b>This file may not
-	 *            exist on a delete.</b>
-	 * @param e
-	 *            - The {@linkplain Event} that triggered this event.
+	 *
+	 * @param f - The File that was added or changed. <b>This file may not
+	 *          exist on a delete.</b>
+	 * @param e - The {@linkplain Event} that triggered this event.
 	 */
 	public void handle(File f, Event e) {
 	}
@@ -175,11 +172,11 @@ public class DirectoryWatcher implements Runnable{
 	 * This method tells the Watcher which File Directories it should be allowed
 	 * to watch. <br>
 	 * This method should be overridden if "spider" is used.
-	 * 
-	 * @param base
-	 *            - A File Directory that the Spider is considering monitoring.
+	 *
+	 * @param base - A File Directory that the Spider is considering monitoring.
+	 *
 	 * @return True if this File should be followed. <br>
-	 *         default false
+	 * default false
 	 */
 	public boolean followDir(File base) {
 		return false;

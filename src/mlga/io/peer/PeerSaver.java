@@ -20,43 +20,50 @@ import mlga.io.FileUtil;
 /**
  * Class for saving lists of IOPeers to JSON format.  <br>
  * Handles output File encryption natively within the class as needed.
- * @author ShadowMoose
  *
+ * @author ShadowMoose
  */
 public class PeerSaver {
 	private final File saveFile;
-	
+
 	/**
 	 * Builds a new {@link #PeerSaver(File)} Object, which handles encryption and saving
 	 * IOPeer lists to the given file.
+	 *
 	 * @param save The file to use for saving.
 	 */
-	public PeerSaver(File save){
+	public PeerSaver(File save) {
 		this.saveFile = save;
 	}
-	
+
 	/**
 	 * Saves the given list of Peers to this Saver's file.  <br>
 	 * Automatically creates a backup file first if a save already exists.
+	 *
 	 * @param peers The list to save.
-	 * @throws IOException 
-	 * @throws FileNotFoundException 
+	 *
+	 * @throws IOException
+	 * @throws FileNotFoundException
 	 */
-	public void save(List<IOPeer> peers) throws FileNotFoundException, IOException{
+	public void save(List<IOPeer> peers) throws FileNotFoundException, IOException {
 		// Keep a rolling backup of the Peers file, for safety.
-		if(this.saveFile.exists()){
+		if (this.saveFile.exists()) {
 			FileUtil.saveFile(this.saveFile, "", 1);
 		}
 		this.savePeers(openStream(this.saveFile), peers);
 	}
-	
-	
-	/** This method handles opening an OutputStream to the given file.
+
+
+	/**
+	 * This method handles opening an OutputStream to the given file.
+	 *
 	 * @param f The file to open.
+	 *
 	 * @return The stream opened to the desired file.
-	 * @throws IOException 
+	 *
+	 * @throws IOException
 	 */
-	private OutputStream openStream(File f) throws IOException{
+	private OutputStream openStream(File f) throws IOException {
 		Cipher c;
 		try {
 			c = Security.getCipher(false);
@@ -66,7 +73,7 @@ public class PeerSaver {
 		}
 		return new GZIPOutputStream(new CipherOutputStream(new FileOutputStream(saveFile), c));
 	}
-	
+
 	private void savePeers(OutputStream out, List<IOPeer> peers) throws IOException {
 		Gson gson = new Gson();
 		JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));

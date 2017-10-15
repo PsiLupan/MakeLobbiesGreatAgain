@@ -16,19 +16,19 @@ public class Sanity {
 	private final static Double version = 1.40;
 	private static boolean headless = false;
 
-	public static boolean check(){
+	public static boolean check() {
 		boolean[] checks = {checkGraphics(), checkUpdate(), checkJava(), checkPCap()};
 
-		for(boolean check : checks){
-			if(!check)
+		for (boolean check : checks) {
+			if (!check)
 				return false;
 		}
 		return true;
 	}
 
 	/** Check for a valid graphical environment. */
-	private static boolean checkGraphics(){
-		if(GraphicsEnvironment.isHeadless()){
+	private static boolean checkGraphics() {
+		if (GraphicsEnvironment.isHeadless()) {
 			headless = true;
 			message("This program requires a graphical environment to run!\nIt's weird that you even got this far.");
 			return false;
@@ -37,7 +37,7 @@ public class Sanity {
 	}
 
 	/** Check the current Java Version. */
-	private static boolean checkJava(){
+	private static boolean checkJava() {
 		String v = System.getProperty("java.version");
 		System.out.println("Java Version: " + v);
 		if (!v.equals("9")) {
@@ -51,14 +51,14 @@ public class Sanity {
 	}
 
 	/** Check the WinPcap lib installation. */
-	private static boolean checkPCap(){
-		try{
+	private static boolean checkPCap() {
+		try {
 			System.out.println("Pcap Info: " + Pcaps.libVersion());
-		}catch(Error e){
+		} catch (Error e) {
 			e.printStackTrace();
 			message("You MUST have NPCap or WinPCap installed to allow this program to monitor the lobby!"
-					+(Desktop.isDesktopSupported()?"\nAn installer link will attempt to open.":"Please go to https://www.winpcap.org/ and install it."));
-			if(Desktop.isDesktopSupported()){
+					+ (Desktop.isDesktopSupported() ? "\nAn installer link will attempt to open." : "Please go to https://www.winpcap.org/ and install it."));
+			if (Desktop.isDesktopSupported()) {
 				try {
 					Desktop.getDesktop().browse(new URL("https://nmap.org/npcap/").toURI());
 				} catch (IOException | URISyntaxException e1) {
@@ -71,18 +71,18 @@ public class Sanity {
 		return true;
 	}
 
-	public static boolean checkUpdate(){
+	public static boolean checkUpdate() {
 		GithubPanel mp = new GithubPanel(version);
-		if(!mp.prompt()){
+		if (!mp.prompt()) {
 			message("At least one update located is mandatory!\nSome updates can be very important for functionality and your security.\nPlease update MLGA before running!");
 			return false;
 		}
 		return true;
 	}
 
-	private static void message(String out){
+	private static void message(String out) {
 		System.err.println(out);
-		if(!headless)
+		if (!headless)
 			JOptionPane.showMessageDialog(null, out, "Error", JOptionPane.ERROR_MESSAGE);
 	}
 }
