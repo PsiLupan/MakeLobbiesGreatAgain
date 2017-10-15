@@ -162,20 +162,6 @@ public class Overlay extends JPanel {
 		}
 	}
 
-	public int numPeers(){
-		return peers.size();
-	}
-
-	public void clearPeers(){
-		peers.clear();
-	}
-
-	public void removePeer(Inet4Address i){
-		Peer p = this.getPeer(i);
-		if(p != null)
-			peers.remove(p);
-	}
-
 	/** Finds a Peer connection by its ID. */
 	private Peer getPeer(Inet4Address id){
 		return peers.stream().filter(p -> p.getID().equals(id)).findFirst().orElse(null);
