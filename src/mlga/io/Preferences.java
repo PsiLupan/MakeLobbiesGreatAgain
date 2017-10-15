@@ -20,14 +20,13 @@ import javax.crypto.spec.DESKeySpec;
 import javax.swing.JOptionPane;
 
 import mlga.Boot;
+import mlga.io.peer.Security;
 
 /**
  * Only exists as a Legacy for exposing access to {@link mlga.io.peer.PeerTracker} for conversion.  <br>
  * This class no longer has the ability to save, and can only read the old Preference ini file it may have created.
  */
 public class Preferences {
-	private static SecretKey desKey;
-	private static Cipher cipher;
 	public final static File prefsFile = new File("mlga.prefs.ini");
 	public static ConcurrentHashMap<Integer, Boolean> prefs = new ConcurrentHashMap<Integer, Boolean>();
 
@@ -37,28 +36,8 @@ public class Preferences {
 				return;
 			}
 
-			byte[] mac = new byte[8];
-			int i = 0;
-			if(Boot.nif.getLinkLayerAddresses().get(0) != null){
-				for(byte b : Boot.nif.getLinkLayerAddresses().get(0).getAddress()){
-					mac[i] = b;
-					i++;
-				}
-			}else{
-				for(byte b : NetworkInterface.getNetworkInterfaces().nextElement().getHardwareAddress()){
-					mac[i] = b;
-					i++;
-				}
-			}
-			mac[6] = 'W';
-			mac[7] = 'C';
+			Cipher cipher = Security.getCipher(true);
 
-			DESKeySpec key = new DESKeySpec(mac);
-			SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
-			desKey = keyFactory.generateSecret(key);
-			cipher = Cipher.getInstance("DES");
-
-			cipher.init(Cipher.DECRYPT_MODE, desKey);
 			FileInputStream fis = new FileInputStream(prefsFile);
 			CipherInputStream decStream = new CipherInputStream(fis, cipher);
 			try(BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(decStream))){
