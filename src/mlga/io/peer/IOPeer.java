@@ -9,14 +9,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Must be serializable, so GSON can stream-encode them as objects.
  */
 public class IOPeer implements Serializable {
-	private transient static final long serialVersionUID = 5828536744242544871L;
 
 	/**
 	 * Status is stored locally (and saved to file) as an int, for potential future-proofing. <br>
 	 * However, all external accessors for Status use these values. <br>
 	 * This allows for future changes without having to hunt down all calls to getStatus()
 	 */
-	public static enum Status {
+	public enum Status {
 		UNRATED(-1), BLOCKED(0), LOVED(1);
 
 		public final int val;

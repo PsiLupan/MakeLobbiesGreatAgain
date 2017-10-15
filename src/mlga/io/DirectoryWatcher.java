@@ -32,7 +32,7 @@ public class DirectoryWatcher implements Runnable {
 	/**
 	 * All possible filesystem changes that are listened for.
 	 */
-	public static enum Event {
+	public enum Event {
 		/** A new File has been created. */
 		CREATE,
 		/** A File has been deleted. */
