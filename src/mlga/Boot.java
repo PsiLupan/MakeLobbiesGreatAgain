@@ -146,7 +146,9 @@ public class Boot {
 			System.out.println("Killed handle.");
 			System.exit(0);
 		});
+		info.setLabel("Help");
 		exit.setLabel("Exit");
+		popup.add(info);
 		popup.add(exit);
 		tray.add(trayIcon);
 	}
