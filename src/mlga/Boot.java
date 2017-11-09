@@ -78,9 +78,9 @@ public class Boot {
 		handle = nif.openLive(snapLen, mode, timeout);
 		handle.setFilter("udp && less 150", BpfProgram.BpfCompileMode.OPTIMIZE);
 
-		if (Backup.enabled()) {
+		/*if (Backup.enabled()) {
 			Backup.startBackupDaemon();
-		}
+		}*/
 
 		ui = new Overlay();
 

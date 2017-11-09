@@ -16,18 +16,18 @@ import mlga.io.peer.IOPeer.Status;
 import mlga.io.peer.kindred.Kindred;
 
 /**
- * Class for background parsing Dead by Daylight log files into pairing of UID:IP to enable persistant ratings past dynamic IP ranges.
+ * Class for background parsing Unity log files into pairing of UID:IP to enable persistent ratings past dynamic IP ranges.
  *
  * @author ShadowMoose
  */
 public class PeerTracker implements Runnable {
-	private File dbdLogDir = new File(new File(System.getenv("APPDATA")).getParentFile().getAbsolutePath() + "/Local/DeadByDaylight/Saved/Logs/");
+	private File logDir = new File(new File(System.getenv("APPDATA")).getParentFile().getAbsolutePath() + "/");
 	private static File peerFile = new File(FileUtil.getMlgaPath() + "peers.mlga");
 	private static CopyOnWriteArrayList<IOPeer> peers = new CopyOnWriteArrayList<IOPeer>();
 	private static boolean saving = false;
 	private String uid = null;
 	private boolean active = false;
-	private final Kindred kindred;
+	//private final Kindred kindred;
 
 	/**
 	 * Creates a PeerTracker, which instantly loads the Peer List into memory.  <br>
@@ -36,7 +36,7 @@ public class PeerTracker implements Runnable {
 	 */
 	public PeerTracker() {
 		//Initialize Kindred System.
-		this.kindred = new Kindred();
+		//this.kindred = new Kindred();
 
 		// PeerSavers create emergency backups, so loop to check primary file, then attempt fallback if needed.
 		for (int i = 0; i < 2; i++) {
@@ -65,7 +65,8 @@ public class PeerTracker implements Runnable {
 		// Start off by updating from any existing logs that may not have been parsed yet.
 		this.checkLogs();
 		// Register to listen for, and process, new log files.
-		new DirectoryWatcher(dbdLogDir) {
+		/*
+		new DirectoryWatcher(logDir) {
 			public void handle(File f, Event e) {
 				if (e == Event.DELETE)
 					return;
@@ -75,7 +76,7 @@ public class PeerTracker implements Runnable {
 					return;
 				processLog(f, true);
 			}
-		};
+		};*/
 
 		// Adding a listener to each Peer, or a clever callback, might be better.
 		//    + Though, this method does cut down on file writes during times of many updates.
@@ -149,7 +150,7 @@ public class PeerTracker implements Runnable {
 	 * Run through all log files, checking for new Peers.
 	 */
 	public void checkLogs() {
-		for (File f : dbdLogDir.listFiles()) {
+		for (File f : logDir.listFiles()) {
 			if (f != null) {
 				if (f.isDirectory())
 					continue;
@@ -207,8 +208,6 @@ public class PeerTracker implements Runnable {
 			ret.addIP(ip);
 			peers.add(ret);
 		}
-		if (!ret.hasUID())
-			kindred.updatePeer(ret);
 
 		return ret;
 	}
@@ -221,92 +220,5 @@ public class PeerTracker implements Runnable {
 	 * @param newFile If this file is new data, in a recently-created file.
 	 */
 	private void processLog(File f, final boolean newFile) {
-		String lastID = "";
-		try (BufferedReader br = new BufferedReader(new FileReader(f))) {
-			String l;
-			while ((l = br.readLine()) != null) {
-				l = l.trim().toLowerCase();
-
-				if (l.contains("connectionactive: 1"))
-					active = true;
-				else if (l.contains("connectionactive: 0"))
-					active = false;
-
-				if (!active) {
-					uid = null;
-					continue;
-				}
-				if (l.contains("steam: - id:")) {
-					try {
-						uid = l.substring(l.lastIndexOf('[') + 1);
-						uid = uid.substring(0, uid.indexOf(']'));
-						if (uid.length() < 17) {
-							throw new IndexOutOfBoundsException();
-						}
-					} catch (IndexOutOfBoundsException e) {
-						uid = null;
-						System.err.println("Error parsing line: " + l);
-					}
-				}
-				if (l.contains("-- ipaddress:")) {
-					String ip = "";
-					if (uid != null && active) {
-						String[] addrSplit = l.split("address:");
-						if (addrSplit.length < 2) { //This is caused by log files that end abruptly, such as a crash
-							uid = null;
-							active = false;
-							continue;
-						}
-						ip = addrSplit[1].trim();
-						if (ip.contains(":"))
-							ip = ip.substring(0, ip.indexOf(":"));
-						Inet4Address ina = null;
-						try {
-							ina = (Inet4Address) Inet4Address.getByName(ip);
-							if (ina == null || (ina != null && (ina.isAnyLocalAddress() || ina.isSiteLocalAddress()))) {
-								uid = null;
-								active = false;
-								continue;
-							}
-
-							boolean matched = false;
-							for (IOPeer iop : peers) {
-								if (uid.equals(iop.getUID()) || iop.hasIP(ina)) {
-									if (!iop.hasUID()) {
-										iop.setUID(uid);
-									}
-									if (!iop.hasIP(ina)) {
-										iop.addIP(ina);
-									}
-									matched = true;
-									if (newFile && !lastID.equals(iop.getUID().trim())) {
-										lastID = iop.getUID().trim();
-										kindred.addPeer(iop);
-									}
-									break;
-								}
-							}
-							if (!matched) {
-								IOPeer p = new IOPeer();
-								p.setUID(uid);
-								p.addIP(ina);
-								peers.add(p);
-								kindred.addPeer(p);
-								lastID = p.getUID();
-							}
-						} catch (UnknownHostException e) {
-							e.printStackTrace();
-						} finally {
-							active = false;
-							uid = null;
-						}
-					}
-
-				}
-			}
-			kindred.submit();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 }

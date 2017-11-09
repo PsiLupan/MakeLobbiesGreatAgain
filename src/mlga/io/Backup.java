@@ -45,7 +45,7 @@ public class Backup {
 
 	/**
 	 * Launches the backup daemon. <br>
-	 * Runs in background , monitoring the Steam directory for DbD file changes, then copies those changed files over to a safe backup location.
+	 * Runs in background , monitoring the Steam directory for file changes, then copies those changed files over to a safe backup location.
 	 */
 	public static void startBackupDaemon() {
 		Path steam = getSteam();
@@ -64,7 +64,7 @@ public class Backup {
 			}
 
 			public boolean followDir(File dir) {
-				return dir.getAbsolutePath().contains("381210") && dir.getAbsolutePath().toLowerCase().contains("profilesaves");
+				return dir.getAbsolutePath().contains("number") && dir.getAbsolutePath().toLowerCase().contains("save_file");
 			}
 		};
 	}

@@ -17,7 +17,7 @@ public class Sanity {
 	private static boolean headless = false;
 
 	public static boolean check() {
-		boolean[] checks = {checkGraphics(), checkUpdate(), checkJava(), checkPCap()};
+		boolean[] checks = {checkGraphics(), checkJava(), checkPCap()};
 
 		for (boolean check : checks) {
 			if (!check)
