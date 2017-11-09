@@ -214,7 +214,12 @@ public class GithubPanel extends JFrame {
 				if (vers.contains("-")) {
 					vers = vers.substring(0, vers.indexOf("-")).trim();
 				}
-				double nv = Double.parseDouble(vers);
+				double nv;
+				try {
+					nv = Double.parseDouble(vers);
+				}catch(NumberFormatException e){
+					nv = 1.0;
+				}
 				if (nv <= this.version)
 					continue;// Skip older updates.
 				System.out.println("Version: " + nv);

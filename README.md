@@ -1,13 +1,10 @@
 [![Build Status](https://travis-ci.org/PsiLupan/MakeLobbiesGreatAgain.svg)](https://travis-ci.org/PsiLupan/MakeLobbiesGreatAgain/)
 
 ## HOW DOES IT WORK?
-MakeLobbiesGreatAgain uses a packet capture library to detect STUN packets from the client and server of Dead By Daylight, in order to determine who you're connected to and get ping from.
-It is not detected as a hack, since it does not and will not interact with the game ever. 
+MakeLobbiesGreatAgain uses a packet capture library to detect STUN packets from Steam Networking games, in order to determine who you're connected to and get ping from.
+It is not detected as a hack, since it does not and will not interact directly with a game ever. 
 
-In an official statement by the developers, MLGA is the the only application they have whitelisted and verified with EAC. 
-Source: http://steamcommunity.com/app/381210/discussions/0/1319962683448307108/
-
-## APPLICATION SUPPORTS BOTH KILLER AND SURVIVOR
+## FEATURES
 
 **NOTE**: If you were linked here from another source, such as Reddit, be sure to check for the latest versions for the best quality. You can find all versions here: [MLGA Releases](https://github.com/PsiLupan/MakeLobbiesGreatAgain/releases)
 
@@ -17,7 +14,7 @@ Primary Feature:
 Optional Features: 
 * Double-Click to lock/unlock the overlay for dragging
 * Shift + Left Click on a player, highlighted in a darker color for current selection, to toggle to BLOCKED, LOVED, or back to the normal display
-* To exit, simply look for Jake's face in your system tray near the clock, right-click, and select Exit.
+* To exit, simply look for the hat in your system tray near the clock, right-click, and select Exit.
 
 ## HOW TO INSTALL AND USE:
 **System Requirements:**

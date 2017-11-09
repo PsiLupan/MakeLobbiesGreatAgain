@@ -40,7 +40,6 @@ import org.pcap4j.packet.IpV4Packet;
 import org.pcap4j.packet.Packet;
 import org.pcap4j.packet.UdpPacket;
 
-import mlga.io.Backup;
 import mlga.io.FileUtil;
 import mlga.io.Settings;
 import mlga.ui.Overlay;
@@ -77,10 +76,6 @@ public class Boot {
 		final int timeout = 0;
 		handle = nif.openLive(snapLen, mode, timeout);
 		handle.setFilter("udp && less 150", BpfProgram.BpfCompileMode.OPTIMIZE);
-
-		if (Backup.enabled()) {
-			Backup.startBackupDaemon();
-		}
 
 		ui = new Overlay();
 
@@ -130,9 +125,7 @@ public class Boot {
 		}
 
 		info.addActionListener(e -> {
-			String message = "Double-Click to lock/unlock the overlay for dragging\n"
-					+ "Shift + Left Click on a player, highlighted in a darker color for current selection, "
-					+ "to toggle to BLOCKED, LOVED, or back to the normal display.";
+			String message = "Double-Click to lock/unlock the overlay for dragging";
 			JOptionPane.showMessageDialog(null, message, "Information", JOptionPane.INFORMATION_MESSAGE);
 		});
 
