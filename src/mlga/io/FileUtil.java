@@ -58,28 +58,6 @@ public class FileUtil {
 			copy.getParentFile().mkdirs();
 
 		System.out.println(copy);
-		if (copy.exists()) {
-			//A copy of this file already exists
-			if (f.length() < 12000 && (copy.length() - f.length()) > 10000) { //Verify the new file isn't corrupted, such as a massive filesize difference
-				JOptionPane.showMessageDialog(null, "WARNING: Possible loss of progress. Backup was not created.", "Error", JOptionPane.ERROR_MESSAGE);
-				return false;
-			}
-
-			//Shuffle through existing backups, increment them all, and remove the oldest backup copy.
-			for (int i = max_extra_copies; i > 0; i--) {
-				File max = getSaveName(copy, i);
-				//System.out.println(max);
-				if (max.exists()) {
-					if (i < max_extra_copies) {//Increment version.
-						max.renameTo(getSaveName(copy, (i + 1)));
-					} else {
-						max.delete();//Delete oldest allowed copy.
-					}
-				}
-			}
-			//Finally, we increment the existing copy to '1'.
-			copy.renameTo(getSaveName(copy, 1));
-		}
 		try {
 			if (f.exists()) {
 				Files.copy(f.toPath(), copy.toPath(), StandardCopyOption.REPLACE_EXISTING);
