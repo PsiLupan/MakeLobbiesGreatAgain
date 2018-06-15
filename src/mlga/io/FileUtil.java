@@ -31,6 +31,69 @@ public class FileUtil {
 		return (f.endsWith("/") ? f : (f + "/"));
 	}
 
+
+	/**
+	 * Attempts to back up any copies of valid Files passed to it. <br>
+	 * Supports creating multiple rolling backups of the same file within the same supplied backup dir.
+	 *
+	 * @param f                The file to duplicate
+	 * @param backup_dir       The directory to store the backup in.
+	 * @param max_extra_copies The number of copies beyond the base copy desired.
+	 *
+	 * @return True if the save works.
+	 */
+	public static boolean saveFile(File f, File backup_dir, int max_extra_copies) {
+		if (!backup_dir.exists()) {
+			backup_dir.mkdirs();
+			System.out.println("Built backup directory: " + backup_dir.getAbsolutePath());
+		}
+
+		if (!f.exists()) {
+			return false;
+		}
+
+		System.out.println("Saving: " + f);
+		File copy = new File(backup_dir.getAbsolutePath() + "/" + f.getName());
+		if (!copy.getParentFile().exists())
+			copy.getParentFile().mkdirs();
+
+		System.out.println(copy);
+		try {
+			if (f.exists()) {
+				Files.copy(f.toPath(), copy.toPath(), StandardCopyOption.REPLACE_EXISTING);
+				System.out.println("\t+Made backup of file!");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Simplified version of {@link #saveFile(File, File, int)},
+	 * this method always uses the directory provided by {@link #getMlgaPath()},
+	 * and appends the supplied string to the directory as a subdirectory path for the backup files.
+	 *
+	 * @param f                The file to duplicate
+	 * @param subdirs          The subdirectory path within the MLGA directory to use for the copies.
+	 * @param max_extra_copies The number of copies beyond the base copy desired.
+	 *
+	 * @return True if the save works.
+	 */
+	public static boolean saveFile(File f, String subdirs, int max_extra_copies) {
+		return saveFile(f, new File(getMlgaPath() + subdirs + "/"), max_extra_copies);
+	}
+
+	/**
+	 * Get a File object representing version <i>version</i> of the given File <i>f</i>.<br>
+	 * It is crucial (for ease of tracking) that all backup files follow the same naming conventions.<br>
+	 * This function exists to enforce those conventions.
+	 */
+	public static File getSaveName(File f, int version) {
+		return new File(f.getParentFile().getAbsolutePath() + "/" + (version != 0 ? version + " - " : "") + f.getName());
+	}
+
 	/**
 	 * Generate an InputStream to the given resource file name.  <br>
 	 * Automatically toggles between JAR and Build paths.

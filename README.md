@@ -1,12 +1,21 @@
 [![Build Status](https://travis-ci.org/PsiLupan/MakeLobbiesGreatAgain.svg)](https://travis-ci.org/PsiLupan/MakeLobbiesGreatAgain/)
 
+# WHAT IS MLGA?
+
+MLGA stands for "Make Lobbies Great Again". In any Peer to peer lobby, MLGA can be run to view the people you are connected to, see their ping, and toggle a blocked/loved setting for each of them.
+
+*This is a continuation of the original project, adapted to work for any - and every - peer-hosted game.
+It supports loading any lists of users you've previously created, 
+but no longer automatically backs up or interacts with any game data.*
+
 ## HOW DOES IT WORK?
-MakeLobbiesGreatAgain uses a packet capture library to detect STUN packets from Steam Networking games, in order to determine who you're connected to and get ping from.
-It is not detected as a hack, since it does not and will not interact directly with a game ever. 
+MakeLobbiesGreatAgain uses a packet capture library to detect STUN packets from any peer-to-peer connection, in order to determine who you're connected to and get ping from.
+It is not detected as a hack, since it does not and will not interact with the game ever. 
 
-## FEATURES
 
-**NOTE**: If you were linked here from another source, such as Reddit, be sure to check for the latest versions for the best quality. You can find all versions here: [MLGA Releases](https://github.com/PsiLupan/MakeLobbiesGreatAgain/releases)
+## APPLICATION SUPPORTS BOTH CLIENTS AND HOSTS
+
+**NOTE**: If you were linked here from another source, such as Reddit, be sure to check for the latest versions for the best quality. You can find all versions here: [MLGA Releases](https://github.com/ShadowMoose/MakeLobbiesGreatAgain/releases)
 
 Primary Feature:
 * Determining Ping
@@ -14,7 +23,7 @@ Primary Feature:
 Optional Features: 
 * Double-Click to lock/unlock the overlay for dragging
 * Shift + Left Click on a player, highlighted in a darker color for current selection, to toggle to BLOCKED, LOVED, or back to the normal display
-* To exit, simply look for the hat in your system tray near the clock, right-click, and select Exit.
+* To exit, simply look for the icon in your system tray near the clock, right-click, and select Exit.
 
 ## HOW TO INSTALL AND USE:
 **System Requirements:**
@@ -40,8 +49,3 @@ You may need to run the application via Command Prompt (this is due to the PCap4
 * Choose Save As and name it MLGADebug.bat with the option All Files selected
 * Right-click the new batch file and Run as Administrator
 * Submit a picture or copy of the text to an Issue
-
-## ALTERNATIVE WAYS TO CONTACT ME
-* My GMail is wcarter312@gmail.com
-* My Discord is psiLupan#0316
-* My Steam account is http://steamcommunity.com/profiles/76561197995173996
