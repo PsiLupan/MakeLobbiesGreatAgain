@@ -43,7 +43,7 @@ public class Sanity {
 		if (!v.equals("9")) {
 			double version = Double.parseDouble(v.substring(0, v.indexOf('.', 2)));
 			if (version < 1.8) {
-				message("Java version 1.8 or higher is required!\nYou are currently using " + version + "!\n");
+				message("Java version 8 or higher is required!\nYou are currently using " + version + "!\n");
 				return false;
 			}
 		}
