@@ -1,18 +1,13 @@
 package mlga.io.peer;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.net.Inet4Address;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import mlga.io.FileUtil;
 import mlga.io.Preferences;
 import mlga.io.peer.IOPeer.Status;
-import mlga.io.peer.kindred.Kindred;
 
 /**
  * Class for background parsing Unity log files into pairing of UID:IP to enable persistent ratings past dynamic IP ranges.
@@ -26,7 +21,6 @@ public class PeerTracker implements Runnable {
 	private static boolean saving = false;
 	private String uid = null;
 	private boolean active = false;
-	//private final Kindred kindred;
 
 	/**
 	 * Creates a PeerTracker, which instantly loads the Peer List into memory.  <br>
@@ -34,8 +28,6 @@ public class PeerTracker implements Runnable {
 	 * will keep the Peer List updated as new logs are created.
 	 */
 	public PeerTracker() {
-		//Initialize Kindred System.
-		//this.kindred = new Kindred();
 
 		// PeerSavers create emergency backups, so loop to check primary file, then attempt fallback if needed.
 		for (int i = 0; i < 2; i++) {
@@ -61,21 +53,6 @@ public class PeerTracker implements Runnable {
 	public void start() {
 		// Initially check for any Legacy peer files.
 		this.checkLegacy();
-		// Start off by updating from any existing logs that may not have been parsed yet.
-		this.checkLogs();
-		// Register to listen for, and process, new log files.
-		/*
-		new DirectoryWatcher(logDir) {
-			public void handle(File f, Event e) {
-				if (e == Event.DELETE)
-					return;
-				if (e == Event.CREATE)
-					return;
-				if (!f.getName().endsWith(".log"))
-					return;
-				processLog(f, true);
-			}
-		};*/
 
 		// Adding a listener to each Peer, or a clever callback, might be better.
 		//    + Though, this method does cut down on file writes during times of many updates.

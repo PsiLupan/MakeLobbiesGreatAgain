@@ -5,8 +5,7 @@
 MLGA stands for "Make Lobbies Great Again". In any Peer to peer lobby, MLGA can be run to view the people you are connected to, see their ping, and toggle a blocked/loved setting for each of them.
 
 *This is a continuation of the original project, adapted to work for any - and every - peer-hosted game.
-It supports loading any lists of users you've previously created, 
-but no longer automatically backs up or interacts with any game data.*
+It supports loading any lists of users you've previously created, but no longer automatically backs up or interacts with any game data.*
 
 ## HOW DOES IT WORK?
 MakeLobbiesGreatAgain uses a packet capture library to detect STUN packets from any peer-to-peer connection, in order to determine who you're connected to and get ping from.
