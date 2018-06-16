@@ -14,7 +14,7 @@ It is not detected as a hack, since it does not and will not interact with the g
 
 ## APPLICATION SUPPORTS BOTH CLIENTS AND HOSTS
 
-**NOTE**: If you were linked here from another source, such as Reddit, be sure to check for the latest versions for the best quality. You can find all versions here: [MLGA Releases](https://github.com/ShadowMoose/MakeLobbiesGreatAgain/releases)
+**NOTE**: If you were linked here from another source, such as Reddit, be sure to check for the latest versions for the best quality. You can find all versions here: [MLGA Releases](https://github.com/PsiLupan/MakeLobbiesGreatAgain/releases)
 
 Primary Feature:
 * Determining Ping
