@@ -14,7 +14,7 @@
     <orderEntry type="library" name="Maven: ch.qos.logback:logback-core:1.2.3" level="project" />
     <orderEntry type="library" name="Maven: ch.qos.logback:logback-classic:1.2.3" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.25" level="project" />
-    <orderEntry type="library" name="Maven: org.pcap4j:pcap4j-core:1.7.2" level="project" />
-    <orderEntry type="library" name="Maven: org.pcap4j:pcap4j-packetfactory-static:1.7.2" level="project" />
+    <orderEntry type="library" name="Maven: org.pcap4j:pcap4j-core:1.7.3" level="project" />
+    <orderEntry type="library" name="Maven: org.pcap4j:pcap4j-packetfactory-static:1.7.3" level="project" />
   </component>
 </module>
