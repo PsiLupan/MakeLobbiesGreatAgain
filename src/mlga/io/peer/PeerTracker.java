@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import mlga.io.FileUtil;
-import mlga.io.Preferences;
-import mlga.io.peer.IOPeer.Status;
 
 /**
  * Class for background parsing Unity log files into pairing of UID:IP to enable persistent ratings past dynamic IP ranges.
@@ -51,9 +49,6 @@ public class PeerTracker implements Runnable {
 
 	/** Launches this listener thread, in order to automatically update Peers. */
 	public void start() {
-		// Initially check for any Legacy peer files.
-		this.checkLegacy();
-
 		// Adding a listener to each Peer, or a clever callback, might be better.
 		//    + Though, this method does cut down on file writes during times of many updates.
 		Thread t = new Thread(this, "IOPeerSaver");
@@ -73,25 +68,6 @@ public class PeerTracker implements Runnable {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}
-	}
-
-	/**
-	 * Checks for any Legacy peer files using the (now outdated) Preferences class.
-	 */
-	private void checkLegacy() {
-		if (Preferences.prefsFile.exists()) {
-			Preferences.init();
-			// Build IOPeers using Legacy save.
-			Preferences.prefs.keySet().forEach(key -> {
-				IOPeer p = new IOPeer();
-				p.addPrehashedIP(key);
-				p.setStatus(Preferences.prefs.get(key) ? Status.BLOCKED : Status.LOVED);
-				peers.add(p);
-			});
-			// Make a backup (just in case), then delete the Legacy file.
-			if (FileUtil.saveFile(Preferences.prefsFile, "legacy", 0))
-				Preferences.prefsFile.delete();
 		}
 	}
 

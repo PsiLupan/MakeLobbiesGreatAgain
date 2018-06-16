@@ -218,7 +218,7 @@ public class GithubPanel extends JFrame {
 				try {
 					nv = Double.parseDouble(vers);
 				}catch(NumberFormatException e){
-					nv = 1.0;
+					nv = 2.0;
 				}
 				if (nv <= this.version)
 					continue;// Skip older updates.
