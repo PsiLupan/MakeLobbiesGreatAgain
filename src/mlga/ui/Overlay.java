@@ -25,6 +25,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import mlga.Boot;
 import mlga.io.FileUtil;
 import mlga.io.Settings;
+import mlga.io.peer.PeerTracker;
 
 public class Overlay extends JPanel {
 	private static final long serialVersionUID = -470849574354121503L;
@@ -36,9 +37,13 @@ public class Overlay extends JPanel {
 	/** idx & fh are updated by listener and rendering events. <br>They track hovered index and font height. */
 	private int idx = -1, fh = 0;
 
+	private final PeerTracker peerTracker;
+
 	private final JWindow frame;
 
 	public Overlay() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, FontFormatException, IOException {
+		peerTracker = new PeerTracker();
+		peerTracker.start();
 
 		InputStream is = FileUtil.localResource("Roboto-Medium.ttf");
 		roboto = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(15f);
@@ -144,7 +149,7 @@ public class Overlay extends JPanel {
 	}
 
 	private void addPeer(Inet4Address addr, long rtt) {
-		peers.add(new Peer(addr, rtt));
+		peers.add(new Peer(addr, rtt, peerTracker.getPeer(addr)));
 	}
 
 	/** Sets a peer's ping, or creates their object. */
