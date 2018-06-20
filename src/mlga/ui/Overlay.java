@@ -56,7 +56,19 @@ public class Overlay extends JPanel {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (!SwingUtilities.isRightMouseButton(e)) {
-					if (e.getClickCount() >= 2) {
+					if (e.isShiftDown()) {
+						if (idx < 0 || idx >= peers.size() || peers.isEmpty() || e.getX() < 0 || e.getY() < 0)
+							return;
+
+						Peer p = peers.get(idx);
+						if (!p.saved()) {
+							p.rate(true);
+						} else if (p.blocked()) {
+							p.rate(false);
+						} else {
+							p.unsave();
+						}
+					} else if (e.getClickCount() >= 2) {
 						frameMove = !frameMove;
 						Settings.set("frame_x", frame.getLocationOnScreen().x);
 						Settings.set("frame_y", frame.getLocationOnScreen().y);
@@ -196,6 +208,8 @@ public class Overlay extends JPanel {
 				}
 
 				String render = "Ping: " + rtt;
+				if (p.saved())
+					render = (p.blocked() ? "BLOCKED: " : "LOVED: ") + rtt;
 
 				g.drawString(render, 1, fh * (i + 1));
 				++i;
